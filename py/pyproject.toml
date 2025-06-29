@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=45"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llml"
+version = "0.1.0"
+description = "A lightweight markup language for structured text generation"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [{ name = "Your Name", email = "your.email@example.com" }]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: Markup",
+]
+dependencies = ["beartype>=0.10.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=6.0", "pytest-cov", "tox", "ruff"]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/llml"
+Repository = "https://github.com/yourusername/llml"
+Issues = "https://github.com/yourusername/llml/issues"
+
+[tool.ruff]
+target-version = "py38"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = []
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[dependency-groups]
+dev = ["pytest>=8.3.5", "tox>=4.25.0"]

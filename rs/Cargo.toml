@@ -1,0 +1,21 @@
+[package]
+name = "llml"
+version = "0.1.0"
+edition = "2021"
+description = "Lightweight Markup Language - converts data structures to XML-like markup"
+license = "MIT"
+repository = "https://github.com/zenbase-ai/llml"
+keywords = ["markup", "xml", "serialization", "formatting"]
+categories = ["text-processing", "parsing"]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+regex = "1.10"
+
+[dev-dependencies]
+serde_json = "1.0"
+
+[[example]]
+name = "basic_usage"
+path = "examples/basic_usage.rs"

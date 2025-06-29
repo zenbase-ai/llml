@@ -1,0 +1,23 @@
+{
+  "name": "@zenbase/llml",
+  "version": "0.1.0",
+  "module": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "test": "bun test",
+    "test:watch": "bun test --watch",
+    "test:run": "bun test",
+    "build": "bun build src/index.ts",
+    "dev": "bun run src/index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "vitest": "^3.2.4"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "dedent": "^1.6.0"
+  }
+}
