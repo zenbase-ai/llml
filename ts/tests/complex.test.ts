@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest"
-
-import llml from "../src/index"
+import { llml } from "../src/index"
 
 describe("Complex Scenarios", () => {
   it("should handle mixed content types", () => {
@@ -11,14 +10,14 @@ describe("Complex Scenarios", () => {
     })
     const expected = [
       "<title>My Document</title>",
-      "<sections-list>",
+      "<sections>",
       "  <sections-1>intro</sections-1>",
       "  <sections-2>body</sections-2>",
       "  <sections-3>conclusion</sections-3>",
-      "</sections-list>",
+      "</sections>",
       "<metadata>",
-      "  <metadata-author>Alice</metadata-author>",
-      "  <metadata-version>1.0</metadata-version>",
+      "  <author>Alice</author>",
+      "  <version>1.0</version>",
       "</metadata>",
     ].join("\n")
     expect(result).toBe(expected)
@@ -34,12 +33,12 @@ describe("Complex Scenarios", () => {
     })
     const expected = [
       "<level1>",
-      "  <level1-level2>",
-      "    <level1-level2-items-list>",
-      "      <level1-level2-items-1>a</level1-level2-items-1>",
-      "      <level1-level2-items-2>b</level1-level2-items-2>",
-      "    </level1-level2-items-list>",
-      "  </level1-level2>",
+      "  <level2>",
+      "    <items>",
+      "      <items-1>a</items-1>",
+      "      <items-2>b</items-2>",
+      "    </items>",
+      "  </level2>",
       "</level1>",
     ].join("\n")
     expect(result).toBe(expected)

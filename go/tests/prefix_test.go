@@ -19,9 +19,9 @@ func TestListWithPrefix(t *testing.T) {
 	result := llml.Sprintf(map[string]any{
 		"items": []any{"a", "b"},
 	}, llml.Options{Prefix: "app"})
-	expected := "<app-items-list>\n" +
+	expected := "<app-items>\n" +
 		"  <app-items-1>a</app-items-1>\n" +
 		"  <app-items-2>b</app-items-2>\n" +
-		"</app-items-list>"
+		"</app-items>"
 	assert.Equal(t, expected, result)
 }

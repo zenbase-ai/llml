@@ -12,8 +12,8 @@ fn should_handle_mixed_content_types() {
         }
     }));
 
-    // Output order is deterministic and consistent across runs
-    let expected = "<metadata>\n  <metadata-author>Alice</metadata-author>\n  <metadata-version>1.0</metadata-version>\n</metadata>\n<sections-list>\n  <sections-1>intro</sections-1>\n  <sections-2>body</sections-2>\n  <sections-3>conclusion</sections-3>\n</sections-list>\n<title>My Document</title>";
+    // Output order is deterministic and consistent across runs (strict: false default)
+    let expected = "<metadata>\n  <author>Alice</author>\n  <version>1.0</version>\n</metadata>\n<sections>\n  <sections-1>intro</sections-1>\n  <sections-2>body</sections-2>\n  <sections-3>conclusion</sections-3>\n</sections>\n<title>My Document</title>";
     assert_eq!(result, expected);
 }
 
@@ -27,7 +27,7 @@ fn should_handle_deeply_nested_structures() {
         }
     }));
 
-    // Verify exact deeply nested structure with preserved order
-    let expected = "<level1>\n  <level1-level2>\n    <level1-level2-items-list>\n      <level1-level2-items-1>a</level1-level2-items-1>\n      <level1-level2-items-2>b</level1-level2-items-2>\n    </level1-level2-items-list>\n  </level1-level2>\n</level1>";
+    // Verify exact deeply nested structure with preserved order (strict: false default)
+    let expected = "<level1>\n  <level2>\n    <items>\n      <items-1>a</items-1>\n      <items-2>b</items-2>\n    </items>\n  </level2>\n</level1>";
     assert_eq!(result, expected);
 }

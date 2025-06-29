@@ -16,11 +16,11 @@ console.log(llml({ greeting: "Hello World" }));
 // Lists become numbered items
 console.log(llml({ tasks: ["Buy milk", "Walk dog", "Code LLML"] }));
 // Output:
-// <tasks-list>
+// <tasks>
 //   <tasks-1>Buy milk</tasks-1>
 //   <tasks-2>Walk dog</tasks-2>
 //   <tasks-3>Code LLML</tasks-3>
-// </tasks-list>
+// </tasks>
 
 // Complex nested structures
 console.log(llml({
@@ -37,6 +37,7 @@ console.log(llml({
 - **⚡ Lightning Fast**: Minimal overhead, maximum performance
 - **🌟 Modern TypeScript**: Fully typed with excellent IDE support
 - **🔧 Zero Dependencies**: Only requires `dedent` for multiline handling
+- **⚙️ Strict Mode**: Control nested property prefixes with `strict` option
 
 ## 🛠️ Installation
 
@@ -115,6 +116,20 @@ const promptData = {
 };
 
 console.log(llml(promptData));
+
+// Example with strict mode
+console.log(llml({config: {debug: true, timeout: 30}}, {strict: true}));
+// Output: <config>
+//           <config-debug>true</config-debug>
+//           <config-timeout>30</config-timeout>
+//         </config>
+
+// Example with strict mode disabled (default)
+console.log(llml({config: {debug: true, timeout: 30}}, {strict: false}));
+// Output: <config>
+//           <debug>true</debug>
+//           <timeout>30</timeout>
+//         </config>
 ```
 
 ## 🎪 Use Cases
@@ -217,6 +232,7 @@ bun run tsc --noEmit
 interface LLMLOptions {
   indent?: string;  // Custom indentation string (default: "")
   prefix?: string;  // Prefix for all keys (default: "")
+  strict?: boolean; // Include parent key prefixes in nested objects (default: false)
 }
 ```
 
@@ -241,14 +257,14 @@ llml({
 })
 // → <users-list>
 //     <users-1>
-//       <users-1-name>Alice</users-1-name>
-//       <users-1-age>30</users-1-age>
+//       <name>Alice</name>
+//       <age>30</age>
 //     </users-1>
 //     <users-2>
-//       <users-2-name>Bob</users-2-name>
-//       <users-2-age>25</users-2-age>
+//       <name>Bob</name>
+//       <age>25</age>
 //     </users-2>
-//   </users-list>
+//   </users>
 ```
 
 ## 🤝 Contributing

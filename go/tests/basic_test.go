@@ -101,3 +101,30 @@ func TestMultipleSimpleValues(t *testing.T) {
 	assert.Contains(t, result, "<age>30</age>")
 	assert.Contains(t, result, "<active>true</active>")
 }
+
+func TestEmptyArrayOmission(t *testing.T) {
+	result := llml.Sprintf(map[string]any{
+		"items": []any{},
+	})
+	expected := ""
+	assert.Equal(t, expected, result)
+}
+
+func TestEmptyArrayWithOtherFields(t *testing.T) {
+	result := llml.Sprintf(map[string]any{
+		"title": "Document",
+		"items": []any{},
+		"count": 5,
+	})
+	// Empty arrays should be omitted completely
+	assert.Contains(t, result, "<title>Document</title>")
+	assert.Contains(t, result, "<count>5</count>")
+	assert.NotContains(t, result, "items")
+	assert.NotContains(t, result, "<items>")
+}
+
+func TestNestedEmptyArrays(t *testing.T) {
+	result := llml.Sprintf([]any{[]any{}, []any{[]any{}}})
+	expected := ""
+	assert.Equal(t, expected, result)
+}

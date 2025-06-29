@@ -108,7 +108,7 @@ mod nested_camel_case_keys {
             }
         }));
         // Note: Rust implementation uses basic kebab-case and has deterministic key order
-        let expected = "<user-config>\n  <user-config-xmlparser>enabled</user-config-xmlparser>\n  <user-config-debug-mode>true</user-config-debug-mode>\n  <user-config-max-retries>5</user-config-max-retries>\n</user-config>";
+        let expected = "<user-config>\n  <xmlparser>enabled</xmlparser>\n  <debug-mode>true</debug-mode>\n  <max-retries>5</max-retries>\n</user-config>";
         assert_eq!(result, expected);
     }
 
@@ -119,7 +119,7 @@ mod nested_camel_case_keys {
             "XMLElements": ["element1", "element2"]
         }));
         // Note: Rust implementation uses basic kebab-case and has deterministic key order
-        let expected = "<xmlelements-list>\n  <xmlelements-1>element1</xmlelements-1>\n  <xmlelements-2>element2</xmlelements-2>\n</xmlelements-list>\n<user-tasks-list>\n  <user-tasks-1>task1</user-tasks-1>\n  <user-tasks-2>task2</user-tasks-2>\n</user-tasks-list>";
+        let expected = "<xmlelements>\n  <xmlelements-1>element1</xmlelements-1>\n  <xmlelements-2>element2</xmlelements-2>\n</xmlelements>\n<user-tasks>\n  <user-tasks-1>task1</user-tasks-1>\n  <user-tasks-2>task2</user-tasks-2>\n</user-tasks>";
         assert_eq!(result, expected);
     }
 }

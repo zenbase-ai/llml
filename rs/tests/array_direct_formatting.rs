@@ -1,4 +1,4 @@
-use zenbase_llml::{llml, llml_with_options, Options};
+use zenbase_llml::{llml, llml_with_options, LLMLOptions};
 use serde_json::json;
 
 // Note: The current Rust implementation does not support direct array formatting
@@ -34,10 +34,11 @@ fn should_handle_empty_arrays() {
 }
 
 #[test]
-fn should_handle_arrays_with_indentation_options_return_empty() {
-    let options = Some(Options {
+fn should_handle_arrays_with_indentation_LLMLOptions_return_empty() {
+    let options = Some(LLMLOptions {
         indent: "  ".to_string(),
         prefix: String::new(),
+        strict: false,
     });
     let result = llml_with_options(&json!(["a", "b"]), options);
     let expected = "";

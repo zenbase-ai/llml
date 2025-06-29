@@ -1,7 +1,7 @@
 [package]
 name = "zenbase-llml"
-version = "0.1.1"
-edition = "2021"
+version = "0.2.0"
+edition = "2024"
 description = "Lightweight Language Markup Language - converts data structures to XML-like markup"
 license = "MIT"
 repository = "https://github.com/zenbase-ai/llml"

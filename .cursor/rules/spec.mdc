@@ -5,6 +5,8 @@ alwaysApply: true
 ---
 # LLML Technical Specification
 
+Version: 0.2.0, June 29th 2025
+
 ## Overview
 
 LLML (Lightweight Language Markup Language) is a data serialization format that transforms nested data structures into human-readable, XML-like markup. This specification defines the exact transformation rules that must be implemented consistently across all language implementations.
@@ -101,32 +103,32 @@ Arrays are formatted with special wrapper tags and numbered items:
 ```
 llml({rules: ["first", "second", "third"]})
 →
-<rules-list>
+<rules>
   <rules-1>first</rules-1>
   <rules-2>second</rules-2>
   <rules-3>third</rules-3>
-</rules-list>
+</rules>
 ```
 
 **Numeric Arrays:**
 ```
 llml({numbers: [1, 2, 3]})
 →
-<numbers-list>
+<numbers>
   <numbers-1>1</numbers-1>
   <numbers-2>2</numbers-2>
   <numbers-3>3</numbers-3>
-</numbers-list>
+</numbers>
 ```
 
 **Kebab-Case Array Names:**
 ```
 llml({user_tasks: ["task1", "task2"]})
 →
-<user-tasks-list>
+<user-tasks>
   <user-tasks-1>task1</user-tasks-1>
   <user-tasks-2>task2</user-tasks-2>
-</user-tasks-list>
+</user-tasks>
 ```
 
 ### 6. Direct Array Formatting
@@ -164,50 +166,50 @@ llml([{name: "Alice"}, {name: "Bob"}])
 
 ### 7. Nested Object Formatting
 
-Nested objects are formatted recursively with proper indentation:
+Nested objects are formatted recursively with proper indentation. By default (`strict: false`), nested object properties do not include parent key prefixes:
 
-**Simple Nesting:**
+**Simple Nesting (Default):**
 ```
 llml({config: {debug: true, timeout: 30}})
 →
 <config>
-  <config-debug>true</config-debug>
-  <config-timeout>30</config-timeout>
+  <debug>true</debug>
+  <timeout>30</timeout>
 </config>
 ```
 
-**With Kebab-Case Conversion:**
+**With Kebab-Case Conversion (Default):**
 ```
 llml({user_config: {debug_mode: true, maxRetries: 5}})
 →
 <user-config>
-  <user-config-debug-mode>true</user-config-debug-mode>
-  <user-config-max-retries>5</user-config-max-retries>
+  <debug-mode>true</debug-mode>
+  <max-retries>5</max-retries>
 </user-config>
 ```
 
 ### 8. Arrays Containing Objects
 
-When arrays contain objects, each object is wrapped with the array name and index:
+When arrays contain objects, each object is wrapped with the array name and index. By default (`strict: false`), object properties within arrays do not include the array item prefix:
 
 ```
 llml({data: [{name: "Alice", age: 30}, {name: "Bob", age: 25}]})
 →
-<data-list>
+<data>
   <data-1>
-    <data-1-name>Alice</data-1-name>
-    <data-1-age>30</data-1-age>
+    <name>Alice</name>
+    <age>30</age>
   </data-1>
   <data-2>
-    <data-2-name>Bob</data-2-name>
-    <data-2-age>25</data-2-age>
+    <name>Bob</name>
+    <age>25</age>
   </data-2>
-</data-list>
+</data>
 ```
 
 ### 9. Complex Mixed Content
 
-Mixed content types are handled by applying the appropriate rule for each type:
+Mixed content types are handled by applying the appropriate rule for each type. By default (`strict: false`), nested object properties do not include parent key prefixes:
 
 ```
 llml({
@@ -217,31 +219,31 @@ llml({
 })
 →
 <title>My Document</title>
-<sections-list>
+<sections>
   <sections-1>intro</sections-1>
   <sections-2>body</sections-2>
   <sections-3>conclusion</sections-3>
-</sections-list>
+</sections>
 <metadata>
-  <metadata-author>Alice</metadata-author>
-  <metadata-version>1.0</metadata-version>
+  <author>Alice</author>
+  <version>1.0</version>
 </metadata>
 ```
 
 ### 10. Deep Nesting
 
-Deep nesting follows the same rules recursively:
+Deep nesting follows the same rules recursively. By default (`strict: false`), nested object properties do not include parent key prefixes:
 
 ```
 llml({level1: {level2: {items: ["a", "b"]}}})
 →
 <level1>
-  <level1-level2>
-    <level1-level2-items-list>
-      <level1-level2-items-1>a</level1-level2-items-1>
-      <level1-level2-items-2>b</level1-level2-items-2>
-    </level1-level2-items-list>
-  </level1-level2>
+  <level2>
+    <items>
+      <items-1>a</items-1>
+      <items-2>b</items-2>
+    </items>
+  </level2>
 </level1>
 ```
 
@@ -276,10 +278,10 @@ llml({message: "Hello"}, {indent: "  "})
 
 llml({items: ["a", "b"]}, {indent: "  "})
 →
-  <items-list>
+  <items>
     <items-1>a</items-1>
     <items-2>b</items-2>
-  </items-list>
+  </items>
 ```
 
 **Direct Arrays with Indentation:**
@@ -301,10 +303,10 @@ llml({config: "value"}, {prefix: "app"})
 
 llml({items: ["a", "b"]}, {prefix: "app"})
 →
-<app-items-list>
+<app-items>
   <app-items-1>a</app-items-1>
   <app-items-2>b</app-items-2>
-</app-items-list>
+</app-items>
 ```
 
 **Direct Arrays with Prefix:**
@@ -315,18 +317,85 @@ llml(["a", "b"], {prefix: "item"})
 <item-2>b</item-2>
 ```
 
+### Strict Mode
+
+The `strict` option controls whether object keys are used as prefixes in nested fields:
+
+- `strict: false` (default): No object key prefixes in nested fields
+- `strict: true`: Object keys are used as prefixes (current behavior)
+
+**Strict Mode Disabled (Default):**
+```
+llml({config: {debug: true, timeout: 30}}, {strict: false})
+→
+<config>
+  <debug>true</debug>
+  <timeout>30</timeout>
+</config>
+
+llml({user_config: {debug_mode: true, maxRetries: 5}}, {strict: false})
+→
+<user-config>
+  <debug-mode>true</debug-mode>
+  <max-retries>5</max-retries>
+</user-config>
+
+llml({data: [{name: "Alice", age: 30}, {name: "Bob", age: 25}]}, {strict: false})
+→
+<data>
+  <data-1>
+    <name>Alice</name>
+    <age>30</age>
+  </data-1>
+  <data-2>
+    <name>Bob</name>
+    <age>25</age>
+  </data-2>
+</data>
+```
+
+**Strict Mode Enabled:**
+```
+llml({config: {debug: true, timeout: 30}}, {strict: true})
+→
+<config>
+  <config-debug>true</config-debug>
+  <config-timeout>30</config-timeout>
+</config>
+
+llml({user_config: {debug_mode: true, maxRetries: 5}}, {strict: true})
+→
+<user-config>
+  <user-config-debug-mode>true</user-config-debug-mode>
+  <user-config-max-retries>5</user-config-max-retries>
+</user-config>
+
+llml({data: [{name: "Alice", age: 30}, {name: "Bob", age: 25}]}, {strict: true})
+→
+<data>
+  <data-1>
+    <data-1-name>Alice</data-1-name>
+    <data-1-age>30</data-1-age>
+  </data-1>
+  <data-2>
+    <data-2-name>Bob</data-2-name>
+    <data-2-age>25</data-2-age>
+  </data-2>
+</data>
+```
+
 ## Language-Specific Implementation Details
 
 ### Function Signatures
 
 **TypeScript:**
 ```typescript
-function llml(data?: any, options?: {indent?: string, prefix?: string}): string
+function llml(data?: any, options?: {indent?: string, prefix?: string, strict?: boolean}): string
 ```
 
 **Python:**
 ```python
-def llml(*args, options: Options = None, indent: str = "", prefix: str = "", **parts) -> str
+def llml(*args, options: Options = None, indent: str = "", prefix: str = "", strict: bool = False, **parts) -> str
 ```
 
 ### Type Representation
@@ -390,10 +459,11 @@ llml({name: "Alice", age: 30})
 ## Tag Naming Convention
 
 1. Convert all keys to kebab-case
-2. For arrays, append `-list` to the key name for the wrapper tag
-3. For array items, append `-{index}` to the key name (1-indexed)
-4. For nested objects, concatenate parent and child keys with `-`
-5. Apply prefix to all generated tag names if specified
+2. For array items, append `-{index}` to the key name (1-indexed)
+3. For nested objects:
+   - If `strict: false` (default): Use child key name only (no parent key prefix)
+   - If `strict: true`: Concatenate parent and child keys with `-`
+4. Apply prefix to all generated tag names if specified
 
 ## Validation Requirements
 

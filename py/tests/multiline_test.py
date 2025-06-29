@@ -1,4 +1,4 @@
-from src import llml
+from zenbase_llml import llml
 
 
 def test_multiline_content():

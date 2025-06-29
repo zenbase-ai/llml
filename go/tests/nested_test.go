@@ -14,11 +14,11 @@ func TestNestedDict(t *testing.T) {
 			"timeout": 30,
 		},
 	})
-	// Check that both nested elements are present
+	// In non-strict mode (default), nested object properties don't include parent key prefixes
 	assert.Contains(t, result, "<config>")
 	assert.Contains(t, result, "</config>")
-	assert.Contains(t, result, "<config-debug>true</config-debug>")
-	assert.Contains(t, result, "<config-timeout>30</config-timeout>")
+	assert.Contains(t, result, "<debug>true</debug>")
+	assert.Contains(t, result, "<timeout>30</timeout>")
 }
 
 func TestNestedDictWithKebabCase(t *testing.T) {
@@ -30,8 +30,9 @@ func TestNestedDictWithKebabCase(t *testing.T) {
 	})
 	assert.Contains(t, result, "<user-config>")
 	assert.Contains(t, result, "</user-config>")
-	assert.Contains(t, result, "<user-config-debug-mode>true</user-config-debug-mode>")
-	assert.Contains(t, result, "<user-config-max-retries>5</user-config-max-retries>")
+	// In non-strict mode (default), nested object properties are kebab-cased but don't include parent prefixes
+	assert.Contains(t, result, "<debug-mode>true</debug-mode>")
+	assert.Contains(t, result, "<max-retries>5</max-retries>")
 }
 
 func TestNestedCamelCaseInObjects(t *testing.T) {
@@ -44,7 +45,8 @@ func TestNestedCamelCaseInObjects(t *testing.T) {
 	})
 	assert.Contains(t, result, "<user-config>")
 	assert.Contains(t, result, "</user-config>")
-	assert.Contains(t, result, "<user-config-debug-mode>true</user-config-debug-mode>")
-	assert.Contains(t, result, "<user-config-max-retries>5</user-config-max-retries>")
-	assert.Contains(t, result, "<user-config-xml-parser>enabled</user-config-xml-parser>")
+	// In non-strict mode (default), nested object properties are kebab-cased but don't include parent prefixes
+	assert.Contains(t, result, "<debug-mode>true</debug-mode>")
+	assert.Contains(t, result, "<max-retries>5</max-retries>")
+	assert.Contains(t, result, "<xml-parser>enabled</xml-parser>")
 }

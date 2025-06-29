@@ -19,9 +19,9 @@ func TestListWithIndentation(t *testing.T) {
 	result := llml.Sprintf(map[string]any{
 		"items": []any{"a", "b"},
 	}, llml.Options{Indent: "  "})
-	expected := "  <items-list>\n" +
+	expected := "  <items>\n" +
 		"    <items-1>a</items-1>\n" +
 		"    <items-2>b</items-2>\n" +
-		"  </items-list>"
+		"  </items>"
 	assert.Equal(t, expected, result)
 }

@@ -5,7 +5,7 @@ import { formatKeyValue } from "./utils"
 export function llml(): string
 export function llml(data: unknown, options?: LLMLOptions): string
 export function llml(data?: unknown, options: LLMLOptions = {}): string {
-  const { indent = "", prefix = "" } = options
+  const { indent = "", prefix = "", strict = false } = options
 
   // Handle no arguments
   if (data == null) {
@@ -52,6 +52,7 @@ export function llml(data?: unknown, options: LLMLOptions = {}): string {
           const subContent = formatKeyValue(subKey, subValue, {
             indent: itemIndent,
             prefix: itemTag,
+            strict,
           })
           itemResults.push(subContent)
         }
@@ -78,7 +79,7 @@ export function llml(data?: unknown, options: LLMLOptions = {}): string {
       results.push("\n")
     }
 
-    const formattedContent = formatKeyValue(key, value, { indent, prefix })
+    const formattedContent = formatKeyValue(key, value, { indent, prefix, strict })
     results.push(formattedContent)
   }
 

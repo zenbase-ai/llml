@@ -12,6 +12,7 @@ import (
 type Options struct {
 	Indent string
 	Prefix string
+	Strict bool
 }
 
 // Sprintf converts data structures to XML-like markup using a recursive approach
@@ -22,7 +23,7 @@ type Options struct {
 //   - Sprintf(map[string]interface{}{}) -> ""
 //   - Sprintf(map[string]interface{}{"key": "value"}) -> "<key>value</key>"
 func Sprintf(data interface{}, opts ...Options) string {
-	options := Options{Indent: "", Prefix: ""}
+	options := Options{Indent: "", Prefix: "", Strict: false}
 	if len(opts) > 0 {
 		options = opts[0]
 	}
@@ -105,16 +106,19 @@ func formatMap(m map[string]any, opts Options) string {
 	sort.Strings(keys)
 
 	var parts []string
-	for i, key := range keys {
+	for _, key := range keys {
 		value := m[key]
-
-		if i > 0 {
-			parts = append(parts, "\n")
-		}
 
 		// Recursively format this key-value pair
 		formatted := formatKeyValue(key, value, opts)
-		parts = append(parts, formatted)
+		
+		// Skip empty results (like empty arrays)
+		if formatted != "" {
+			if len(parts) > 0 {
+				parts = append(parts, "\n")
+			}
+			parts = append(parts, formatted)
+		}
 	}
 
 	return strings.Join(parts, "")
@@ -164,8 +168,16 @@ func formatKeyValue(key string, value any, opts Options) string {
 func formatNestedMap(nested map[string]any, kebabKey, fullKey string, opts Options) string {
 	nestedOpts := Options{
 		Indent: opts.Indent + "  ",
-		Prefix: fullKey,
+		Strict: opts.Strict,
 	}
+	
+	// In strict mode, use parent key as prefix. In non-strict mode, don't use prefix
+	if opts.Strict {
+		nestedOpts.Prefix = fullKey
+	} else {
+		nestedOpts.Prefix = ""
+	}
+	
 	content := Sprintf(nested, nestedOpts)
 
 	if strings.Contains(content, "\n") {
@@ -183,10 +195,10 @@ func formatList(items []any, key string, opts Options) string {
 		fullKey = opts.Prefix + "-" + key
 	}
 	kebabKey := toKebabCase(fullKey)
-	wrapperTag := kebabKey + "-list"
+	wrapperTag := kebabKey
 
 	if len(items) == 0 {
-		return fmt.Sprintf("%s<%s></%s>", opts.Indent, wrapperTag, wrapperTag)
+		return ""
 	}
 
 	var parts []string
@@ -201,7 +213,13 @@ func formatList(items []any, key string, opts Options) string {
 			parts = append(parts, fmt.Sprintf("%s<%s>\n", innerIndent, itemTag))
 			nestedOpts := Options{
 				Indent: innerIndent + "  ",
-				Prefix: itemTag,
+				Strict: opts.Strict,
+			}
+			// In strict mode, use array item tag as prefix. In non-strict mode, don't use prefix
+			if opts.Strict {
+				nestedOpts.Prefix = itemTag
+			} else {
+				nestedOpts.Prefix = ""
 			}
 			content := Sprintf(dict, nestedOpts)
 			parts = append(parts, content)
@@ -214,7 +232,13 @@ func formatList(items []any, key string, opts Options) string {
 			parts = append(parts, fmt.Sprintf("%s<%s>\n", innerIndent, itemTag))
 			nestedOpts := Options{
 				Indent: innerIndent + "  ",
-				Prefix: itemTag,
+				Strict: opts.Strict,
+			}
+			// In strict mode, use array item tag as prefix. In non-strict mode, don't use prefix
+			if opts.Strict {
+				nestedOpts.Prefix = itemTag
+			} else {
+				nestedOpts.Prefix = ""
 			}
 			content := Sprintf(anyDict, nestedOpts)
 			parts = append(parts, content)
@@ -231,10 +255,113 @@ func formatList(items []any, key string, opts Options) string {
 	return strings.Join(parts, "")
 }
 
-// formatSlice handles direct slice calls (returns empty as per spec)
-func formatSlice(_items []any, _opts Options) string {
-	// Direct slice calls without context should return empty
-	return ""
+// formatSlice handles direct slice calls with numeric tags
+func formatSlice(items []any, opts Options) string {
+	if len(items) == 0 {
+		return ""
+	}
+
+	var parts []string
+	for i, item := range items {
+		itemTag := strconv.Itoa(i + 1)
+		if opts.Prefix != "" {
+			itemTag = opts.Prefix + "-" + itemTag
+		}
+
+		// Handle dictionary items in direct arrays
+		if dict, ok := item.(map[string]any); ok {
+			var content string
+			if len(dict) == 0 {
+				content = ""
+			} else {
+				nestedOpts := Options{
+					Indent: opts.Indent + "  ",
+					Prefix: itemTag,
+					Strict: opts.Strict,
+				}
+				content = Sprintf(dict, nestedOpts)
+			}
+			
+			if content == "" {
+				parts = append(parts, fmt.Sprintf("%s<%s></%s>", opts.Indent, itemTag, itemTag))
+			} else {
+				// Force multiline format for objects in direct arrays
+				parts = append(parts, fmt.Sprintf("%s<%s>\n%s\n%s</%s>",
+					opts.Indent, itemTag, content, opts.Indent, itemTag))
+			}
+		} else if dict, ok := item.(map[string]interface{}); ok {
+			anyDict := make(map[string]any)
+			for k, v := range dict {
+				anyDict[k] = v
+			}
+			var content string
+			if len(anyDict) == 0 {
+				content = ""
+			} else {
+				nestedOpts := Options{
+					Indent: opts.Indent + "  ",
+					Prefix: itemTag,
+					Strict: opts.Strict,
+				}
+				content = Sprintf(anyDict, nestedOpts)
+			}
+			
+			if content == "" {
+				parts = append(parts, fmt.Sprintf("%s<%s></%s>", opts.Indent, itemTag, itemTag))
+			} else {
+				// Force multiline format for objects in direct arrays
+				parts = append(parts, fmt.Sprintf("%s<%s>\n%s\n%s</%s>",
+					opts.Indent, itemTag, content, opts.Indent, itemTag))
+			}
+		} else if slice, ok := item.([]any); ok {
+			// Handle array items in direct arrays - skip empty arrays
+			if len(slice) > 0 {
+				// For non-empty arrays, format recursively
+				nestedResult := formatSlice(slice, Options{
+					Indent: opts.Indent + "  ",
+					Prefix: "",
+					Strict: opts.Strict,
+				})
+				if nestedResult != "" {
+					parts = append(parts, fmt.Sprintf("%s<%s>\n%s\n%s</%s>",
+						opts.Indent, itemTag, nestedResult, opts.Indent, itemTag))
+				}
+			}
+			// Empty arrays are skipped implicitly
+		} else if slice, ok := item.([]interface{}); ok {
+			// Handle array items in direct arrays - skip empty arrays
+			anySlice := make([]any, len(slice))
+			copy(anySlice, slice)
+			if len(anySlice) > 0 {
+				// For non-empty arrays, format recursively
+				nestedResult := formatSlice(anySlice, Options{
+					Indent: opts.Indent + "  ",
+					Prefix: "",
+					Strict: opts.Strict,
+				})
+				if nestedResult != "" {
+					parts = append(parts, fmt.Sprintf("%s<%s>\n%s\n%s</%s>",
+						opts.Indent, itemTag, nestedResult, opts.Indent, itemTag))
+				}
+			}
+			// Empty arrays are skipped implicitly
+		} else {
+			// Handle simple items
+			formatted := Sprintf(item)
+			if formatted != "" {
+				parts = append(parts, fmt.Sprintf("%s<%s>%s</%s>",
+					opts.Indent, itemTag, formatted, itemTag))
+			}
+			// Empty items are skipped implicitly
+		}
+	}
+
+	// If all items were skipped, return empty string
+	if len(parts) == 0 {
+		return ""
+	}
+
+	return strings.Join(parts, "\n")
 }
 
 // formatString handles string formatting with multiline support

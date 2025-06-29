@@ -8,7 +8,7 @@ LLML is a data serialization library available in **Python**, **TypeScript/JavaS
 
 ```python
 # Python
-from zenbase_llml import llml
+from llml import llml
 
 llml({name: "Alice", age: 30})
 # Output: <name>Alice</name>
@@ -16,11 +16,11 @@ llml({name: "Alice", age: 30})
 
 llml({instructions: "You are a helpful assistant.", rules: ["be concise", "be helpful", "be accurate"]})
 # Output: <instructions>You are a helpful assistant.</instructions>
-#         <rules-list>
+#         <rules>
 #           <rules-1>be concise</rules-1>
 #           <rules-2>be helpful</rules-2>
 #           <rules-3>be accurate</rules-3>
-#         </rules-list>
+#         </rules>
 ```
 
 <details>
@@ -65,37 +65,37 @@ const agentPrompt = llml({
 // Output:
 // <role>DevOps automation agent</role>
 // <context>
-//   <context-environment>production</context-environment>
-//   <context-aws-region>us-east-1</context-aws-region>
-//   <context-services-list>
-//     <context-services-1>web-api</context-services-1>
-//     <context-services-2>worker-queue</context-services-2>
-//     <context-services-3>database</context-services-3>
-//   </context-services-list>
-//   <context-last-deployment>2024-01-15T10:30:00Z</context-last-deployment>
+//   <environment>production</environment>
+//   <aws-region>us-east-1</aws-region>
+//   <services>
+//     <services-1>web-api</services-1>
+//     <services-2>worker-queue</services-2>
+//     <services-3>database</services-3>
+//   </services>
+//   <last-deployment>2024-01-15T10:30:00Z</last-deployment>
 // </context>
 // <instructions>Execute deployment workflow with safety checks</instructions>
 // <workflows>
-//   <workflows-deploy-list>
-//     <workflows-deploy-1>Run pre-deployment health checks</workflows-deploy-1>
-//     <workflows-deploy-2>Create backup of current state</workflows-deploy-2>
-//     <workflows-deploy-3>Deploy to canary instance (5% traffic)</workflows-deploy-3>
-//     <workflows-deploy-4>Monitor metrics for 10 minutes</workflows-deploy-4>
-//     <workflows-deploy-5>If healthy, proceed to full deployment</workflows-deploy-5>
-//     <workflows-deploy-6>If issues detected, automatic rollback</workflows-deploy-6>
-//   </workflows-deploy-list>
-//   <workflows-rollback-list>
-//     <workflows-rollback-1>Stop new traffic to affected services</workflows-rollback-1>
-//     <workflows-rollback-2>Restore from latest backup</workflows-rollback-2>
-//     <workflows-rollback-3>Verify service health</workflows-rollback-3>
-//     <workflows-rollback-4>Send notification to ops channel</workflows-rollback-4>
-//   </workflows-rollback-list>
+//   <deploy>
+//     <deploy-1>Run pre-deployment health checks</deploy-1>
+//     <deploy-2>Create backup of current state</deploy-2>
+//     <deploy-3>Deploy to canary instance (5% traffic)</deploy-3>
+//     <deploy-4>Monitor metrics for 10 minutes</deploy-4>
+//     <deploy-5>If healthy, proceed to full deployment</deploy-5>
+//     <deploy-6>If issues detected, automatic rollback</deploy-6>
+//   </deploy>
+//   <rollback>
+//     <rollback-1>Stop new traffic to affected services</rollback-1>
+//     <rollback-2>Restore from latest backup</rollback-2>
+//     <rollback-3>Verify service health</rollback-3>
+//     <rollback-4>Send notification to ops channel</rollback-4>
+//   </rollback>
 // </workflows>
-// <safety-rules-list>
+// <safety-rules>
 //   <safety-rules-1>Never skip health checks</safety-rules-1>
 //   <safety-rules-2>Always maintain 99.9% uptime SLA</safety-rules-2>
 //   <safety-rules-3>Require manual approval for database changes</safety-rules-3>
-// </safety-rules-list>
+// </safety-rules>
 ```
 
 ```rust
@@ -127,24 +127,24 @@ let rag_prompt = llml(&json!({
 // Output:
 // <system>You are a helpful documentation assistant</system>
 // <instructions>Answer questions based on the provided documentation context</instructions>
-// <documents-list>
+// <documents>
 //   <documents-1>
-//     <documents-1-title>API Authentication Guide</documents-1-title>
-//     <documents-1-content>Our API uses OAuth 2.0 for authentication...</documents-1-content>
-//     <documents-1-relevance-score>0.95</documents-1-relevance-score>
+//     <title>API Authentication Guide</title>
+//     <content>Our API uses OAuth 2.0 for authentication...</content>
+//     <relevance-score>0.95</relevance-score>
 //   </documents-1>
 //   <documents-2>
-//     <documents-2-title>Rate Limiting Documentation</documents-2-title>
-//     <documents-2-content>API calls are limited to 1000 requests per hour...</documents-2-content>
-//     <documents-2-relevance-score>0.82</documents-2-relevance-score>
+//     <title>Rate Limiting Documentation</title>
+//     <content>API calls are limited to 1000 requests per hour...</content>
+//     <relevance-score>0.82</relevance-score>
 //   </documents-2>
-// </documents-list>
+// </documents>
 // <user-query>How do I authenticate with your API?</user-query>
-// <constraints-list>
+// <constraints>
 //   <constraints-1>Only use information from the provided documents</constraints-1>
 //   <constraints-2>Cite the document title when referencing information</constraints-2>
 //   <constraints-3>If information is not available, explicitly state so</constraints-3>
-// </constraints-list>
+// </constraints>
 ```
 
 ```go
@@ -180,24 +180,24 @@ ragPrompt := llml.Sprintf(map[string]any{
 // Output:
 // <system>You are a helpful documentation assistant</system>
 // <instructions>Answer questions based on the provided documentation context</instructions>
-// <documents-list>
+// <documents>
 //   <documents-1>
-//     <documents-1-title>API Authentication Guide</documents-1-title>
-//     <documents-1-content>Our API uses OAuth 2.0 for authentication...</documents-1-content>
-//     <documents-1-relevance-score>0.95</documents-1-relevance-score>
+//     <title>API Authentication Guide</title>
+//     <content>Our API uses OAuth 2.0 for authentication...</content>
+//     <relevance-score>0.95</relevance-score>
 //   </documents-1>
 //   <documents-2>
-//     <documents-2-title>Rate Limiting Documentation</documents-2-title>
-//     <documents-2-content>API calls are limited to 1000 requests per hour...</documents-2-content>
-//     <documents-2-relevance-score>0.82</documents-2-relevance-score>
+//     <title>Rate Limiting Documentation</title>
+//     <content>API calls are limited to 1000 requests per hour...</content>
+//     <relevance-score>0.82</relevance-score>
 //   </documents-2>
-// </documents-list>
+// </documents>
 // <user-query>How do I authenticate with your API?</user-query>
-// <constraints-list>
+// <constraints>
 //   <constraints-1>Only use information from the provided documents</constraints-1>
 //   <constraints-2>Cite the document title when referencing information</constraints-2>
 //   <constraints-3>If information is not available, explicitly state so</constraints-3>
-// </constraints-list>
+// </constraints>
 ```
 </details>
 
@@ -238,17 +238,19 @@ ragPrompt := llml.Sprintf(map[string]any{
 LLML transforms data using these core rules:
 
 1. **Simple Values**: `{key: "value"}` → `<key>value</key>`
-2. **Lists/Arrays**: `{items: ["a", "b"]}` → `<items-list><items-1>a</items-1><items-2>b</items-2></items-list>`
-3. **Nested Objects**: `{config: {debug: true}}` → `<config><config-debug>true</config-debug></config>`
+2. **Lists/Arrays**: `{items: ["a", "b"]}` → `<items><items-1>a</items-1><items-2>b</items-2></items>`
+3. **Nested Objects**: `{config: {debug: true}}` → `<config><debug>true</debug></config>` (default: strict=false)
 4. **Key Normalization**: All keys are converted to kebab-case automatically
 5. **Empty Values**: Empty objects `{}` and arrays `[]` return empty strings
+6. **Strict Mode**: Optional setting to include parent key prefixes in nested objects
 
 
 ## Features
 
 - 🔄 **Automatic kebab-case conversion**: Transform `user_name` → `user-name`, `maxRetries` → `max-retries`
-- 📝 **Smart list formatting**: Arrays become `<items-list><items-1>first</items-1><items-2>second</items-2></items-list>`
-- 🔁 **Recursive nested structures**: Objects within objects maintain proper hierarchy with compound keys
+- 📝 **Smart list formatting**: Arrays become `<items><items-1>first</items-1><items-2>second</items-2></items>`
+- 🔁 **Recursive nested structures**: Objects within objects maintain proper hierarchy
+- ⚙️ **Strict mode control**: Choose whether nested properties include parent key prefixes
 - 📐 **Configurable indentation**: Custom spacing for nested elements
 - 📄 **Multiline content support**: Preserves line breaks with proper indentation
 - 🏷️ **Optional prefix namespacing**: Add prefixes to all generated tags
@@ -260,11 +262,11 @@ LLML transforms data using these core rules:
 ### Python
 
 ```bash
-uv install zenbase-llml # or pip, rye, poetry, etc.
+pip install zenbase-llml # or uv, rye, poetry, etc.
 ```
 
 ```python
-from zenbase_llml import llml
+from llml import llml
 
 # Simple example
 llml(task="analyze", content="customer feedback")
@@ -273,11 +275,11 @@ llml(task="analyze", content="customer feedback")
 
 # List handling
 llml(rules=["be concise", "be helpful", "be accurate"])
-# Output: <rules-list>
+# Output: <rules>
 #           <rules-1>be concise</rules-1>
 #           <rules-2>be helpful</rules-2>
 #           <rules-3>be accurate</rules-3>
-#         </rules-list>
+#         </rules>
 
 # Example 1: Data Extraction
 extraction_prompt = llml(
@@ -299,23 +301,23 @@ extraction_prompt = llml(
 # Output:
 # <task>Extract key information from customer feedback</task>
 # <instructions>Identify and categorize customer sentiments and specific issues mentioned</instructions>
-# <rules-list>
+# <rules>
 #   <rules-1>Classify sentiment as positive, negative, or neutral</rules-1>
 #   <rules-2>Extract specific product features mentioned</rules-2>
 #   <rules-3>Identify any requested improvements or fixes</rules-3>
 #   <rules-4>Note any comparisons to competitors</rules-4>
-# </rules-list>
+# </rules>
 # <output-format>
 #   <output-format-sentiment>positive/negative/neutral</output-format-sentiment>
-#   <output-format-features-mentioned-list>
-#     <output-format-features-mentioned-1>list of features</output-format-features-mentioned-1>
-#   </output-format-features-mentioned-list>
-#   <output-format-issues-list>
-#     <output-format-issues-1>list of problems</output-format-issues-1>
-#   </output-format-issues-list>
-#   <output-format-improvements-list>
-#     <output-format-improvements-1>list of suggestions</output-format-improvements-1>
-#   </output-format-improvements-list>
+#   <output-format-features-mentioned>
+#     <features-mentioned-1>list of features</features-mentioned-1>
+#   </output-format-features-mentioned>
+#   <output-format-issues>
+#     <issues-1>list of problems</issues-1>
+#   </output-format-issues>
+#   <output-format-improvements>
+#     <improvements-1>list of suggestions</improvements-1>
+#   </output-format-improvements>
 # </output-format>
 
 # Example 2: RAG Chatbot
@@ -344,24 +346,24 @@ rag_prompt = llml(
 # Output:
 # <system>You are a helpful documentation assistant</system>
 # <instructions>Answer questions based on the provided documentation context</instructions>
-# <documents-list>
+# <documents>
 #   <documents-1>
-#     <documents-1-title>API Authentication Guide</documents-1-title>
-#     <documents-1-content>Our API uses OAuth 2.0 for authentication...</documents-1-content>
-#     <documents-1-relevance-score>0.95</documents-1-relevance-score>
+#     <title>API Authentication Guide</title>
+#     <content>Our API uses OAuth 2.0 for authentication...</content>
+#     <relevance-score>0.95</relevance-score>
 #   </documents-1>
 #   <documents-2>
-#     <documents-2-title>Rate Limiting Documentation</documents-2-title>
-#     <documents-2-content>API calls are limited to 1000 requests per hour...</documents-2-content>
-#     <documents-2-relevance-score>0.82</documents-2-relevance-score>
+#     <title>Rate Limiting Documentation</title>
+#     <content>API calls are limited to 1000 requests per hour...</content>
+#     <relevance-score>0.82</relevance-score>
 #   </documents-2>
-# </documents-list>
+# </documents>
 # <user-query>How do I authenticate with your API?</user-query>
-# <constraints-list>
+# <constraints>
 #   <constraints-1>Only use information from the provided documents</constraints-1>
 #   <constraints-2>Cite the document title when referencing information</constraints-2>
 #   <constraints-3>If information is not available, explicitly state so</constraints-3>
-# </constraints-list>
+# </constraints>
 
 # Example 3: AI Agent with Workflows
 agent_prompt = llml(
@@ -399,37 +401,37 @@ print(agent_prompt)
 # Output:
 # <role>DevOps automation agent</role>
 # <context>
-#   <context-environment>production</context-environment>
-#   <context-aws-region>us-east-1</context-aws-region>
-#   <context-services-list>
-#     <context-services-1>web-api</context-services-1>
-#     <context-services-2>worker-queue</context-services-2>
-#     <context-services-3>database</context-services-3>
-#   </context-services-list>
-#   <context-last-deployment>2024-01-15T10:30:00Z</context-last-deployment>
+#   <environment>production</environment>
+#   <aws-region>us-east-1</aws-region>
+#   <context-services>
+#     <services-1>web-api</services-1>
+#     <services-2>worker-queue</services-2>
+#     <services-3>database</services-3>
+#   </context-services>
+#   <last-deployment>2024-01-15T10:30:00Z</last-deployment>
 # </context>
 # <instructions>Execute deployment workflow with safety checks</instructions>
 # <workflows>
-#   <workflows-deploy-list>
-#     <workflows-deploy-1>Run pre-deployment health checks</workflows-deploy-1>
-#     <workflows-deploy-2>Create backup of current state</workflows-deploy-2>
-#     <workflows-deploy-3>Deploy to canary instance (5% traffic)</workflows-deploy-3>
-#     <workflows-deploy-4>Monitor metrics for 10 minutes</workflows-deploy-4>
-#     <workflows-deploy-5>If healthy, proceed to full deployment</workflows-deploy-5>
-#     <workflows-deploy-6>If issues detected, automatic rollback</workflows-deploy-6>
-#   </workflows-deploy-list>
-#   <workflows-rollback-list>
-#     <workflows-rollback-1>Stop new traffic to affected services</workflows-rollback-1>
-#     <workflows-rollback-2>Restore from latest backup</workflows-rollback-2>
-#     <workflows-rollback-3>Verify service health</workflows-rollback-3>
-#     <workflows-rollback-4>Send notification to ops channel</workflows-rollback-4>
-#   </workflows-rollback-list>
+#   <workflows-deploy>
+#     <deploy-1>Run pre-deployment health checks</deploy-1>
+#     <deploy-2>Create backup of current state</deploy-2>
+#     <deploy-3>Deploy to canary instance (5% traffic)</deploy-3>
+#     <deploy-4>Monitor metrics for 10 minutes</deploy-4>
+#     <deploy-5>If healthy, proceed to full deployment</deploy-5>
+#     <deploy-6>If issues detected, automatic rollback</deploy-6>
+#   </workflows-deploy>
+#   <workflows-rollback>
+#     <rollback-1>Stop new traffic to affected services</rollback-1>
+#     <rollback-2>Restore from latest backup</rollback-2>
+#     <rollback-3>Verify service health</rollback-3>
+#     <rollback-4>Send notification to ops channel</rollback-4>
+#   </workflows-rollback>
 # </workflows>
-# <safety-rules-list>
+# <safety-rules>
 #   <safety-rules-1>Never skip health checks</safety-rules-1>
 #   <safety-rules-2>Always maintain 99.9% uptime SLA</safety-rules-2>
 #   <safety-rules-3>Require manual approval for database changes</safety-rules-3>
-# </safety-rules-list>
+# </safety-rules>
 ```
 
 ### TypeScript/JavaScript
@@ -513,24 +515,24 @@ const ragPrompt = llml({
 // Output:
 // <system>You are a helpful documentation assistant</system>
 // <instructions>Answer questions based on the provided documentation context</instructions>
-// <documents-list>
+// <documents>
 //   <documents-1>
-//     <documents-1-title>API Authentication Guide</documents-1-title>
-//     <documents-1-content>Our API uses OAuth 2.0 for authentication...</documents-1-content>
-//     <documents-1-relevance-score>0.95</documents-1-relevance-score>
+//     <title>API Authentication Guide</title>
+//     <content>Our API uses OAuth 2.0 for authentication...</content>
+//     <relevance-score>0.95</relevance-score>
 //   </documents-1>
 //   <documents-2>
-//     <documents-2-title>Rate Limiting Documentation</documents-2-title>
-//     <documents-2-content>API calls are limited to 1000 requests per hour...</documents-2-content>
-//     <documents-2-relevance-score>0.82</documents-2-relevance-score>
+//     <title>Rate Limiting Documentation</title>
+//     <content>API calls are limited to 1000 requests per hour...</content>
+//     <relevance-score>0.82</relevance-score>
 //   </documents-2>
-// </documents-list>
+// </documents>
 // <user-query>How do I authenticate with your API?</user-query>
-// <constraints-list>
+// <constraints>
 //   <constraints-1>Only use information from the provided documents</constraints-1>
 //   <constraints-2>Cite the document title when referencing information</constraints-2>
 //   <constraints-3>If information is not available, explicitly state so</constraints-3>
-// </constraints-list>
+// </constraints>
 
 // Example 3: AI Agent with Workflows
 const agentPrompt = llml({
@@ -567,37 +569,37 @@ const agentPrompt = llml({
 // Output:
 // <role>DevOps automation agent</role>
 // <context>
-//   <context-environment>production</context-environment>
-//   <context-aws-region>us-east-1</context-aws-region>
-//   <context-services-list>
-//     <context-services-1>web-api</context-services-1>
-//     <context-services-2>worker-queue</context-services-2>
-//     <context-services-3>database</context-services-3>
-//   </context-services-list>
-//   <context-last-deployment>2024-01-15T10:30:00Z</context-last-deployment>
+//   <environment>production</environment>
+//   <aws-region>us-east-1</aws-region>
+//   <services>
+//     <services-1>web-api</services-1>
+//     <services-2>worker-queue</services-2>
+//     <services-3>database</services-3>
+//   </services>
+//   <last-deployment>2024-01-15T10:30:00Z</last-deployment>
 // </context>
 // <instructions>Execute deployment workflow with safety checks</instructions>
 // <workflows>
-//   <workflows-deploy-list>
-//     <workflows-deploy-1>Run pre-deployment health checks</workflows-deploy-1>
-//     <workflows-deploy-2>Create backup of current state</workflows-deploy-2>
-//     <workflows-deploy-3>Deploy to canary instance (5% traffic)</workflows-deploy-3>
-//     <workflows-deploy-4>Monitor metrics for 10 minutes</workflows-deploy-4>
-//     <workflows-deploy-5>If healthy, proceed to full deployment</workflows-deploy-5>
-//     <workflows-deploy-6>If issues detected, automatic rollback</workflows-deploy-6>
-//   </workflows-deploy-list>
-//   <workflows-rollback-list>
-//     <workflows-rollback-1>Stop new traffic to affected services</workflows-rollback-1>
-//     <workflows-rollback-2>Restore from latest backup</workflows-rollback-2>
-//     <workflows-rollback-3>Verify service health</workflows-rollback-3>
-//     <workflows-rollback-4>Send notification to ops channel</workflows-rollback-4>
-//   </workflows-rollback-list>
+//   <deploy>
+//     <deploy-1>Run pre-deployment health checks</deploy-1>
+//     <deploy-2>Create backup of current state</deploy-2>
+//     <deploy-3>Deploy to canary instance (5% traffic)</deploy-3>
+//     <deploy-4>Monitor metrics for 10 minutes</deploy-4>
+//     <deploy-5>If healthy, proceed to full deployment</deploy-5>
+//     <deploy-6>If issues detected, automatic rollback</deploy-6>
+//   </deploy>
+//   <rollback>
+//     <rollback-1>Stop new traffic to affected services</rollback-1>
+//     <rollback-2>Restore from latest backup</rollback-2>
+//     <rollback-3>Verify service health</rollback-3>
+//     <rollback-4>Send notification to ops channel</rollback-4>
+//   </rollback>
 // </workflows>
-// <safety-rules-list>
+// <safety-rules>
 //   <safety-rules-1>Never skip health checks</safety-rules-1>
 //   <safety-rules-2>Always maintain 99.9% uptime SLA</safety-rules-2>
 //   <safety-rules-3>Require manual approval for database changes</safety-rules-3>
-// </safety-rules-list>
+// </safety-rules>
 ```
 
 ### Rust

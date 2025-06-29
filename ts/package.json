@@ -1,6 +1,6 @@
 {
 	"name": "@zenbase/llml",
-	"version": "0.1.1",
+	"version": "0.2.0",
 	"description": "Lightweight Language Markup Language - Convert nested data structures to human-readable, XML-like markup",
 	"module": "src/index.ts",
 	"main": "src/index.ts",

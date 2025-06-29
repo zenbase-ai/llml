@@ -7,7 +7,7 @@ LLML transforms your data into beautifully formatted XML-like markup with zero f
 ## ⚡ Quick Start
 
 ```python
-from llml import llml
+from zenbase_llml import llml
 
 # Simple values
 print(llml(greeting="Hello World"))
@@ -16,11 +16,11 @@ print(llml(greeting="Hello World"))
 # Lists become numbered items
 print(llml(tasks=["Buy milk", "Walk dog", "Code LLML"]))
 # Output:
-# <tasks-list>
+# <tasks>
 #   <tasks-1>Buy milk</tasks-1>
 #   <tasks-2>Walk dog</tasks-2>
 #   <tasks-3>Code LLML</tasks-3>
-# </tasks-list>
+# </tasks>
 
 # Complex nested structures
 print(llml(
@@ -37,11 +37,12 @@ print(llml(
 - **🔧 Type Safe**: Built with beartype for runtime type checking
 - **⚡ Lightning Fast**: Minimal overhead, maximum performance
 - **🌟 Pythonic**: Feels natural, works everywhere
+- **⚙️ Strict Mode**: Control nested property prefixes with `strict` parameter
 
 ## 🛠️ Installation
 
 ```bash
-pip install llml
+pip install zenbase-llml
 ```
 
 ## 📚 Advanced Usage
@@ -86,6 +87,20 @@ prompt_data = {
 }
 
 print(llml(**prompt_data))
+
+# Example with strict mode enabled
+print(llml(config={"debug": True, "timeout": 30}, strict=True))
+# Output: <config>
+#           <config-debug>True</config-debug>
+#           <config-timeout>30</config-timeout>
+#         </config>
+
+# Example with strict mode disabled (default)
+print(llml(config={"debug": True, "timeout": 30}, strict=False))
+# Output: <config>
+#           <debug>True</debug>
+#           <timeout>30</timeout>
+#         </config>
 ```
 
 ## 🎪 Use Cases

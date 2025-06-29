@@ -18,13 +18,14 @@ func TestMixedContent(t *testing.T) {
 	})
 	// Check for key components
 	assert.Contains(t, result, "<title>My Document</title>")
-	assert.Contains(t, result, "<sections-list>")
+	assert.Contains(t, result, "<sections>")
 	assert.Contains(t, result, "<sections-1>intro</sections-1>")
 	assert.Contains(t, result, "<sections-2>body</sections-2>")
 	assert.Contains(t, result, "<sections-3>conclusion</sections-3>")
-	assert.Contains(t, result, "</sections-list>")
+	assert.Contains(t, result, "</sections>")
 	assert.Contains(t, result, "<metadata>")
-	assert.Contains(t, result, "<metadata-author>Alice</metadata-author>")
-	assert.Contains(t, result, "<metadata-version>1.0</metadata-version>")
+	// In non-strict mode (default), nested object properties don't include parent prefixes
+	assert.Contains(t, result, "<author>Alice</author>")
+	assert.Contains(t, result, "<version>1.0</version>")
 	assert.Contains(t, result, "</metadata>")
 }

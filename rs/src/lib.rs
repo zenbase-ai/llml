@@ -13,7 +13,7 @@ Converts data structures to XML-like markup with specific formatting rules.
 ## Usage
 
 ```rust
-use zenbase_llml::{llml, llml_with_options, Options};
+use zenbase_llml::{llml, llml_with_options, LLMLOptions};
 use serde_json::json;
 
 let data = json!({"instructions": "Follow these steps"});
@@ -21,7 +21,7 @@ let result = llml(&data);
 // Output: "<instructions>Follow these steps</instructions>"
 
 // For custom formatting:
-let options = Options { indent: "  ".to_string(), prefix: String::new() };
+let options = LLMLOptions { indent: "  ".to_string(), prefix: String::new(), strict: false };
 let result = llml_with_options(&data, Some(options));
 ```
 */
@@ -31,13 +31,15 @@ use serde_json::Value;
 mod utils;
 use utils::format_value;
 
-/// Configuration options for LLML formatting
+/// Configuration LLMLOptions for LLML formatting
 #[derive(Debug, Clone, Default)]
-pub struct Options {
+pub struct LLMLOptions {
     /// Indentation string to use for nested elements
     pub indent: String,
     /// Prefix to prepend to all tags
     pub prefix: String,
+    /// Whether to use strict mode (include parent keys as prefixes in nested objects)
+    pub strict: bool,
 }
 
 /// Main LLML function - converts data structures to XML-like markup
@@ -47,17 +49,17 @@ pub struct Options {
 /// - `llml(&json!([]))` → `""`
 /// - `llml(&json!({}))` → `""`
 /// - `llml(&json!({"key": "value"}))` → `"<key>value</key>"`
-/// - `llml_with_options(&data, options)` → formatted with custom options
+/// - `llml_with_options(&data, LLMLOptions)` → formatted with custom LLMLOptions
 pub fn llml(data: &Value) -> String {
-    format_value(data, &Options::default())
+    format_value(data, &LLMLOptions::default())
 }
 
-/// LLML function with explicit options - use when you need custom formatting
+/// LLML function with explicit LLMLOptions - use when you need custom formatting
 ///
 /// Examples:
 /// - `llml_with_options(&data, None)` → same as `llml(&data)`
-/// - `llml_with_options(&data, Some(options))` → formatted with custom options
-pub fn llml_with_options(data: &Value, options: Option<Options>) -> String {
+/// - `llml_with_options(&data, Some(LLMLOptions))` → formatted with custom LLMLOptions
+pub fn llml_with_options(data: &Value, options: Option<LLMLOptions>) -> String {
     let opts = options.unwrap_or_default();
     format_value(data, &opts)
 }
@@ -89,7 +91,7 @@ mod tests {
     #[test]
     fn test_list_formatting() {
         let result = llml(&json!({"rules": ["first", "second", "third"]}));
-        let expected = "<rules-list>\n  <rules-1>first</rules-1>\n  <rules-2>second</rules-2>\n  <rules-3>third</rules-3>\n</rules-list>";
+        let expected = "<rules>\n  <rules-1>first</rules-1>\n  <rules-2>second</rules-2>\n  <rules-3>third</rules-3>\n</rules>";
         assert_eq!(result, expected);
     }
 
@@ -104,8 +106,8 @@ mod tests {
 
         assert!(result.contains("<config>"));
         assert!(result.contains("</config>"));
-        assert!(result.contains("<config-debug>true</config-debug>"));
-        assert!(result.contains("<config-timeout>30</config-timeout>"));
+        assert!(result.contains("<debug>true</debug>"));
+        assert!(result.contains("<timeout>30</timeout>"));
     }
 
     #[test]
@@ -116,10 +118,11 @@ mod tests {
         let result1 = llml(&data);
         assert_eq!(result1, "<instructions>Follow these steps</instructions>");
 
-        // Test with options using the new function
-        let options = Some(Options {
+        // Test with LLMLOptions using the new function
+        let options = Some(LLMLOptions {
             indent: "  ".to_string(),
             prefix: String::new(),
+            strict: false,
         });
         let result2 = llml_with_options(&data, options);
         assert_eq!(result2, "  <instructions>Follow these steps</instructions>");
@@ -133,21 +136,23 @@ mod tests {
     }
 
     #[test]
-    fn test_with_options_function() {
+    fn test_with_LLMLOptions_function() {
         let data = json!({"test": "value"});
 
         // Test with indentation
-        let options = Options {
+        let options = LLMLOptions {
             indent: "    ".to_string(),
             prefix: String::new(),
+            strict: false,
         };
         let result = llml_with_options(&data, Some(options));
         assert_eq!(result, "    <test>value</test>");
 
         // Test with prefix
-        let options = Options {
+        let options = LLMLOptions {
             indent: String::new(),
             prefix: "app".to_string(),
+            strict: false,
         };
         let result = llml_with_options(&data, Some(options));
         assert_eq!(result, "<app-test>value</app-test>");

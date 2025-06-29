@@ -3,61 +3,30 @@ from dataclasses import dataclass
 from io import StringIO
 from textwrap import dedent
 
-from beartype import beartype
-
-from .utils import kebab_case
+from zenbase_llml.utils import kebab_case
 
 SPACE = " "
 
 
 @dataclass
-class Options:
+class LLMLOptions:
     indent: str = ""
     prefix: str = ""
+    strict: bool = False
 
 
-@beartype
 def llml(
     *args: t.Any,
-    options: Options | None = None,
+    options: LLMLOptions | None = None,
     io: t.IO | None = None,
     **parts: t.Any,
 ) -> str:
-    """
-    Recursively combines parts into a single string using the following rules:
-
-    Rules:
-    0. llml({}) | llml([]) -> ""
-    1. llml(instructions="...") ->
-        <instructions>
-        ...
-        </instructions>
-    2. llml(["a", "b", "c"]) ->
-        <item id="1">a</item>
-        <item id="2">b</item>
-        <item id="3">c</item>
-    3. llml(rules=["a", "b", "c"]) ->
-        <rule-list>
-            <rule-1>a</rule-1>
-            <rule-2>b</rule-2>
-            <rule-3>c</rule-3>
-        </rule-list>
-    4. llml(data={"key": "value"}) ->
-        <data>
-            <key>value</key>
-        </data>
-    5. llml(data=[{"key with spaces": "value"}, {"key": "value"}]) ->
-        <data-list>
-            <data id="1">
-                <data-key-with-spaces>value</data-key-with-spaces>
-            </data>
-        </data-list>
-    """
     io = io or StringIO()
 
     # Extract options
     indent = options.indent if options else ""
     prefix = options.prefix if options else ""
+    strict = options.strict if options else False
 
     # Handle direct value calls: llml(), llml(None), llml([]), llml({})
     if len(args) == 0 and not parts:
@@ -80,7 +49,12 @@ def llml(
                     # Dict items need special formatting
                     io.write(f"{indent}<{item_tag}>\n")
                     dict_content = llml(
-                        options=Options(indent=indent + "  ", prefix=item_tag), **item
+                        options=LLMLOptions(
+                            indent=indent + "  ",
+                            prefix=item_tag if strict else "",
+                            strict=strict,
+                        ),
+                        **item,
                     )
                     io.write(dict_content)
                     io.write(f"\n{indent}</{item_tag}>")
@@ -104,8 +78,8 @@ def llml(
         kebab_key = kebab_case(full_key)
 
         if isinstance(value, list):
-            # Handle list formatting with wrapper tag
-            wrapper_tag = f"{kebab_key}-list"
+            # Handle list formatting with wrapper tag (no -list suffix)
+            wrapper_tag = kebab_key
 
             if not value:
                 return ""
@@ -120,7 +94,11 @@ def llml(
                     # Dict items need special formatting
                     io.write(f"{inner_indent}<{item_tag}>\n")
                     dict_content = llml(
-                        options=Options(indent=inner_indent + "  ", prefix=item_tag),
+                        options=LLMLOptions(
+                            indent=inner_indent + "  ",
+                            prefix=item_tag if strict else "",
+                            strict=strict,
+                        ),
                         **item,
                     )
                     io.write(dict_content)
@@ -150,15 +128,16 @@ def llml(
         elif isinstance(value, dict):
             # Handle dict formatting - recursively call llml
             dict_content = llml(
-                options=Options(indent=indent + "  ", prefix=full_key), **value
+                options=LLMLOptions(
+                    indent=indent + "  ",
+                    prefix=full_key if strict else "",
+                    strict=strict,
+                ),
+                **value,
             )
 
-            if "\n" in dict_content:
-                io.write(
-                    f"{indent}<{kebab_key}>\n{dict_content}\n{indent}</{kebab_key}>"
-                )
-            else:
-                io.write(f"{indent}<{kebab_key}>{dict_content}</{kebab_key}>")
+            # Always format dicts with newlines for proper indentation
+            io.write(f"{indent}<{kebab_key}>\n{dict_content}\n{indent}</{kebab_key}>")
 
         else:
             # Handle primitive values (strings, numbers, booleans, None)
@@ -188,7 +167,9 @@ def llml(
             io.write("\n")
 
         formatted_content = llml(
-            part_key, part_value, options=Options(indent=indent, prefix=prefix)
+            part_key,
+            part_value,
+            options=LLMLOptions(indent=indent, prefix=prefix, strict=strict),
         )
         io.write(formatted_content)
 

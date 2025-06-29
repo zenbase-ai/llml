@@ -10,6 +10,7 @@ Rust implementation of the Lightweight Markup Language (LLML) - a library that c
 - **Configurable Indentation**: Customizable spacing and prefixes
 - **Multiline String Handling**: Proper formatting for multiline content
 - **Kebab-Case Conversion**: Automatic conversion of camelCase and snake_case keys
+- **Strict Mode Control**: Choose whether nested properties include parent key prefixes
 
 ## Installation
 
@@ -36,11 +37,11 @@ fn main() {
     let data = json!({"rules": ["first", "second", "third"]});
     println!("{}", llml(&data, None));
     // Output:
-    // <rules-list>
+    // <rules>
     //   <rules-1>first</rules-1>
     //   <rules-2>second</rules-2>
     //   <rules-3>third</rules-3>
-    // </rules-list>
+    // </rules>
 }
 ```
 
@@ -56,10 +57,36 @@ let data = json!({"message": "Hello World"});
 let options = Some(Options {
     indent: "  ".to_string(),
     prefix: "app".to_string(),
+    strict: false,
 });
 
 let result = llml(&data, options);
 // Output: <app-message>Hello World</app-message>
+
+// Example with strict mode
+let data = json!({"config": {"debug": true, "timeout": 30}});
+let options = Some(Options {
+    indent: "".to_string(),
+    prefix: "".to_string(),
+    strict: true,
+});
+let result = llml(&data, options);
+// Output: <config>
+//           <config-debug>true</config-debug>
+//           <config-timeout>30</config-timeout>
+//         </config>
+
+// Example with strict mode disabled (default)
+let options = Some(Options {
+    indent: "".to_string(),
+    prefix: "".to_string(),
+    strict: false,
+});
+let result = llml(&data, options);
+// Output: <config>
+//           <debug>true</debug>
+//           <timeout>30</timeout>
+//         </config>
 ```
 
 ### Handling Complex Data Structures

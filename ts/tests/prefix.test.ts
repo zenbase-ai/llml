@@ -11,10 +11,10 @@ describe("Prefix Support", () => {
   it("should apply prefix to list formatting", () => {
     const result = llml({ items: ["a", "b"] }, { prefix: "app" })
     const expected = [
-      "<app-items-list>",
+      "<app-items>",
       "  <app-items-1>a</app-items-1>",
       "  <app-items-2>b</app-items-2>",
-      "</app-items-list>",
+      "</app-items>",
     ].join("\n")
     expect(result).toBe(expected)
   })

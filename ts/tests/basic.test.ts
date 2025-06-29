@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest"
-
-import llml from "../src/index"
+import { llml } from "../src/index"
 
 describe("Basic Value Formatting", () => {
   it("should handle null values", () => {
@@ -78,6 +77,18 @@ describe("Basic Value Formatting", () => {
   it("should handle multiple simple values", () => {
     const result = llml({ name: "Alice", age: 30, active: true })
     const expected = "<name>Alice</name>\n<age>30</age>\n<active>true</active>"
+    expect(result).toBe(expected)
+  })
+
+  it("should handle empty arrays in objects", () => {
+    const result = llml({ items: [] })
+    const expected = ""
+    expect(result).toBe(expected)
+  })
+
+  it("should handle empty strings", () => {
+    const result = llml({ message: "" })
+    const expected = "<message></message>"
     expect(result).toBe(expected)
   })
 })

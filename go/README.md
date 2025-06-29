@@ -16,6 +16,7 @@ LLML is a data serialization library that transforms nested data structures (map
 - **Optional prefix namespacing**
 - **Type-safe Go implementation** with comprehensive type coverage
 - **Zero configuration** - works out of the box
+- **Strict mode control** - choose whether nested properties include parent key prefixes
 
 ## Installation
 
@@ -48,11 +49,11 @@ func main() {
         "rules": []any{"be concise", "be helpful", "be accurate"},
     })
     fmt.Println(result)
-    // Output: <rules-list>
+    // Output: <rules>
     //           <rules-1>be concise</rules-1>
     //           <rules-2>be helpful</rules-2>
     //           <rules-3>be accurate</rules-3>
-    //         </rules-list>
+    //         </rules>
 }
 ```
 
@@ -84,23 +85,23 @@ Output:
 ```xml
 <instructions>Identify and categorize customer sentiments and specific issues mentioned</instructions>
 <output-format>
-  <output-format-features-mentioned-list>
-    <output-format-features-mentioned-1>list of features</output-format-features-mentioned-1>
-  </output-format-features-mentioned-list>
-  <output-format-improvements-list>
-    <output-format-improvements-1>list of suggestions</output-format-improvements-1>
-  </output-format-improvements-list>
-  <output-format-issues-list>
-    <output-format-issues-1>list of problems</output-format-issues-1>
-  </output-format-issues-list>
+  <output-format-features-mentioned>
+    <features-mentioned-1>list of features</features-mentioned-1>
+  </output-format-features-mentioned>
+  <output-format-improvements>
+    <improvements-1>list of suggestions</improvements-1>
+  </output-format-improvements>
+  <output-format-issues>
+    <issues-1>list of problems</issues-1>
+  </output-format-issues>
   <output-format-sentiment>positive/negative/neutral</output-format-sentiment>
 </output-format>
-<rules-list>
+<rules>
   <rules-1>Classify sentiment as positive, negative, or neutral</rules-1>
   <rules-2>Extract specific product features mentioned</rules-2>
   <rules-3>Identify any requested improvements or fixes</rules-3>
   <rules-4>Note any comparisons to competitors</rules-4>
-</rules-list>
+</rules>
 <task>Extract key information from customer feedback</task>
 ```
 
@@ -177,6 +178,7 @@ The `llml.Sprintf` function accepts optional configuration through the `Options`
 type Options struct {
     Indent string  // Indentation string (default: "")
     Prefix string  // Prefix for all tags (default: "")
+    Strict bool    // Include parent key prefixes in nested objects (default: false)
 }
 ```
 
@@ -206,6 +208,30 @@ result := llml.Sprintf(map[string]any{
     Indent: "    ",
     Prefix: "config",
 })
+
+// Example with strict mode
+result := llml.Sprintf(map[string]any{
+    "config": map[string]any{
+        "debug":   true,
+        "timeout": 30,
+    },
+}, llml.Options{Strict: true})
+// Output: <config>
+//           <config-debug>true</config-debug>  
+//           <config-timeout>30</config-timeout>
+//         </config>
+
+// Example with strict mode disabled (default)
+result = llml.Sprintf(map[string]any{
+    "config": map[string]any{
+        "debug":   true,
+        "timeout": 30,
+    },
+}, llml.Options{Strict: false})
+// Output: <config>
+//           <debug>true</debug>
+//           <timeout>30</timeout>
+//         </config>
 ```
 
 ## Data Type Support

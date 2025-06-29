@@ -1,4 +1,4 @@
-use crate::Options;
+use crate::LLMLOptions;
 use regex::Regex;
 use serde_json::Value;
 use std::sync::OnceLock;
@@ -6,7 +6,7 @@ use std::sync::OnceLock;
 static MULTI_HYPHEN_RE: OnceLock<Regex> = OnceLock::new();
 
 /// Unified recursive formatter that handles all LLML formatting cases
-pub fn format_value(data: &Value, opts: &Options) -> String {
+pub fn format_value(data: &Value, opts: &LLMLOptions) -> String {
     match data {
         // Base cases for primitive values
         Value::Null => "null".to_string(),
@@ -25,7 +25,7 @@ pub fn format_value(data: &Value, opts: &Options) -> String {
 }
 
 /// Recursively format an object by processing each key-value pair
-fn format_object_recursive(obj: &serde_json::Map<String, Value>, opts: &Options) -> String {
+fn format_object_recursive(obj: &serde_json::Map<String, Value>, opts: &LLMLOptions) -> String {
     if obj.is_empty() {
         return String::new();
     }
@@ -47,7 +47,7 @@ fn format_object_recursive(obj: &serde_json::Map<String, Value>, opts: &Options)
 }
 
 /// Format a single key-value pair recursively (like Python's llml(key, value) call)
-fn format_key_value(key: &str, value: &Value, opts: &Options) -> String {
+fn format_key_value(key: &str, value: &Value, opts: &LLMLOptions) -> String {
     let full_key = if opts.prefix.is_empty() {
         key.to_string()
     } else {
@@ -58,7 +58,7 @@ fn format_key_value(key: &str, value: &Value, opts: &Options) -> String {
     match value {
         // Recursive case: Array becomes a list with wrapper tag
         Value::Array(arr) => {
-            let wrapper_tag = format!("{kebab_key}-list");
+            let wrapper_tag = kebab_key.clone();
 
             if arr.is_empty() {
                 return String::new();
@@ -76,9 +76,10 @@ fn format_key_value(key: &str, value: &Value, opts: &Options) -> String {
                     Value::Object(_) => {
                         // Recursive call: format nested object with new context
                         parts.push(format!("{inner_indent}<{item_tag}>\n"));
-                        let nested_opts = Options {
+                        let nested_opts = LLMLOptions {
                             indent: format!("{inner_indent}  "),
-                            prefix: item_tag.clone(),
+                            prefix: if opts.strict { item_tag.clone() } else { String::new() },
+                            strict: opts.strict,
                         };
                         let dict_content = format_value(item, &nested_opts);
                         parts.push(dict_content);
@@ -86,7 +87,7 @@ fn format_key_value(key: &str, value: &Value, opts: &Options) -> String {
                     }
                     _ => {
                         // Recursive call: format primitive item
-                        let formatted = format_value(item, &Options::default());
+                        let formatted = format_value(item, &LLMLOptions::default());
                         parts.push(format!(
                             "{inner_indent}<{item_tag}>{formatted}</{item_tag}>"
                         ));
@@ -104,9 +105,10 @@ fn format_key_value(key: &str, value: &Value, opts: &Options) -> String {
 
         // Recursive case: Object becomes nested tags
         Value::Object(_) => {
-            let nested_opts = Options {
+            let nested_opts = LLMLOptions {
                 indent: format!("{}  ", opts.indent),
-                prefix: full_key,
+                prefix: if opts.strict { full_key } else { String::new() },
+                strict: opts.strict,
             };
             // Recursive call: format nested object
             let formatted = format_value(value, &nested_opts);
@@ -127,7 +129,7 @@ fn format_key_value(key: &str, value: &Value, opts: &Options) -> String {
         // Recursive case: Primitive values
         _ => {
             // Recursive call: format primitive value
-            let formatted = format_value(value, &Options::default());
+            let formatted = format_value(value, &LLMLOptions::default());
             if formatted.contains('\n') {
                 format!(
                     "{}<{}>\n{}\n{}</{}>",
@@ -144,7 +146,7 @@ fn format_key_value(key: &str, value: &Value, opts: &Options) -> String {
 }
 
 /// Helper function to handle array formatting when called with a specific key context
-fn format_with_key(arr: &[Value], opts: &Options, prefix: &str) -> String {
+fn format_with_key(arr: &[Value], opts: &LLMLOptions, prefix: &str) -> String {
     // This should not normally be called in the new recursive design,
     // but kept for compatibility. Arrays should be handled via format_key_value.
     if prefix.is_empty() {
@@ -155,9 +157,10 @@ fn format_with_key(arr: &[Value], opts: &Options, prefix: &str) -> String {
     format_key_value(
         prefix,
         &Value::Array(arr.to_vec()),
-        &Options {
+        &LLMLOptions {
             indent: opts.indent.clone(),
             prefix: String::new(), // Reset prefix since we're handling it in the key
+            strict: opts.strict,
         },
     )
 }
@@ -230,7 +233,7 @@ mod tests {
 
     #[test]
     fn test_recursive_formatting() {
-        let opts = Options::default();
+        let opts = LLMLOptions::default();
 
         // Test empty cases
         assert_eq!(format_value(&json!({}), &opts), "");
@@ -245,7 +248,7 @@ mod tests {
 
     #[test]
     fn test_key_value_formatting() {
-        let opts = Options::default();
+        let opts = LLMLOptions::default();
 
         // Test simple key-value
         let result = format_key_value("test", &json!("value"), &opts);
@@ -254,7 +257,7 @@ mod tests {
         // Test with array
         let result = format_key_value("items", &json!(["a", "b"]), &opts);
         let expected =
-            "<items-list>\n  <items-1>a</items-1>\n  <items-2>b</items-2>\n</items-list>";
+            "<items>\n  <items-1>a</items-1>\n  <items-2>b</items-2>\n</items>";
         assert_eq!(result, expected);
     }
 }

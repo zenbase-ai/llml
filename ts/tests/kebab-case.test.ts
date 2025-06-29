@@ -93,9 +93,9 @@ describe("Kebab Case Conversion", () => {
       })
       const expected = [
         "<user-config>",
-        "  <user-config-debug-mode>true</user-config-debug-mode>",
-        "  <user-config-max-retries>5</user-config-max-retries>",
-        "  <user-config-xml-parser>enabled</user-config-xml-parser>",
+        "  <debug-mode>true</debug-mode>",
+        "  <max-retries>5</max-retries>",
+        "  <xml-parser>enabled</xml-parser>",
         "</user-config>",
       ].join("\n")
       expect(result).toBe(expected)
@@ -107,14 +107,14 @@ describe("Kebab Case Conversion", () => {
         XMLElements: ["element1", "element2"],
       })
       const expected = [
-        "<user-tasks-list>",
+        "<user-tasks>",
         "  <user-tasks-1>task1</user-tasks-1>",
         "  <user-tasks-2>task2</user-tasks-2>",
-        "</user-tasks-list>",
-        "<xml-elements-list>",
+        "</user-tasks>",
+        "<xml-elements>",
         "  <xml-elements-1>element1</xml-elements-1>",
         "  <xml-elements-2>element2</xml-elements-2>",
-        "</xml-elements-list>",
+        "</xml-elements>",
       ].join("\n")
       expect(result).toBe(expected)
     })

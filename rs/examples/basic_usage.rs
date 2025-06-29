@@ -1,4 +1,4 @@
-use zenbase_llml::{llml, llml_with_options, Options};
+use zenbase_llml::{llml, llml_with_options, LLMLOptions};
 use serde_json::json;
 
 fn main() {
@@ -49,9 +49,10 @@ fn main() {
 
     // With indentation
     println!("With indentation:");
-    let options = Some(Options {
+    let options = Some(LLMLOptions {
         indent: "  ".to_string(),
         prefix: String::new(),
+        strict: false,
     });
     println!("{}\n", llml_with_options(&simple_data, options));
 

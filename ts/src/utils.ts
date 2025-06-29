@@ -34,7 +34,7 @@ export const kebabCase = (text: string): string => {
  * Helper function to format a single key-value pair
  */
 export const formatKeyValue = (key: string, value: unknown, options: LLMLOptions = {}): string => {
-  const { indent = "", prefix = "" } = options
+  const { indent = "", prefix = "", strict = false } = options
 
   const fullKey = prefix ? `${prefix}-${key}` : key
   const kebabKey = kebabCase(fullKey)
@@ -42,10 +42,10 @@ export const formatKeyValue = (key: string, value: unknown, options: LLMLOptions
 
   if (Array.isArray(value)) {
     // Handle list formatting with wrapper tag
-    const wrapperTag = `${kebabKey}-list`
+    const wrapperTag = kebabKey
 
     if (value.length === 0) {
-      return `${indent}<${wrapperTag}></${wrapperTag}>`
+      return ""
     }
 
     result += `${indent}<${wrapperTag}>\n`
@@ -69,7 +69,8 @@ export const formatKeyValue = (key: string, value: unknown, options: LLMLOptions
           }
           const subContent = formatKeyValue(subKey, subValue, {
             indent: itemIndent,
-            prefix: itemTag,
+            prefix: strict ? itemTag : "",
+            strict,
           })
           itemResults.push(subContent)
         }
@@ -117,7 +118,8 @@ export const formatKeyValue = (key: string, value: unknown, options: LLMLOptions
       }
       const subContent = formatKeyValue(subKey, subValue, {
         indent: newIndent,
-        prefix: fullKey,
+        prefix: strict ? fullKey : "",
+        strict,
       })
       dictResults.push(subContent)
     }

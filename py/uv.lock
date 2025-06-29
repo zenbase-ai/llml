@@ -7,30 +7,6 @@ resolution-markers = [
 ]
 
 [[package]]
-name = "beartype"
-version = "0.19.0"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version < '3.9'",
-]
-sdist = { url = "https://files.pythonhosted.org/packages/6f/e1/00515b97afa3993b4a314e4bc168fbde0917fd5845435cb6f16a19770746/beartype-0.19.0.tar.gz", hash = "sha256:de42dfc1ba5c3710fde6c3002e3bd2cad236ed4d2aabe876345ab0b4234a6573", size = 1294480, upload-time = "2024-09-26T07:06:17.308Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/64/69/f6db6e4cb2fe2f887dead40b76caa91af4844cb647dd2c7223bb010aa416/beartype-0.19.0-py3-none-any.whl", hash = "sha256:33b2694eda0daf052eb2aff623ed9a8a586703bbf0a90bbc475a83bbf427f699", size = 1039760, upload-time = "2024-09-26T07:06:13.546Z" },
-]
-
-[[package]]
-name = "beartype"
-version = "0.21.0"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.9'",
-]
-sdist = { url = "https://files.pythonhosted.org/packages/0d/f9/21e5a9c731e14f08addd53c71fea2e70794e009de5b98e6a2c3d2f3015d6/beartype-0.21.0.tar.gz", hash = "sha256:f9a5078f5ce87261c2d22851d19b050b64f6a805439e8793aecf01ce660d3244", size = 1437066, upload-time = "2025-05-22T05:09:27.116Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/94/31/87045d1c66ee10a52486c9d2047bc69f00f2689f69401bb1e998afb4b205/beartype-0.21.0-py3-none-any.whl", hash = "sha256:b6a1bd56c72f31b0a496a36cc55df6e2f475db166ad07fa4acc7e74f4c7f34c0", size = 1191340, upload-time = "2025-05-22T05:09:24.606Z" },
-]
-
-[[package]]
 name = "cachetools"
 version = "5.5.2"
 source = { registry = "https://pypi.org/simple" }
@@ -624,12 +600,8 @@ wheels = [
 
 [[package]]
 name = "zenbase-llml"
-version = "0.1.1"
+version = "0.1.4"
 source = { editable = "." }
-dependencies = [
-    { name = "beartype", version = "0.19.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
-    { name = "beartype", version = "0.21.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
-]
 
 [package.optional-dependencies]
 dev = [
@@ -652,7 +624,6 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "beartype", specifier = ">=0.10.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=6.0" },
     { name = "pytest-cov", marker = "extra == 'dev'" },
     { name = "ruff", marker = "extra == 'dev'" },
