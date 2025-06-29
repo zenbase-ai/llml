@@ -450,11 +450,11 @@ console.log(llml({ task: "analyze", content: "customer feedback" }));
 
 // List handling
 console.log(llml({ rules: ["be concise", "be helpful", "be accurate"] }));
-// Output: <rules-list>
+// Output: <rules>
 //           <rules-1>be concise</rules-1>
 //           <rules-2>be helpful</rules-2>
 //           <rules-3>be accurate</rules-3>
-//         </rules-list>
+//         </rules>
 
 // Example 1: Data Extraction
 const extractionPrompt = llml({
@@ -476,12 +476,12 @@ const extractionPrompt = llml({
 // Output:
 // <task>Extract key information from customer feedback</task>
 // <instructions>Identify and categorize customer sentiments and specific issues mentioned</instructions>
-// <rules-list>
+// <rules>
 //   <rules-1>Classify sentiment as positive, negative, or neutral</rules-1>
 //   <rules-2>Extract specific product features mentioned</rules-2>
 //   <rules-3>Identify any requested improvements or fixes</rules-3>
 //   <rules-4>Note any comparisons to competitors</rules-4>
-// </rules-list>
+// </rules>
 // <output-format>
 //   <output-format-sentiment>positive/negative/neutral</output-format-sentiment>
 //   <output-format-features-mentioned>list of features</output-format-features-mentioned>
@@ -619,11 +619,11 @@ println!("{}", llml(&json!({ "task": "analyze", "content": "customer feedback" }
 
 // List handling
 println!("{}", llml(&json!({ "rules": ["be concise", "be helpful", "be accurate"] }), None));
-// Output: <rules-list>
+// Output: <rules>
 //           <rules-1>be concise</rules-1>
 //           <rules-2>be helpful</rules-2>
 //           <rules-3>be accurate</rules-3>
-//         </rules-list>
+//         </rules>
 
 // Example 1: Data Extraction
 let extraction_prompt = llml(&json!({
@@ -729,11 +729,11 @@ llml.Sprintf(map[string]any{
 llml.Sprintf(map[string]any{
   "rules": []any{"be concise", "be helpful", "be accurate"},
 })
-// Output: <rules-list>
+// Output: <rules>
 //           <rules-1>be concise</rules-1>
 //           <rules-2>be helpful</rules-2>
 //           <rules-3>be accurate</rules-3>
-//         </rules-list>
+//         </rules>
 
 // Example 1: Data Extraction
 extractionPrompt := llml.Sprintf(map[string]any{

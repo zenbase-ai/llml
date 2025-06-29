@@ -28,6 +28,17 @@ console.log(llml({
     features: ["Fast", "Simple", "Powerful"],
     config: { debug: true, version: "1.0" }
 }));
+// Output:
+// <title>My Project</title>
+// <features>
+//   <features-1>Fast</features-1>
+//   <features-2>Simple</features-2>
+//   <features-3>Powerful</features-3>
+// </features>
+// <config>
+//   <debug>true</debug>
+//   <version>1.0</version>
+// </config>
 ```
 
 ## 🎯 Why LLML?
@@ -116,6 +127,17 @@ const promptData = {
 };
 
 console.log(llml(promptData));
+// Output:
+// <system>You are a helpful assistant</system>
+// <rules>
+//   <rules-1>Be concise and clear</rules-1>
+//   <rules-2>Provide examples when helpful</rules-2>
+//   <rules-3>Ask clarifying questions</rules-3>
+// </rules>
+// <context>
+//   <user-level>beginner</user-level>
+//   <topic>TypeScript programming</topic>
+// </context>
 
 // Example with strict mode
 console.log(llml({config: {debug: true, timeout: 30}}, {strict: true}));
