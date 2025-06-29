@@ -1,8 +1,8 @@
 [package]
-name = "llml"
-version = "0.1.0"
+name = "zenbase-llml"
+version = "0.1.1"
 edition = "2021"
-description = "Lightweight Markup Language - converts data structures to XML-like markup"
+description = "Lightweight Language Markup Language - converts data structures to XML-like markup"
 license = "MIT"
 repository = "https://github.com/zenbase-ai/llml"
 keywords = ["markup", "xml", "serialization", "formatting"]

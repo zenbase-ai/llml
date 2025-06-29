@@ -1,34 +1,278 @@
 # LLML - Lightweight Language Markup Language
 
-Convert Python and JavaScript data structures into human-readable, XML-like markup.
+Convert data structures into human-readable, XML-like markup across multiple languages.
 
-## Overview
+LLML is a data serialization library available in **Python**, **TypeScript/JavaScript**, **Rust**, and **Go** that transforms nested data structures (dictionaries/objects, lists/arrays, primitives) into well-formatted, XML-like markup.
 
-LLML is a data serialization library available in both Python and TypeScript/JavaScript that transforms nested data structures (dictionaries/objects, lists/arrays, primitives) into well-formatted, XML-like markup. It's designed for tasks like AI prompt engineering, configuration file generation, and creating structured documents from data.
+📋 [Full Technical Specification](.cursor/rules/spec.mdc)
+
+```python
+# Python
+from zenbase_llml import llml
+
+llml({name: "Alice", age: 30})
+# Output: <name>Alice</name>
+#         <age>30</age>
+
+llml({instructions: "You are a helpful assistant.", rules: ["be concise", "be helpful", "be accurate"]})
+# Output: <instructions>You are a helpful assistant.</instructions>
+#         <rules-list>
+#           <rules-1>be concise</rules-1>
+#           <rules-2>be helpful</rules-2>
+#           <rules-3>be accurate</rules-3>
+#         </rules-list>
+```
+
+<details>
+<summary><b>Quick Examples in TS/JS/Rust/Go</b></summary>
+<br>
+
+```typescript
+// TypeScript/JavaScript
+import { llml } from '@zenbase/llml';
+
+const agentPrompt = llml({
+    role: "DevOps automation agent",
+    context: {
+        environment: "production",
+        awsRegion: "us-east-1",
+        services: ["web-api", "worker-queue", "database"],
+        lastDeployment: "2024-01-15T10:30:00Z"
+    },
+    instructions: "Execute deployment workflow with safety checks",
+    workflows: {
+        deploy: [
+            "Run pre-deployment health checks",
+            "Create backup of current state",
+            "Deploy to canary instance (5% traffic)",
+            "Monitor metrics for 10 minutes",
+            "If healthy, proceed to full deployment",
+            "If issues detected, automatic rollback"
+        ],
+        rollback: [
+            "Stop new traffic to affected services",
+            "Restore from latest backup",
+            "Verify service health",
+            "Send notification to ops channel"
+        ]
+    },
+    safetyRules: [
+        "Never skip health checks",
+        "Always maintain 99.9% uptime SLA",
+        "Require manual approval for database changes"
+    ]
+});
+// Output:
+// <role>DevOps automation agent</role>
+// <context>
+//   <context-environment>production</context-environment>
+//   <context-aws-region>us-east-1</context-aws-region>
+//   <context-services-list>
+//     <context-services-1>web-api</context-services-1>
+//     <context-services-2>worker-queue</context-services-2>
+//     <context-services-3>database</context-services-3>
+//   </context-services-list>
+//   <context-last-deployment>2024-01-15T10:30:00Z</context-last-deployment>
+// </context>
+// <instructions>Execute deployment workflow with safety checks</instructions>
+// <workflows>
+//   <workflows-deploy-list>
+//     <workflows-deploy-1>Run pre-deployment health checks</workflows-deploy-1>
+//     <workflows-deploy-2>Create backup of current state</workflows-deploy-2>
+//     <workflows-deploy-3>Deploy to canary instance (5% traffic)</workflows-deploy-3>
+//     <workflows-deploy-4>Monitor metrics for 10 minutes</workflows-deploy-4>
+//     <workflows-deploy-5>If healthy, proceed to full deployment</workflows-deploy-5>
+//     <workflows-deploy-6>If issues detected, automatic rollback</workflows-deploy-6>
+//   </workflows-deploy-list>
+//   <workflows-rollback-list>
+//     <workflows-rollback-1>Stop new traffic to affected services</workflows-rollback-1>
+//     <workflows-rollback-2>Restore from latest backup</workflows-rollback-2>
+//     <workflows-rollback-3>Verify service health</workflows-rollback-3>
+//     <workflows-rollback-4>Send notification to ops channel</workflows-rollback-4>
+//   </workflows-rollback-list>
+// </workflows>
+// <safety-rules-list>
+//   <safety-rules-1>Never skip health checks</safety-rules-1>
+//   <safety-rules-2>Always maintain 99.9% uptime SLA</safety-rules-2>
+//   <safety-rules-3>Require manual approval for database changes</safety-rules-3>
+// </safety-rules-list>
+```
+
+```rust
+// Rust
+use zenbase_llml::llml;
+
+let rag_prompt = llml(&json!({
+    "system": "You are a helpful documentation assistant",
+    "instructions": "Answer questions based on the provided documentation context",
+    "documents": [
+        {
+            "title": "API Authentication Guide",
+            "content": "Our API uses OAuth 2.0 for authentication...",
+            "relevance_score": 0.95
+        },
+        {
+            "title": "Rate Limiting Documentation",
+            "content": "API calls are limited to 1000 requests per hour...",
+            "relevance_score": 0.82
+        }
+    ],
+    "user_query": "How do I authenticate with your API?",
+    "constraints": [
+        "Only use information from the provided documents",
+        "Cite the document title when referencing information",
+        "If information is not available, explicitly state so"
+    ]
+}));
+// Output:
+// <system>You are a helpful documentation assistant</system>
+// <instructions>Answer questions based on the provided documentation context</instructions>
+// <documents-list>
+//   <documents-1>
+//     <documents-1-title>API Authentication Guide</documents-1-title>
+//     <documents-1-content>Our API uses OAuth 2.0 for authentication...</documents-1-content>
+//     <documents-1-relevance-score>0.95</documents-1-relevance-score>
+//   </documents-1>
+//   <documents-2>
+//     <documents-2-title>Rate Limiting Documentation</documents-2-title>
+//     <documents-2-content>API calls are limited to 1000 requests per hour...</documents-2-content>
+//     <documents-2-relevance-score>0.82</documents-2-relevance-score>
+//   </documents-2>
+// </documents-list>
+// <user-query>How do I authenticate with your API?</user-query>
+// <constraints-list>
+//   <constraints-1>Only use information from the provided documents</constraints-1>
+//   <constraints-2>Cite the document title when referencing information</constraints-2>
+//   <constraints-3>If information is not available, explicitly state so</constraints-3>
+// </constraints-list>
+```
+
+```go
+// Go
+package main
+
+import (
+	"github.com/zenbase-ai/llml/go/pkg/llml"
+)
+
+ragPrompt := llml.Sprintf(map[string]any{
+  "system":       "You are a helpful documentation assistant",
+  "instructions": "Answer questions based on the provided documentation context",
+  "documents": []any{
+  	map[string]any{
+  		"title":           "API Authentication Guide",
+  		"content":         "Our API uses OAuth 2.0 for authentication...",
+      "relevance_score": 0.95,
+  	},
+  	map[string]any{
+  		"title":           "Rate Limiting Documentation",
+  		"content":         "API calls are limited to 1000 requests per hour...",
+      "relevance_score": 0.82,
+  	},
+  },
+  "user_query": "How do I authenticate with your API?",
+  "constraints": []any{
+  	"Only use information from the provided documents",
+  	"Cite the document title when referencing information",
+  	"If information is not available, explicitly state so",
+  },
+})
+// Output:
+// <system>You are a helpful documentation assistant</system>
+// <instructions>Answer questions based on the provided documentation context</instructions>
+// <documents-list>
+//   <documents-1>
+//     <documents-1-title>API Authentication Guide</documents-1-title>
+//     <documents-1-content>Our API uses OAuth 2.0 for authentication...</documents-1-content>
+//     <documents-1-relevance-score>0.95</documents-1-relevance-score>
+//   </documents-1>
+//   <documents-2>
+//     <documents-2-title>Rate Limiting Documentation</documents-2-title>
+//     <documents-2-content>API calls are limited to 1000 requests per hour...</documents-2-content>
+//     <documents-2-relevance-score>0.82</documents-2-relevance-score>
+//   </documents-2>
+// </documents-list>
+// <user-query>How do I authenticate with your API?</user-query>
+// <constraints-list>
+//   <constraints-1>Only use information from the provided documents</constraints-1>
+//   <constraints-2>Cite the document title when referencing information</constraints-2>
+//   <constraints-3>If information is not available, explicitly state so</constraints-3>
+// </constraints-list>
+```
+</details>
+
+## Benefits
+
+1. 🏗️ **Structured Prompt Engineering**: Replace fragile string concatenation and template management with systematic data-to-markup conversion.
+2. 📊 **Complex Data Simplification**: Transform nested configuration objects, user data, and multi-part instructions into clean, readable markup without manual formatting.
+3. 🔀 **Cross-Language Reliability**: Identical output across Python, TypeScript, Rust, and Go means your prompt generation works the same regardless of your backend language.
+4. 🛠️ **Maintainable Prompt Templates**: Stop maintaining brittle template strings that break when data structures change. With LLML, your prompts are just data structures—add new fields, reorganize objects, or change array contents, and the markup automatically updates with proper formatting and numbering.
+5. 🤖 **LLM-Optimized Output**: LLML's XML-like format with clear tag boundaries and numbered list items (`<rules-1>`, `<rules-2>`) reduces prompt ambiguity and reduces attentional load. Language models can reliably identify and reference specific sections, improving response accuracy and reducing hallucinations in complex, multi-part prompts.
+
+## Table of Contents
+
+- [LLML - Lightweight Language Markup Language](#llml---lightweight-language-markup-language)
+  - [Benefits](#benefits)
+  - [Table of Contents](#table-of-contents)
+  - [How It Works](#how-it-works)
+  - [Features](#features)
+  - [Quick Start](#quick-start)
+    - [Python](#python)
+    - [TypeScript/JavaScript](#typescriptjavascript)
+    - [Rust](#rust)
+    - [Go](#go)
+  - [Prerequisites](#prerequisites)
+  - [Installation \& Setup](#installation--setup)
+    - [Python Project](#python-project)
+    - [TypeScript Project](#typescript-project)
+    - [Rust Project](#rust-project)
+    - [Go Project](#go-project)
+  - [Linting](#linting)
+  - [Running Tests](#running-tests)
+  - [Development](#development)
+  - [API Reference](#api-reference)
+  - [License](#license)
+
+## How It Works
+
+LLML transforms data using these core rules:
+
+1. **Simple Values**: `{key: "value"}` → `<key>value</key>`
+2. **Lists/Arrays**: `{items: ["a", "b"]}` → `<items-list><items-1>a</items-1><items-2>b</items-2></items-list>`
+3. **Nested Objects**: `{config: {debug: true}}` → `<config><config-debug>true</config-debug></config>`
+4. **Key Normalization**: All keys are converted to kebab-case automatically
+5. **Empty Values**: Empty objects `{}` and arrays `[]` return empty strings
+
 
 ## Features
 
-- **Automatic kebab-case conversion** of keys
-- **Smart list formatting** with numbered items
-- **Recursive handling** of deeply nested structures
-- **Automatic indentation** for readability
-- **Multiline content support**
-- **Optional prefix namespacing**
-- **Zero configuration** - works out of the box
+- 🔄 **Automatic kebab-case conversion**: Transform `user_name` → `user-name`, `maxRetries` → `max-retries`
+- 📝 **Smart list formatting**: Arrays become `<items-list><items-1>first</items-1><items-2>second</items-2></items-list>`
+- 🔁 **Recursive nested structures**: Objects within objects maintain proper hierarchy with compound keys
+- 📐 **Configurable indentation**: Custom spacing for nested elements
+- 📄 **Multiline content support**: Preserves line breaks with proper indentation
+- 🏷️ **Optional prefix namespacing**: Add prefixes to all generated tags
+- ⚡ **Zero configuration**: Works out of the box with sensible defaults
+- 🔀 **Consistent cross-language output**: Identical results across Python, TypeScript, Rust, and Go
 
 ## Quick Start
 
 ### Python
+
+```bash
+uv install zenbase-llml # or pip, rye, poetry, etc.
+```
+
 ```python
-from llml import llml
+from zenbase_llml import llml
 
 # Simple example
-print(llml(task="analyze", content="customer feedback"))
+llml(task="analyze", content="customer feedback")
 # Output: <task>analyze</task>
 #         <content>customer feedback</content>
 
 # List handling
-print(llml(rules=["be concise", "be helpful", "be accurate"]))
+llml(rules=["be concise", "be helpful", "be accurate"])
 # Output: <rules-list>
 #           <rules-1>be concise</rules-1>
 #           <rules-2>be helpful</rules-2>
@@ -52,7 +296,6 @@ extraction_prompt = llml(
         "improvements": ["list of suggestions"]
     }
 )
-print(extraction_prompt)
 # Output:
 # <task>Extract key information from customer feedback</task>
 # <instructions>Identify and categorize customer sentiments and specific issues mentioned</instructions>
@@ -98,7 +341,6 @@ rag_prompt = llml(
         "If information is not available, explicitly state so"
     ]
 )
-print(rag_prompt)
 # Output:
 # <system>You are a helpful documentation assistant</system>
 # <instructions>Answer questions based on the provided documentation context</instructions>
@@ -191,6 +433,11 @@ print(agent_prompt)
 ```
 
 ### TypeScript/JavaScript
+
+```bash
+pnpm add @zenbase/llml # or bun, npm, yarn, etc.
+```
+
 ```typescript
 import { llml } from '@zenbase/llml';
 
@@ -224,7 +471,21 @@ const extractionPrompt = llml({
         improvements: ["list of suggestions"]
     }
 });
-console.log(extractionPrompt);
+// Output:
+// <task>Extract key information from customer feedback</task>
+// <instructions>Identify and categorize customer sentiments and specific issues mentioned</instructions>
+// <rules-list>
+//   <rules-1>Classify sentiment as positive, negative, or neutral</rules-1>
+//   <rules-2>Extract specific product features mentioned</rules-2>
+//   <rules-3>Identify any requested improvements or fixes</rules-3>
+//   <rules-4>Note any comparisons to competitors</rules-4>
+// </rules-list>
+// <output-format>
+//   <output-format-sentiment>positive/negative/neutral</output-format-sentiment>
+//   <output-format-features-mentioned>list of features</output-format-features-mentioned>
+//   <output-format-issues>list of problems</output-format-issues>
+//   <output-format-improvements>list of suggestions</output-format-improvements>
+// </output-format>
 
 // Example 2: RAG Chatbot
 const ragPrompt = llml({
@@ -249,7 +510,27 @@ const ragPrompt = llml({
         "If information is not available, explicitly state so"
     ]
 });
-console.log(ragPrompt);
+// Output:
+// <system>You are a helpful documentation assistant</system>
+// <instructions>Answer questions based on the provided documentation context</instructions>
+// <documents-list>
+//   <documents-1>
+//     <documents-1-title>API Authentication Guide</documents-1-title>
+//     <documents-1-content>Our API uses OAuth 2.0 for authentication...</documents-1-content>
+//     <documents-1-relevance-score>0.95</documents-1-relevance-score>
+//   </documents-1>
+//   <documents-2>
+//     <documents-2-title>Rate Limiting Documentation</documents-2-title>
+//     <documents-2-content>API calls are limited to 1000 requests per hour...</documents-2-content>
+//     <documents-2-relevance-score>0.82</documents-2-relevance-score>
+//   </documents-2>
+// </documents-list>
+// <user-query>How do I authenticate with your API?</user-query>
+// <constraints-list>
+//   <constraints-1>Only use information from the provided documents</constraints-1>
+//   <constraints-2>Cite the document title when referencing information</constraints-2>
+//   <constraints-3>If information is not available, explicitly state so</constraints-3>
+// </constraints-list>
 
 // Example 3: AI Agent with Workflows
 const agentPrompt = llml({
@@ -283,10 +564,48 @@ const agentPrompt = llml({
         "Require manual approval for database changes"
     ]
 });
-console.log(agentPrompt);
+// Output:
+// <role>DevOps automation agent</role>
+// <context>
+//   <context-environment>production</context-environment>
+//   <context-aws-region>us-east-1</context-aws-region>
+//   <context-services-list>
+//     <context-services-1>web-api</context-services-1>
+//     <context-services-2>worker-queue</context-services-2>
+//     <context-services-3>database</context-services-3>
+//   </context-services-list>
+//   <context-last-deployment>2024-01-15T10:30:00Z</context-last-deployment>
+// </context>
+// <instructions>Execute deployment workflow with safety checks</instructions>
+// <workflows>
+//   <workflows-deploy-list>
+//     <workflows-deploy-1>Run pre-deployment health checks</workflows-deploy-1>
+//     <workflows-deploy-2>Create backup of current state</workflows-deploy-2>
+//     <workflows-deploy-3>Deploy to canary instance (5% traffic)</workflows-deploy-3>
+//     <workflows-deploy-4>Monitor metrics for 10 minutes</workflows-deploy-4>
+//     <workflows-deploy-5>If healthy, proceed to full deployment</workflows-deploy-5>
+//     <workflows-deploy-6>If issues detected, automatic rollback</workflows-deploy-6>
+//   </workflows-deploy-list>
+//   <workflows-rollback-list>
+//     <workflows-rollback-1>Stop new traffic to affected services</workflows-rollback-1>
+//     <workflows-rollback-2>Restore from latest backup</workflows-rollback-2>
+//     <workflows-rollback-3>Verify service health</workflows-rollback-3>
+//     <workflows-rollback-4>Send notification to ops channel</workflows-rollback-4>
+//   </workflows-rollback-list>
+// </workflows>
+// <safety-rules-list>
+//   <safety-rules-1>Never skip health checks</safety-rules-1>
+//   <safety-rules-2>Always maintain 99.9% uptime SLA</safety-rules-2>
+//   <safety-rules-3>Require manual approval for database changes</safety-rules-3>
+// </safety-rules-list>
 ```
 
 ### Rust
+
+```bash
+cargo add zenbase-llml # or cargo, cargo-binstall, etc.
+```
+
 ```rust
 use llml::llml;
 use serde_json::json;
@@ -320,7 +639,7 @@ let extraction_prompt = llml(&json!({
         "issues": ["list of problems"],
         "improvements": ["list of suggestions"]
     }
-}), None);
+}));
 println!("{}", extraction_prompt);
 
 // Example 2: RAG Chatbot
@@ -345,7 +664,7 @@ let rag_prompt = llml(&json!({
         "Cite the document title when referencing information",
         "If information is not available, explicitly state so"
     ]
-}), None);
+}));
 println!("{}", rag_prompt);
 
 // Example 3: AI Agent with Workflows
@@ -379,137 +698,140 @@ let agent_prompt = llml(&json!({
         "Always maintain 99.9% uptime SLA",
         "Require manual approval for database changes"
     ]
-}), None);
+}));
 println!("{}", agent_prompt);
 ```
 
 ### Go
+
+```bash
+go install github.com/zenbase-ai/llml/go@latest
+```
+
 ```go
 package main
 
 import (
-	"fmt"
-	"github.com/zenbase-ai/llml-go/pkg/llml"
+	"github.com/zenbase-ai/llml/go/pkg/llml"
 )
 
-func main() {
-	// Simple example
-	fmt.Println(llml.LLML(map[string]any{
-		"task": "analyze",
-		"content": "customer feedback",
-	}))
-	// Output: <task>analyze</task>
-	//         <content>customer feedback</content>
+// Simple example
+llml.Sprintf(map[string]any{
+  "task": "analyze",
+  "content": "customer feedback",
+})
+// Output: <task>analyze</task>
+//         <content>customer feedback</content>
 
-	// List handling
-	fmt.Println(llml.LLML(map[string]any{
-		"rules": []any{"be concise", "be helpful", "be accurate"},
-	}))
-	// Output: <rules-list>
-	//           <rules-1>be concise</rules-1>
-	//           <rules-2>be helpful</rules-2>
-	//           <rules-3>be accurate</rules-3>
-	//         </rules-list>
+// List handling
+llml.Sprintf(map[string]any{
+  "rules": []any{"be concise", "be helpful", "be accurate"},
+})
+// Output: <rules-list>
+//           <rules-1>be concise</rules-1>
+//           <rules-2>be helpful</rules-2>
+//           <rules-3>be accurate</rules-3>
+//         </rules-list>
 
-	// Example 1: Data Extraction
-	extractionPrompt := llml.LLML(map[string]any{
-		"task":         "Extract key information from customer feedback",
-		"instructions": "Identify and categorize customer sentiments and specific issues mentioned",
-		"rules": []any{
-			"Classify sentiment as positive, negative, or neutral",
-			"Extract specific product features mentioned",
-			"Identify any requested improvements or fixes",
-			"Note any comparisons to competitors",
-		},
-		"output_format": map[string]any{
-			"sentiment":          "positive/negative/neutral",
-			"features_mentioned": []any{"list of features"},
-			"issues":             []any{"list of problems"},
-			"improvements":       []any{"list of suggestions"},
-		},
-	})
-	fmt.Println(extractionPrompt)
+// Example 1: Data Extraction
+extractionPrompt := llml.Sprintf(map[string]any{
+  "task":         "Extract key information from customer feedback",
+  "instructions": "Identify and categorize customer sentiments and specific issues mentioned",
+  "rules": []any{
+  	"Classify sentiment as positive, negative, or neutral",
+  	"Extract specific product features mentioned",
+  	"Identify any requested improvements or fixes",
+  	"Note any comparisons to competitors",
+  },
+  "output_format": map[string]any{
+  	"sentiment":          "positive/negative/neutral",
+  	"features_mentioned": []any{"list of features"},
+  	"issues":             []any{"list of problems"},
+  	"improvements":       []any{"list of suggestions"},
+  },
+})
 
-	// Example 2: RAG Chatbot
-	ragPrompt := llml.LLML(map[string]any{
-		"system":       "You are a helpful documentation assistant",
-		"instructions": "Answer questions based on the provided documentation context",
-		"documents": []any{
-			map[string]any{
-				"title":           "API Authentication Guide",
-				"content":         "Our API uses OAuth 2.0 for authentication...",
-				"relevance_score": 0.95,
-			},
-			map[string]any{
-				"title":           "Rate Limiting Documentation",
-				"content":         "API calls are limited to 1000 requests per hour...",
-				"relevance_score": 0.82,
-			},
-		},
-		"user_query": "How do I authenticate with your API?",
-		"constraints": []any{
-			"Only use information from the provided documents",
-			"Cite the document title when referencing information",
-			"If information is not available, explicitly state so",
-		},
-	})
-	fmt.Println(ragPrompt)
+// Example 2: RAG Chatbot
+ragPrompt := llml.Sprintf(map[string]any{
+  "system":       "You are a helpful documentation assistant",
+  "instructions": "Answer questions based on the provided documentation context",
+  "documents": []any{
+  	map[string]any{
+  		"title":           "API Authentication Guide",
+  		"content":         "Our API uses OAuth 2.0 for authentication...",
+  		"relevance_score": 0.95,
+  	},
+  	map[string]any{
+  		"title":           "Rate Limiting Documentation",
+  		"content":         "API calls are limited to 1000 requests per hour...",
+  		"relevance_score": 0.82,
+  	},
+  },
+  "user_query": "How do I authenticate with your API?",
+  "constraints": []any{
+  	"Only use information from the provided documents",
+  	"Cite the document title when referencing information",
+  	"If information is not available, explicitly state so",
+  },
+  })
 
-	// Example 3: AI Agent with Workflows
-	agentPrompt := llml.LLML(map[string]any{
-		"role": "DevOps automation agent",
-		"context": map[string]any{
-			"environment":     "production",
-			"aws_region":      "us-east-1",
-			"services":        []any{"web-api", "worker-queue", "database"},
-			"last_deployment": "2024-01-15T10:30:00Z",
-		},
-		"instructions": "Execute deployment workflow with safety checks",
-		"workflows": map[string]any{
-			"deploy": []any{
-				"Run pre-deployment health checks",
-				"Create backup of current state",
-				"Deploy to canary instance (5% traffic)",
-				"Monitor metrics for 10 minutes",
-				"If healthy, proceed to full deployment",
-				"If issues detected, automatic rollback",
-			},
-			"rollback": []any{
-				"Stop new traffic to affected services",
-				"Restore from latest backup",
-				"Verify service health",
-				"Send notification to ops channel",
-			},
-		},
-		"safety_rules": []any{
-			"Never skip health checks",
-			"Always maintain 99.9% uptime SLA",
-			"Require manual approval for database changes",
-		},
-	})
-	fmt.Println(agentPrompt)
-}
+  // Example 3: AI Agent with Workflows
+  agentPrompt := llml.Sprintf(map[string]any{
+  "role": "DevOps automation agent",
+  "context": map[string]any{
+  	"environment":     "production",
+  	"aws_region":      "us-east-1",
+  	"services":        []any{"web-api", "worker-queue", "database"},
+  	"last_deployment": "2024-01-15T10:30:00Z",
+  },
+  "instructions": "Execute deployment workflow with safety checks",
+  "workflows": map[string]any{
+  	"deploy": []any{
+  		"Run pre-deployment health checks",
+  		"Create backup of current state",
+  		"Deploy to canary instance (5% traffic)",
+  		"Monitor metrics for 10 minutes",
+  		"If healthy, proceed to full deployment",
+  		"If issues detected, automatic rollback",
+  	},
+  	"rollback": []any{
+  		"Stop new traffic to affected services",
+  		"Restore from latest backup",
+  		"Verify service health",
+  		"Send notification to ops channel",
+  	},
+  },
+  "safety_rules": []any{
+  	"Never skip health checks",
+  	"Always maintain 99.9% uptime SLA",
+  	"Require manual approval for database changes",
+  },
+})
 ```
 
-## Project Structure
+## Prerequisites
 
-This repository contains two implementations:
+This project uses [mise](https://mise.jdx.dev/) for tool management. First install the required development tools:
 
-- **`py/`** - Python implementation with full test suite
-- **`ts/`** - TypeScript implementation with comprehensive tests
-- **`rs/`** - Rust implementation with comprehensive tests
-- **`go/`** - Go implementation with comprehensive tests
+```bash
+mise install
+```
 
-Both implementations provide identical functionality and API design.
+This will install the specific versions of:
+- `just` (task runner)
+- `python` (Python interpreter)
+- `go` (Go compiler)
+- `rust` (Rust compiler)
+- `bun` (JavaScript runtime and package manager)
 
 ## Installation & Setup
+
+After running `mise install`, set up the language-specific dependencies:
 
 ### Python Project
 ```bash
 cd py/
-uv venv
-source .venv/bin/activate
-uv pip install -e .[dev]
+uv install
 ```
 
 ### TypeScript Project
@@ -518,21 +840,36 @@ cd ts/
 bun install
 ```
 
+### Rust Project
+```bash
+cd rs/
+cargo build
+```
+
+### Go Project
+```bash
+cd go/
+go mod download
+```
+
+## Linting
+
+```bash
+just lint # run all linters
+just lint ts # typescript linters
+just lint py # python linters
+just lint rs # rust linters
+just lint go # go linters
+```
+
 ## Running Tests
 
-### All Tests
 ```bash
-just test
-```
-
-### Python Tests Only
-```bash
-just py test
-```
-
-### TypeScript Tests Only
-```bash
-just ts test
+just test # run all tests
+just test ts # typescript tests
+just test py # python tests
+just test rs # rust tests
+just test go # go tests
 ```
 
 ## Development
@@ -546,7 +883,7 @@ This project uses:
 
 ## API Reference
 
-Both implementations provide the same core functionality:
+All implementations provide the same core functionality:
 
 - Convert dictionaries/objects to nested tag structures
 - Transform lists/arrays into numbered item lists
@@ -559,3 +896,7 @@ See individual project READMEs for detailed API documentation:
 - [TypeScript API Documentation](ts/README.md)
 - [Rust API Documentation](rs/README.md)
 - [Go API Documentation](go/README.md)
+
+## License
+
+MIT

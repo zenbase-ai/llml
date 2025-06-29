@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { llml } from "../src/index"
+import llml from "../src/index"
 
 describe("Basic Value Formatting", () => {
   it("should handle null values", () => {

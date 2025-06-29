@@ -1,6 +1,6 @@
 {
   "[javascript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": "biomejs.biome",
     "editor.tabSize": 2
   },
   "[python]": {
@@ -12,7 +12,7 @@
     "editor.tabSize": 2
   },
   "[typescript]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.defaultFormatter": "biomejs.biome",
     "editor.tabSize": 2
   },
   "editor.codeActionsOnSave": {
@@ -37,7 +37,8 @@
     "**/.tox/": true,
     "**/.venv/": true,
     "**/__pycache__": true,
-    "**/node_modules/": true
+    "**/node_modules/": true,
+    "**/*.egg-info/": true
   },
   "python.analysis.extraPaths": ["./py"],
   "python.analysis.importFormat": "absolute",

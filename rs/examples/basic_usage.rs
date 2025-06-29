@@ -1,4 +1,4 @@
-use llml::{llml, Options};
+use zenbase_llml::{llml, llml_with_options, Options};
 use serde_json::json;
 
 fn main() {
@@ -11,7 +11,7 @@ fn main() {
         "enabled": true
     });
     println!("Simple data:");
-    println!("{}\n", llml(&simple_data, None));
+    println!("{}\n", llml(&simple_data));
 
     // Lists
     let list_data = json!({
@@ -19,7 +19,7 @@ fn main() {
         "numbers": [1, 2, 3]
     });
     println!("Lists:");
-    println!("{}\n", llml(&list_data, None));
+    println!("{}\n", llml(&list_data));
 
     // Nested objects
     let nested_data = json!({
@@ -33,7 +33,7 @@ fn main() {
         }
     });
     println!("Nested objects:");
-    println!("{}\n", llml(&nested_data, None));
+    println!("{}\n", llml(&nested_data));
 
     // Mixed content
     let mixed_data = json!({
@@ -45,7 +45,7 @@ fn main() {
         }
     });
     println!("Mixed content:");
-    println!("{}\n", llml(&mixed_data, None));
+    println!("{}\n", llml(&mixed_data));
 
     // With indentation
     println!("With indentation:");
@@ -53,7 +53,7 @@ fn main() {
         indent: "  ".to_string(),
         prefix: String::new(),
     });
-    println!("{}\n", llml(&simple_data, options));
+    println!("{}\n", llml_with_options(&simple_data, options));
 
     // Empty values
     let empty_data = json!({
@@ -64,5 +64,5 @@ fn main() {
         "null_value": null
     });
     println!("Empty/falsy values:");
-    println!("{}", llml(&empty_data, None));
+    println!("{}", llml(&empty_data));
 }

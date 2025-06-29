@@ -53,6 +53,28 @@ yarn install
 
 ## 📚 Advanced Usage
 
+### Automatic Key Conversion
+LLML automatically converts all keys to kebab-case for consistency:
+
+```typescript
+// camelCase, snake_case, and spaces all become kebab-case
+console.log(llml({ 
+  userName: "Alice",           // camelCase
+  user_age: 30,               // snake_case
+  "user email": "alice@example.com"  // spaces
+}));
+// Output:
+// <user-name>Alice</user-name>
+// <user-age>30</user-age>
+// <user-email>alice@example.com</user-email>
+
+// Handles complex cases like acronyms
+console.log(llml({ XMLHttpRequest: "api", HTMLElement: "dom" }));
+// Output:
+// <xml-http-request>api</xml-http-request>
+// <html-element>dom</html-element>
+```
+
 ### Prefix Support
 ```typescript
 // Add prefix to all keys
@@ -148,7 +170,7 @@ The test suite covers:
 - ✅ Basic value formatting
 - ✅ Complex nested structures
 - ✅ List and array handling
-- ✅ Kebab-case key conversion
+- ✅ Kebab-case key conversion (camelCase, snake_case, spaces)
 - ✅ Multiline content processing
 - ✅ Prefix functionality
 - ✅ Indentation control

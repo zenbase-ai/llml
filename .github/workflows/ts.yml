@@ -1,0 +1,42 @@
+name: TypeScript Tests
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "ts/**"
+      - ".github/workflows/ts.yml"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "ts/**"
+      - ".github/workflows/ts.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Lint
+        run: bun run eslint . --ext .ts,.tsx
+        working-directory: ts
+        continue-on-error: true
+
+      - name: Install dependencies
+        run: bun install
+        working-directory: ts
+
+      - name: Run tests
+        run: bun test
+        working-directory: ts
+
+      - name: Type check
+        run: bun run tsc --noEmit
+        working-directory: ts

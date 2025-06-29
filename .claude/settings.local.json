@@ -1,32 +1,21 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python -m pytest tests/ -v)",
-      "Bash(uv add:*)",
-      "Bash(uv run pytest:*)",
-      "Bash(uv run:*)",
-      "Bash(uv ruff format:*)",
-      "Bash(uv:*)",
+      "Bash(bun:*)",
+      "Bash(cargo:*)",
+      "Bash(go:*)",
+      "Bash(just:*)",
       "Bash(ls:*)",
       "Bash(mkdir:*)",
       "Bash(mv:*)",
-      "Bash(pnpm gemini:*)",
-      "Bash(bun test:*)",
-      "Bash(just py run pytest -vv)",
-      "Bash(just py run pytest tests/test_llml.py::test_nested_dict -vv)",
-      "Bash(bun add:*)",
-      "Bash(bun run:*)",
-      "Bash(bun:*)",
-      "Bash(just py run pytest -vv -k \"test_none or test_empty_dict\")",
-      "Bash(just gemini:*)",
+      "Bash(pnpx @google/gemini-cli:*)",
+      "Bash(rg:*)",
       "Bash(source:*)",
-      "Bash(pytest:*)",
-      "Bash(cargo test)",
-      "Bash(go test:*)",
-      "Bash(go run:*)",
-      "Bash(rm:*)",
-      "Bash(cargo check:*)",
-      "Bash(just go test ./...)"
+      "Bash(uv:*)",
+      "Bash(just test:*)",
+      "Bash(just go test)",
+      "Bash(just test:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }

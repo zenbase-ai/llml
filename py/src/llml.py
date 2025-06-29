@@ -1,4 +1,5 @@
 import typing as t
+from dataclasses import dataclass
 from io import StringIO
 from textwrap import dedent
 
@@ -9,11 +10,16 @@ from .utils import kebab_case
 SPACE = " "
 
 
+@dataclass
+class Options:
+    indent: str = ""
+    prefix: str = ""
+
+
 @beartype
 def llml(
     *args: t.Any,
-    indent: str = "",
-    prefix: str = "",
+    options: Options | None = None,
     io: t.IO | None = None,
     **parts: t.Any,
 ) -> str:
@@ -49,16 +55,43 @@ def llml(
     """
     io = io or StringIO()
 
+    # Extract options
+    indent = options.indent if options else ""
+    prefix = options.prefix if options else ""
+
     # Handle direct value calls: llml(), llml(None), llml([]), llml({})
     if len(args) == 0 and not parts:
         return ""
     elif len(args) == 1 and not parts:
         value = args[0]
-        if isinstance(value, (list, dict)):
-            if not value:  # Empty list or dict
+        if isinstance(value, dict):
+            if not value:  # Empty dict
                 return ""
-            # Non-empty collections need a key, so return empty
+            # Non-empty dicts need keys, so return empty
             return ""
+        elif isinstance(value, list):
+            if not value:  # Empty list
+                return ""
+            # Handle direct list as numbered items
+            for i, item in enumerate(value, 1):
+                item_tag = f"{prefix}-{i}" if prefix else str(i)
+
+                if isinstance(item, dict):
+                    # Dict items need special formatting
+                    io.write(f"{indent}<{item_tag}>\n")
+                    dict_content = llml(
+                        options=Options(indent=indent + "  ", prefix=item_tag), **item
+                    )
+                    io.write(dict_content)
+                    io.write(f"\n{indent}</{item_tag}>")
+                else:
+                    # Simple items on one line
+                    io.write(f"{indent}<{item_tag}>{str(item)}</{item_tag}>")
+
+                if i < len(value):
+                    io.write("\n")
+
+            return io.getvalue()
         else:
             # Direct primitive value
             return str(value)
@@ -66,7 +99,7 @@ def llml(
     # Handle single key-value pair formatting (recursive case)
     if len(args) == 2:
         key, value = args
-            
+
         full_key = f"{prefix}-{key}" if prefix else key
         kebab_key = kebab_case(full_key)
 
@@ -75,8 +108,7 @@ def llml(
             wrapper_tag = f"{kebab_key}-list"
 
             if not value:
-                io.write(f"{indent}<{wrapper_tag}></{wrapper_tag}>")
-                return io.getvalue()
+                return ""
 
             io.write(f"{indent}<{wrapper_tag}>\n")
             inner_indent = indent + "  "
@@ -87,7 +119,10 @@ def llml(
                 if isinstance(item, dict):
                     # Dict items need special formatting
                     io.write(f"{inner_indent}<{item_tag}>\n")
-                    dict_content = llml(indent=inner_indent + "  ", prefix=item_tag, **item)
+                    dict_content = llml(
+                        options=Options(indent=inner_indent + "  ", prefix=item_tag),
+                        **item,
+                    )
                     io.write(dict_content)
                     io.write(f"\n{inner_indent}</{item_tag}>\n")
                 else:
@@ -114,10 +149,14 @@ def llml(
 
         elif isinstance(value, dict):
             # Handle dict formatting - recursively call llml
-            dict_content = llml(indent=indent + "  ", prefix=full_key, **value)
+            dict_content = llml(
+                options=Options(indent=indent + "  ", prefix=full_key), **value
+            )
 
             if "\n" in dict_content:
-                io.write(f"{indent}<{kebab_key}>\n{dict_content}\n{indent}</{kebab_key}>")
+                io.write(
+                    f"{indent}<{kebab_key}>\n{dict_content}\n{indent}</{kebab_key}>"
+                )
             else:
                 io.write(f"{indent}<{kebab_key}>{dict_content}</{kebab_key}>")
 
@@ -131,9 +170,13 @@ def llml(
                     for line in lines:
                         formatted_lines.append("  " + line)
                     formatted_content = "\n".join(formatted_lines)
-                    io.write(f"{indent}<{kebab_key}>\n{formatted_content}\n{indent}</{kebab_key}>")
+                    io.write(
+                        f"{indent}<{kebab_key}>\n{formatted_content}\n{indent}</{kebab_key}>"
+                    )
                 else:
-                    io.write(f"{indent}<{kebab_key}>{dedent(value.strip())}</{kebab_key}>")
+                    io.write(
+                        f"{indent}<{kebab_key}>{dedent(value.strip())}</{kebab_key}>"
+                    )
             else:
                 io.write(f"{indent}<{kebab_key}>{str(value)}</{kebab_key}>")
 
@@ -144,7 +187,9 @@ def llml(
         if i > 0:
             io.write("\n")
 
-        formatted_content = llml(part_key, part_value, indent=indent, prefix=prefix)
+        formatted_content = llml(
+            part_key, part_value, options=Options(indent=indent, prefix=prefix)
+        )
         io.write(formatted_content)
 
     return io.getvalue()
