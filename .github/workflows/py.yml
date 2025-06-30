@@ -29,7 +29,7 @@ jobs:
         working-directory: py
 
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --all-extras
         working-directory: py
 
       - name: Run linter
