@@ -21,6 +21,21 @@ def llml(
     io: t.IO | None = None,
     **parts: t.Any,
 ) -> str:
+    """
+    Convert data structures into human-readable, XML-like markup.
+    
+    When processing dictionaries with non-string keys (e.g., integers), 
+    the keys are automatically converted to strings to ensure compatibility.
+    
+    Args:
+        *args: Variable arguments for key-value pairs or direct values
+        options: LLMLOptions instance for formatting configuration
+        io: Optional IO stream for output
+        **parts: Keyword arguments representing key-value pairs
+        
+    Returns:
+        str: Formatted XML-like markup string
+    """
     io = io or StringIO()
 
     # Extract options
@@ -48,13 +63,15 @@ def llml(
                 if isinstance(item, dict):
                     # Dict items need special formatting
                     io.write(f"{indent}<{item_tag}>\n")
+                    # Convert non-string keys to strings to avoid TypeError
+                    string_keyed_item = {str(k): v for k, v in item.items()}
                     dict_content = llml(
                         options=LLMLOptions(
                             indent=indent + "  ",
                             prefix=item_tag if strict else "",
                             strict=strict,
                         ),
-                        **item,
+                        **string_keyed_item,
                     )
                     io.write(dict_content)
                     io.write(f"\n{indent}</{item_tag}>")
@@ -93,13 +110,15 @@ def llml(
                 if isinstance(item, dict):
                     # Dict items need special formatting
                     io.write(f"{inner_indent}<{item_tag}>\n")
+                    # Convert non-string keys to strings to avoid TypeError
+                    string_keyed_item = {str(k): v for k, v in item.items()}
                     dict_content = llml(
                         options=LLMLOptions(
                             indent=inner_indent + "  ",
                             prefix=item_tag if strict else "",
                             strict=strict,
                         ),
-                        **item,
+                        **string_keyed_item,
                     )
                     io.write(dict_content)
                     io.write(f"\n{inner_indent}</{item_tag}>\n")
@@ -127,13 +146,15 @@ def llml(
 
         elif isinstance(value, dict):
             # Handle dict formatting - recursively call llml
+            # Convert non-string keys to strings to avoid TypeError
+            string_keyed_value = {str(k): v for k, v in value.items()}
             dict_content = llml(
                 options=LLMLOptions(
                     indent=indent + "  ",
                     prefix=full_key if strict else "",
                     strict=strict,
                 ),
-                **value,
+                **string_keyed_value,
             )
 
             # Always format dicts with newlines for proper indentation
