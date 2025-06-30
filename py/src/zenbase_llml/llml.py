@@ -23,16 +23,16 @@ def llml(
 ) -> str:
     """
     Convert data structures into human-readable, XML-like markup.
-    
-    When processing dictionaries with non-string keys (e.g., integers), 
+
+    When processing dictionaries with non-string keys (e.g., integers),
     the keys are automatically converted to strings to ensure compatibility.
-    
+
     Args:
         *args: Variable arguments for key-value pairs or direct values
         options: LLMLOptions instance for formatting configuration
         io: Optional IO stream for output
         **parts: Keyword arguments representing key-value pairs
-        
+
     Returns:
         str: Formatted XML-like markup string
     """
