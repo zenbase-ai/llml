@@ -1,5 +1,5 @@
-use zenbase_llml::{llml, llml_with_options, LLMLOptions};
 use serde_json::json;
+use zenbase_llml::{LLMLOptions, llml, llml_with_options};
 
 // Note: The current Rust implementation does not support direct array formatting
 // Arrays passed as root elements return empty string for consistency

@@ -2,12 +2,12 @@ name: TypeScript Tests
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, nightly]
     paths:
       - "ts/**"
       - ".github/workflows/ts.yml"
   pull_request:
-    branches: [main, develop]
+    branches: [main, nightly]
     paths:
       - "ts/**"
       - ".github/workflows/ts.yml"

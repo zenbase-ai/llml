@@ -63,15 +63,13 @@ def llml(
                 if isinstance(item, dict):
                     # Dict items need special formatting
                     io.write(f"{indent}<{item_tag}>\n")
-                    # Convert non-string keys to strings to avoid TypeError
-                    string_keyed_item = {str(k): v for k, v in item.items()}
                     dict_content = llml(
                         options=LLMLOptions(
                             indent=indent + "  ",
                             prefix=item_tag if strict else "",
                             strict=strict,
                         ),
-                        **string_keyed_item,
+                        **{str(k): v for k, v in item.items()},
                     )
                     io.write(dict_content)
                     io.write(f"\n{indent}</{item_tag}>")
@@ -110,15 +108,13 @@ def llml(
                 if isinstance(item, dict):
                     # Dict items need special formatting
                     io.write(f"{inner_indent}<{item_tag}>\n")
-                    # Convert non-string keys to strings to avoid TypeError
-                    string_keyed_item = {str(k): v for k, v in item.items()}
                     dict_content = llml(
                         options=LLMLOptions(
                             indent=inner_indent + "  ",
                             prefix=item_tag if strict else "",
                             strict=strict,
                         ),
-                        **string_keyed_item,
+                        **{str(k): v for k, v in item.items()},
                     )
                     io.write(dict_content)
                     io.write(f"\n{inner_indent}</{item_tag}>\n")
@@ -146,15 +142,13 @@ def llml(
 
         elif isinstance(value, dict):
             # Handle dict formatting - recursively call llml
-            # Convert non-string keys to strings to avoid TypeError
-            string_keyed_value = {str(k): v for k, v in value.items()}
             dict_content = llml(
                 options=LLMLOptions(
                     indent=indent + "  ",
                     prefix=full_key if strict else "",
                     strict=strict,
                 ),
-                **string_keyed_value,
+                **{str(k): v for k, v in value.items()},
             )
 
             # Always format dicts with newlines for proper indentation

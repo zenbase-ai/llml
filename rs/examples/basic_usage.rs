@@ -1,5 +1,5 @@
-use zenbase_llml::{llml, llml_with_options, LLMLOptions};
 use serde_json::json;
+use zenbase_llml::{LLMLOptions, llml, llml_with_options};
 
 fn main() {
     println!("LLML Rust Examples\n");

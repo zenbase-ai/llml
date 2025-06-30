@@ -2,12 +2,12 @@ name: Rust Tests
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, nightly]
     paths:
       - "rs/**"
       - ".github/workflows/rs.yml"
   pull_request:
-    branches: [main, develop]
+    branches: [main, nightly]
     paths:
       - "rs/**"
       - ".github/workflows/rs.yml"

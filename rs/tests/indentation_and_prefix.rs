@@ -1,5 +1,5 @@
-use zenbase_llml::{llml_with_options, LLMLOptions};
 use serde_json::json;
+use zenbase_llml::{LLMLOptions, llml_with_options};
 
 #[test]
 fn should_handle_basic_indentation_with_string_indent() {

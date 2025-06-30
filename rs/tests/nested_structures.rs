@@ -1,5 +1,5 @@
-use zenbase_llml::llml;
 use serde_json::json;
+use zenbase_llml::llml;
 
 #[test]
 fn should_handle_nested_objects() {

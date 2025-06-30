@@ -50,10 +50,7 @@ def test_list_with_indentation():
     """Test list formatting with indentation."""
     result = llml(options=LLMLOptions(indent="  "), items=["a", "b"])
     expected = (
-        "  <items>\n"
-        "    <items-1>a</items-1>\n"
-        "    <items-2>b</items-2>\n"
-        "  </items>"
+        "  <items>\n    <items-1>a</items-1>\n    <items-2>b</items-2>\n  </items>"
     )
     assert result == expected
 

@@ -15,7 +15,8 @@
       "Bash(just test:*)",
       "Bash(just go test)",
       "Bash(just test:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": []
   }

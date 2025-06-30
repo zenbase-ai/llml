@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "zenbase_llml"
-version = "0.2.0"
+version = "0.2.2"
 description = "A lightweight markup language for structured text generation"
 readme = "README.md"
 requires-python = ">=3.8"
@@ -47,4 +47,8 @@ quote-style = "double"
 indent-style = "space"
 
 [dependency-groups]
-dev = ["pytest>=8.3.5", "tox>=4.25.0"]
+dev = [
+    "pytest>=8.3.5",
+ "ruff>=0.12.1",
+ "tox>=4.25.0",
+]

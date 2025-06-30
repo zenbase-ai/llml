@@ -60,12 +60,15 @@ describe("Nested Structures", () => {
     })
 
     it("should handle arrays containing objects (strict:true)", () => {
-      const result = llml({
-        data: [
-          { name: "Alice", age: 30 },
-          { name: "Bob", age: 25 },
-        ],
-      }, { strict: true })
+      const result = llml(
+        {
+          data: [
+            { name: "Alice", age: 30 },
+            { name: "Bob", age: 25 },
+          ],
+        },
+        { strict: true },
+      )
       const expected = [
         "<data>",
         "  <data-1>",

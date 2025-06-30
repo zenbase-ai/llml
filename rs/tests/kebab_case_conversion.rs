@@ -1,5 +1,5 @@
-use zenbase_llml::llml;
 use serde_json::json;
+use zenbase_llml::llml;
 
 #[test]
 fn should_convert_snake_case_and_camel_case_to_kebab_case() {
@@ -32,7 +32,8 @@ mod advanced_camel_case_conversion {
     #[test]
     fn should_handle_multiple_word_camel_case() {
         let result = llml(&json!({"getUserName": "function", "setUserAge": "method"}));
-        let expected = "<get-user-name>function</get-user-name>\n<set-user-age>method</set-user-age>";
+        let expected =
+            "<get-user-name>function</get-user-name>\n<set-user-age>method</set-user-age>";
         assert_eq!(result, expected);
     }
 
