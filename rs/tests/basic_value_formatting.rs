@@ -1,5 +1,5 @@
+use serde_json::{Value, json};
 use zenbase_llml::llml;
-use serde_json::{json, Value};
 
 #[test]
 fn should_handle_null_values() {

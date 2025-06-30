@@ -4,12 +4,7 @@ from zenbase_llml import LLMLOptions, llml
 def test_nested_dict():
     """Test nested dictionary formatting (default non-strict mode)."""
     result = llml(config={"debug": True, "timeout": 30})
-    expected = (
-        "<config>\n"
-        "  <debug>True</debug>\n"
-        "  <timeout>30</timeout>\n"
-        "</config>"
-    )
+    expected = "<config>\n  <debug>True</debug>\n  <timeout>30</timeout>\n</config>"
     assert result == expected
 
 
@@ -45,7 +40,9 @@ def test_list_of_dicts():
 
 def test_nested_dict_strict_mode():
     """Test nested dictionary formatting with strict mode enabled."""
-    result = llml(options=LLMLOptions(strict=True), config={"debug": True, "timeout": 30})
+    result = llml(
+        options=LLMLOptions(strict=True), config={"debug": True, "timeout": 30}
+    )
     expected = (
         "<config>\n"
         "  <config-debug>True</config-debug>\n"
@@ -57,7 +54,10 @@ def test_nested_dict_strict_mode():
 
 def test_nested_dict_with_kebab_case_strict_mode():
     """Test nested dictionary with kebab-case conversion in strict mode."""
-    result = llml(options=LLMLOptions(strict=True), user_config={"debug_mode": True, "maxRetries": 5})
+    result = llml(
+        options=LLMLOptions(strict=True),
+        user_config={"debug_mode": True, "maxRetries": 5},
+    )
     expected = (
         "<user-config>\n"
         "  <user-config-debug-mode>True</user-config-debug-mode>\n"
@@ -69,7 +69,10 @@ def test_nested_dict_with_kebab_case_strict_mode():
 
 def test_list_of_dicts_strict_mode():
     """Test list containing dictionaries with strict mode enabled."""
-    result = llml(options=LLMLOptions(strict=True), data=[{"name": "Alice", "age": 30}, {"name": "Bob", "age": 25}])
+    result = llml(
+        options=LLMLOptions(strict=True),
+        data=[{"name": "Alice", "age": 30}, {"name": "Bob", "age": 25}],
+    )
     expected = (
         "<data>\n"
         "  <data-1>\n"

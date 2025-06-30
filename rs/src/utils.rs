@@ -78,7 +78,11 @@ fn format_key_value(key: &str, value: &Value, opts: &LLMLOptions) -> String {
                         parts.push(format!("{inner_indent}<{item_tag}>\n"));
                         let nested_opts = LLMLOptions {
                             indent: format!("{inner_indent}  "),
-                            prefix: if opts.strict { item_tag.clone() } else { String::new() },
+                            prefix: if opts.strict {
+                                item_tag.clone()
+                            } else {
+                                String::new()
+                            },
                             strict: opts.strict,
                         };
                         let dict_content = format_value(item, &nested_opts);
@@ -256,8 +260,7 @@ mod tests {
 
         // Test with array
         let result = format_key_value("items", &json!(["a", "b"]), &opts);
-        let expected =
-            "<items>\n  <items-1>a</items-1>\n  <items-2>b</items-2>\n</items>";
+        let expected = "<items>\n  <items-1>a</items-1>\n  <items-2>b</items-2>\n</items>";
         assert_eq!(result, expected);
     }
 }

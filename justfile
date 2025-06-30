@@ -26,7 +26,7 @@ rs *args:
 
 fmt:
   just ts biome check --write --unsafe
-  just py run ruff check --fix
+  just py run ruff format
   just go fmt go/...
   just rs fmt
 

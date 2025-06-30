@@ -10,9 +10,7 @@ describe("Indentation", () => {
 
   it("should handle list formatting with indentation", () => {
     const result = llml({ items: ["a", "b"] }, { indent: "  " })
-    const expected = ["  <items>", "    <items-1>a</items-1>", "    <items-2>b</items-2>", "  </items>"].join(
-      "\n",
-    )
+    const expected = ["  <items>", "    <items-1>a</items-1>", "    <items-2>b</items-2>", "  </items>"].join("\n")
     expect(result).toBe(expected)
   })
 })

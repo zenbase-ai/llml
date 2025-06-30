@@ -45,6 +45,8 @@ def test_direct_array_with_prefix():
 
 def test_direct_array_with_objects_strict_mode():
     """Test direct array containing dictionaries with strict mode enabled."""
-    result = llml([{"name": "Alice"}, {"name": "Bob"}], options=LLMLOptions(strict=True))
+    result = llml(
+        [{"name": "Alice"}, {"name": "Bob"}], options=LLMLOptions(strict=True)
+    )
     expected = "<1>\n  <1-name>Alice</1-name>\n</1>\n<2>\n  <2-name>Bob</2-name>\n</2>"
     assert result == expected

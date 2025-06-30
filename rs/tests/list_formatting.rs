@@ -1,5 +1,5 @@
-use zenbase_llml::{llml, llml_with_options, LLMLOptions};
 use serde_json::json;
+use zenbase_llml::{LLMLOptions, llml, llml_with_options};
 
 #[test]
 fn should_handle_empty_arrays() {
@@ -48,6 +48,7 @@ fn should_handle_list_with_prefix() {
         strict: false,
     });
     let result = llml_with_options(&json!({"items": ["a", "b"]}), options);
-    let expected = "<app-items>\n  <app-items-1>a</app-items-1>\n  <app-items-2>b</app-items-2>\n</app-items>";
+    let expected =
+        "<app-items>\n  <app-items-1>a</app-items-1>\n  <app-items-2>b</app-items-2>\n</app-items>";
     assert_eq!(result, expected);
 }

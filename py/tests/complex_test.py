@@ -64,7 +64,9 @@ def test_mixed_content_strict_mode():
 
 def test_deeply_nested_strict_mode():
     """Test deeply nested structure with strict mode enabled."""
-    result = llml(options=LLMLOptions(strict=True), level1={"level2": {"items": ["a", "b"]}})
+    result = llml(
+        options=LLMLOptions(strict=True), level1={"level2": {"items": ["a", "b"]}}
+    )
     expected = (
         "<level1>\n"
         "  <level1-level2>\n"

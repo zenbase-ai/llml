@@ -23,21 +23,17 @@ def test_prefix_with_arrays():
 def test_prefix_with_nested_objects_non_strict():
     """Test prefix with nested objects in non-strict mode."""
     result = llml(options=LLMLOptions(prefix="app"), config={"debug": True})
-    expected = (
-        "<app-config>\n"
-        "  <debug>True</debug>\n"
-        "</app-config>"
-    )
+    expected = "<app-config>\n  <debug>True</debug>\n</app-config>"
     assert result == expected
 
 
 def test_prefix_with_nested_objects_strict():
     """Test prefix with nested objects in strict mode."""
-    result = llml(options=LLMLOptions(prefix="app", strict=True), config={"debug": True})
+    result = llml(
+        options=LLMLOptions(prefix="app", strict=True), config={"debug": True}
+    )
     expected = (
-        "<app-config>\n"
-        "  <app-config-debug>True</app-config-debug>\n"
-        "</app-config>"
+        "<app-config>\n  <app-config-debug>True</app-config-debug>\n</app-config>"
     )
     assert result == expected
 
@@ -57,7 +53,9 @@ def test_prefix_with_array_objects_non_strict():
 
 def test_prefix_with_array_objects_strict():
     """Test prefix with array containing objects in strict mode."""
-    result = llml(options=LLMLOptions(prefix="app", strict=True), data=[{"name": "Alice"}])
+    result = llml(
+        options=LLMLOptions(prefix="app", strict=True), data=[{"name": "Alice"}]
+    )
     expected = (
         "<app-data>\n"
         "  <app-data-1>\n"
