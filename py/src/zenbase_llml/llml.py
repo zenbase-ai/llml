@@ -54,7 +54,7 @@ def llml(
                             prefix=item_tag if strict else "",
                             strict=strict,
                         ),
-                        **item,
+                        **{str(k): v for k, v in item.items()},
                     )
                     io.write(dict_content)
                     io.write(f"\n{indent}</{item_tag}>")
@@ -99,7 +99,7 @@ def llml(
                             prefix=item_tag if strict else "",
                             strict=strict,
                         ),
-                        **item,
+                        **{str(k): v for k, v in item.items()},
                     )
                     io.write(dict_content)
                     io.write(f"\n{inner_indent}</{item_tag}>\n")
@@ -133,7 +133,7 @@ def llml(
                     prefix=full_key if strict else "",
                     strict=strict,
                 ),
-                **value,
+                **{str(k): v for k, v in value.items()},
             )
 
             # Always format dicts with newlines for proper indentation
