@@ -8,7 +8,7 @@ LLML is a data serialization library available in **Python**, **TypeScript/JavaS
 
 ```python
 # Python
-from llml import llml
+from zenbase_llml import llml
 
 llml({name: "Alice", age: 30})
 # Output: <name>Alice</name>
@@ -266,7 +266,7 @@ pip install zenbase-llml # or uv, rye, poetry, etc.
 ```
 
 ```python
-from llml import llml
+from zenbase_llml import llml
 
 # Simple example
 llml(task="analyze", content="customer feedback")
