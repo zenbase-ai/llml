@@ -1,18 +1,16 @@
 name: Python Tests
 
-# Workflow disabled
-# on:
-#   push:
-#     branches: [main, develop]
-#     paths:
-#       - "py/**"
-#       - ".github/workflows/py.yml"
-#   pull_request:
-#     branches: [main, develop]
-#     paths:
-#       - "py/**"
-#       - ".github/workflows/py.yml"
-on: workflow_dispatch
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "py/**"
+      - ".github/workflows/py.yml"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "py/**"
+      - ".github/workflows/py.yml"
 
 jobs:
   test:

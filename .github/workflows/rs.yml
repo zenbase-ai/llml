@@ -1,18 +1,16 @@
 name: Rust Tests
 
-# Workflow disabled
-# on:
-#   push:
-#     branches: [main, develop]
-#     paths:
-#       - "rs/**"
-#       - ".github/workflows/rs.yml"
-#   pull_request:
-#     branches: [main, develop]
-#     paths:
-#       - "rs/**"
-#       - ".github/workflows/rs.yml"
-on: workflow_dispatch
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "rs/**"
+      - ".github/workflows/rs.yml"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "rs/**"
+      - ".github/workflows/rs.yml"
 
 jobs:
   test:

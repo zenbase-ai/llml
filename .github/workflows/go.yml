@@ -1,18 +1,17 @@
 name: Go Tests
 
 # Workflow disabled
-# on:
-#   push:
-#     branches: [main, develop]
-#     paths:
-#       - "go/**"
-#       - ".github/workflows/go.yml"
-#   pull_request:
-#     branches: [main, develop]
-#     paths:
-#       - "go/**"
-#       - ".github/workflows/go.yml"
-on: workflow_dispatch
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "go/**"
+      - ".github/workflows/go.yml"
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "go/**"
+      - ".github/workflows/go.yml"
 
 jobs:
   test:
