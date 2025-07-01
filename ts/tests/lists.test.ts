@@ -32,13 +32,13 @@ describe("List Formatting", () => {
     expect(result).toBe(expected)
   })
 
-  it("should convert list names to kebab-case", () => {
+  it("should preserve list names as-is", () => {
     const result = llml({ user_tasks: ["task1", "task2"] })
     const expected = [
-      "<user-tasks>",
-      "  <user-tasks-1>task1</user-tasks-1>",
-      "  <user-tasks-2>task2</user-tasks-2>",
-      "</user-tasks>",
+      "<user_tasks>",
+      "  <user_tasks-1>task1</user_tasks-1>",
+      "  <user_tasks-2>task2</user_tasks-2>",
+      "</user_tasks>",
     ].join("\n")
     expect(result).toBe(expected)
   })

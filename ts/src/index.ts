@@ -3,9 +3,8 @@
  * Converts data structures to XML-like markup
  */
 
-import { llml } from "./llml"
-import type { LLMLOptions } from "./types"
-
-export default llml
-export { llml }
-export type { LLMLOptions }
+// Re-export built-in formatters for convenience
+export * from "./formatters"
+export { swagXML } from "./formatters"
+export { llml } from "./llml"
+export type { Formatter, Formatters, Predicate } from "./types"

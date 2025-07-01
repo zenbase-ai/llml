@@ -1,0 +1,268 @@
+---
+description:
+globs: ts/
+alwaysApply: false
+---
+INHERITS: ../.cursor/rules/spec.mdc.
+
+# TypeScript LLML Specification
+
+## Custom Formatters
+
+The TypeScript implementation supports custom formatters for domain-specific value transformation. Formatters allow you to customize how specific types are serialized into the LLML output.
+
+### Formatter Type Definition
+
+```typescript
+type Formatter<T = unknown> = [
+  predicate: (value: unknown) => value is T,
+  format: (value: T) => string
+]
+```
+
+### SwagXMLOptions Extension
+
+```typescript
+interface SwagXMLOptions {
+  indent?: string
+  prefix?: string
+  formatters?: Formatter[]
+}
+```
+
+### Usage Examples
+
+#### Basic Custom Formatter
+
+```typescript
+class MyDomainType {
+  constructor(public myDomainField: string) {}
+}
+
+const customRenderer = createSwagXMLRenderer({
+  formatters: [
+    [
+      (v): v is MyDomainType => v instanceof MyDomainType,
+      (v) => `${v.myDomainField}.......`
+    ]
+  ]
+})
+
+const data = {
+  user: new MyDomainType("alice"),
+  count: 42
+}
+
+llml(data, { renderer: customRenderer })
+// Output:
+// <user>alice.......</user>
+// <count>42</count>
+```
+
+#### Multiple Formatters
+
+```typescript
+class User {
+  constructor(public name: string, public email: string) {}
+}
+
+class Product {
+  constructor(public id: string, public name: string, public price: number) {}
+}
+
+const renderer = createSwagXMLRenderer({
+  formatters: [
+    [
+      (v): v is User => v instanceof User,
+      (v) => `${v.name} <${v.email}>`
+    ],
+    [
+      (v): v is Product => v instanceof Product,
+      (v) => `${v.name} ($${v.price})`
+    ]
+  ]
+})
+
+const data = {
+  customer: new User("Alice", "alice@example.com"),
+  item: new Product("p1", "Widget", 29.99),
+  quantity: 2
+}
+
+llml(data, { renderer })
+// Output:
+// <customer>Alice <alice@example.com></customer>
+// <item>Widget ($29.99)</item>
+// <quantity>2</quantity>
+```
+
+#### Date Formatting
+
+```typescript
+const renderer = createSwagXMLRenderer({
+  formatters: [
+    [
+      (v): v is Date => v instanceof Date,
+      (v) => v.toISOString().split('T')[0] // YYYY-MM-DD format
+    ]
+  ]
+})
+
+const data = {
+  created: new Date('2025-07-01T10:30:00Z'),
+  name: "Test Event"
+}
+
+llml(data, { renderer })
+// Output:
+// <created>2025-07-01</created>
+// <name>Test Event</name>
+```
+
+#### URL Formatting
+
+```typescript
+const renderer = createSwagXMLRenderer({
+  formatters: [
+    [
+      (v): v is URL => v instanceof URL,
+      (v) => v.toString()
+    ]
+  ]
+})
+
+const data = {
+  homepage: new URL('https://example.com'),
+  title: "My Website"
+}
+
+llml(data, { renderer })
+// Output:
+// <homepage>https://example.com</homepage>
+// <title>My Website</title>
+```
+
+### Formatter Processing Rules
+
+1. **Order Matters**: Formatters are processed in the order they appear in the array
+2. **First Match Wins**: The first formatter whose predicate returns `true` is used
+3. **Type Safety**: The predicate must be a proper type guard for TypeScript type safety
+4. **Fallback**: If no formatter matches, the default serialization is used
+5. **Recursive Application**: Formatters are applied recursively to nested objects and arrays
+
+### Complex Type Formatting
+
+```typescript
+interface APIResponse<T> {
+  data: T
+  status: number
+  timestamp: Date
+}
+
+class APIResponseWrapper<T> implements APIResponse<T> {
+  constructor(
+    public data: T,
+    public status: number,
+    public timestamp: Date = new Date()
+  ) {}
+}
+
+const renderer = createSwagXMLRenderer({
+  formatters: [
+    [
+      (v): v is APIResponseWrapper<any> => v instanceof APIResponseWrapper,
+      (v) => `Status: ${v.status}, Data: ${JSON.stringify(v.data)}`
+    ],
+    [
+      (v): v is Date => v instanceof Date,
+      (v) => v.toISOString()
+    ]
+  ]
+})
+
+const response = new APIResponseWrapper({ message: "Hello" }, 200)
+const data = {
+  api_result: response,
+  processed_at: new Date()
+}
+
+llml(data, { renderer })
+// Output:
+// <api_result>Status: 200, Data: {"message":"Hello"}</api_result>
+// <processed_at>2025-07-01T10:30:00.000Z</processed_at>
+```
+
+### Array and Object Handling with Formatters
+
+Formatters are applied to individual values within arrays and objects:
+
+```typescript
+class Money {
+  constructor(public amount: number, public currency: string) {}
+}
+
+const renderer = createSwagXMLRenderer({
+  formatters: [
+    [
+      (v): v is Money => v instanceof Money,
+      (v) => `${v.amount} ${v.currency}`
+    ]
+  ]
+})
+
+const data = {
+  prices: [
+    new Money(100, 'USD'),
+    new Money(85, 'EUR'),
+    new Money(120, 'GBP')
+  ],
+  total: new Money(305, 'USD')
+}
+
+llml(data, { renderer })
+// Output:
+// <prices>
+//   <prices-1>100 USD</prices-1>
+//   <prices-2>85 EUR</prices-2>
+//   <prices-3>120 GBP</prices-3>
+// </prices>
+// <total>305 USD</total>
+```
+
+### Implementation Requirements
+
+1. **Type Guards**: Predicates must be proper TypeScript type guards
+2. **Pure Functions**: Formatters should be pure functions without side effects
+3. **Error Handling**: Invalid formatters should not crash the renderer
+4. **Performance**: Formatters should be efficient for large datasets
+5. **Consistency**: Formatted output should be deterministic
+
+### Error Handling
+
+```typescript
+// Invalid formatter - will be skipped
+const badFormatter: Formatter = [
+  (v): v is string => typeof v === 'string',
+  (v) => { throw new Error('Bad formatter') } // This will cause issues
+]
+
+// Safe formatter with error handling
+const safeFormatter: Formatter<MyType> = [
+  (v): v is MyType => v instanceof MyType,
+  (v) => {
+    try {
+      return v.toString()
+    } catch {
+      return '[Error formatting value]'
+    }
+  }
+]
+```
+
+### Best Practices
+
+1. **Specific Predicates**: Use precise type guards to avoid conflicts
+2. **Simple Formatters**: Keep formatting logic simple and focused
+3. **Test Coverage**: Test formatters with various input types
+4. **Documentation**: Document custom formatters for team members
+5. **Consistent Style**: Follow consistent formatting patterns across formatters

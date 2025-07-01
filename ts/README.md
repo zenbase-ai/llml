@@ -7,7 +7,7 @@ LLML transforms your data into beautifully formatted XML-like markup with zero f
 ## ⚡ Quick Start
 
 ```typescript
-import { llml } from './src';
+import { llml } from '@zenbase/llml';
 
 // Simple values
 console.log(llml({ greeting: "Hello World" }));
@@ -47,8 +47,8 @@ console.log(llml({
 - **🎨 Beautiful Output**: Automatically formatted, properly indented
 - **⚡ Lightning Fast**: Minimal overhead, maximum performance
 - **🌟 Modern TypeScript**: Fully typed with excellent IDE support
-- **🔧 Zero Dependencies**: Only requires `dedent` for multiline handling
-- **⚙️ Strict Mode**: Control nested property prefixes with `strict` option
+- **🔧 Extensible Formatters**: Customize formatting for any data type
+- **🎯 Type-Safe**: Predicate-based formatter system with full type safety
 
 ## 🛠️ Installation
 
@@ -65,33 +65,59 @@ yarn install
 
 ## 📚 Advanced Usage
 
-### Automatic Key Conversion
-LLML automatically converts all keys to kebab-case for consistency:
+### Custom Formatters
+LLML uses an extensible formatter system. You can create custom formatters for specialized data types:
 
 ```typescript
-// camelCase, snake_case, and spaces all become kebab-case
-console.log(llml({ 
-  userName: "Alice",           // camelCase
-  user_age: 30,               // snake_case
-  "user email": "alice@example.com"  // spaces
-}));
-// Output:
-// <user-name>Alice</user-name>
-// <user-age>30</user-age>
-// <user-email>alice@example.com</user-email>
+import { llml, swagXML } from '@zenbase/llml';
 
-// Handles complex cases like acronyms
-console.log(llml({ XMLHttpRequest: "api", HTMLElement: "dom" }));
+// Custom formatters for domain objects
+class User {
+  constructor(public name: string, public email: string) {}
+}
+
+class Money {
+  constructor(public amount: number, public currency: string) {}
+}
+
+// Create custom formatters
+const customFormatters = new Map();
+customFormatters.set(
+  (v: unknown): v is User => v instanceof User,
+  (v: User) => `${v.name} <${v.email}>`
+);
+customFormatters.set(
+  (v: unknown): v is Money => v instanceof Money,
+  (v: Money) => `${v.amount} ${v.currency}`
+);
+
+// Use with swagXML
+const formatters = swagXML({ formatters: customFormatters });
+const result = llml({
+  customer: new User("Alice", "alice@example.com"),
+  price: new Money(100, "USD")
+}, formatters);
 // Output:
-// <xml-http-request>api</xml-http-request>
-// <html-element>dom</html-element>
+// <customer>Alice <alice@example.com></customer>
+// <price>100 USD</price>
 ```
 
-### Prefix Support
+### Formatter Precedence
+Custom formatters take precedence over built-in ones. The first matching formatter wins:
+
 ```typescript
-// Add prefix to all keys
-console.log(llml({ message: "Hello" }, { prefix: "app" }));
-// Output: <app-message>Hello</app-message>
+// Override built-in boolean formatting
+const customFormatters = new Map();
+customFormatters.set(
+  (v: unknown): v is boolean => typeof v === "boolean",
+  (v: boolean) => v ? "YES" : "NO"
+);
+
+const formatters = swagXML({ formatters: customFormatters });
+const result = llml({ enabled: true, disabled: false }, formatters);
+// Output:
+// <enabled>YES</enabled>
+// <disabled>NO</disabled>
 ```
 
 ### Multi-line Content
@@ -135,23 +161,29 @@ console.log(llml(promptData));
 //   <rules-3>Ask clarifying questions</rules-3>
 // </rules>
 // <context>
-//   <user-level>beginner</user-level>
+//   <userLevel>beginner</userLevel>
 //   <topic>TypeScript programming</topic>
 // </context>
+```
 
-// Example with strict mode
-console.log(llml({config: {debug: true, timeout: 30}}, {strict: true}));
-// Output: <config>
-//           <config-debug>true</config-debug>
-//           <config-timeout>30</config-timeout>
-//         </config>
+### Built-in Type Support
+LLML automatically handles common JavaScript types:
 
-// Example with strict mode disabled (default)
-console.log(llml({config: {debug: true, timeout: 30}}, {strict: false}));
-// Output: <config>
-//           <debug>true</debug>
-//           <timeout>30</timeout>
-//         </config>
+```typescript
+// Dates, URLs, and other built-in objects
+const data = {
+    timestamp: new Date("2023-01-01T00:00:00Z"),
+    homepage: new URL("https://example.com"),
+    enabled: true,
+    count: 42
+};
+
+console.log(llml(data));
+// Output:
+// <timestamp>Sun Jan 01 2023 00:00:00 GMT+0000 (Coordinated Universal Time)</timestamp>
+// <homepage>https://example.com/</homepage>
+// <enabled>true</enabled>
+// <count>42</count>
 ```
 
 ## 🎪 Use Cases
@@ -207,11 +239,11 @@ The test suite covers:
 - ✅ Basic value formatting
 - ✅ Complex nested structures
 - ✅ List and array handling
-- ✅ Kebab-case key conversion (camelCase, snake_case, spaces)
+- ✅ Custom formatter system
+- ✅ Built-in type handling (Date, URL, etc.)
 - ✅ Multiline content processing
-- ✅ Prefix functionality
-- ✅ Indentation control
 - ✅ Edge cases and error handling
+- ✅ Formatter composition and precedence
 
 ## 🌐 Runtime Compatibility
 
@@ -243,32 +275,52 @@ bun run tsc --noEmit
 
 ## 📖 API Reference
 
-### `llml(data, options?)`
+### `llml(data, formatters?)`
 
 **Parameters:**
-- `data: any` - The data to convert to markup
-- `options?: LLMLOptions` - Optional configuration
+- `data: unknown` - The data to convert to markup
+- `formatters?: Formatters` - Optional custom formatters (defaults to `swagXML()`)
 
-**Options:**
+**Types:**
 ```typescript
-interface LLMLOptions {
-  indent?: string;  // Custom indentation string (default: "")
-  prefix?: string;  // Prefix for all keys (default: "")
-  strict?: boolean; // Include parent key prefixes in nested objects (default: false)
-}
+type Predicate = (value: unknown) => boolean;
+type Formatter = (
+  value: unknown,
+  llml: (data: unknown, formatters: Formatters) => string,
+  formatters: Formatters
+) => string;
+type Formatters = Iterable<[Predicate, Formatter]>;
 ```
 
 **Returns:** `string` - The formatted markup
 
+### `swagXML(options?)`
+
+Creates the default SwagXML formatters with optional customization:
+
+**Parameters:**
+- `options?: { formatters?: Formatters }` - Custom formatters to merge with defaults
+
 **Examples:**
 ```typescript
-// Simple usage
+// Simple usage with defaults
 llml({ name: "John" })
 // → <name>John</name>
 
-// With options
-llml({ name: "John" }, { prefix: "user", indent: "  " })
-// → <user-name>John</user-name>
+// Custom formatters
+class User {
+  constructor(public name: string) {}
+}
+
+const customFormatters = new Map();
+customFormatters.set(
+  (v: unknown): v is User => v instanceof User,
+  (v: User) => `User: ${v.name}`
+);
+
+const formatters = swagXML({ formatters: customFormatters });
+llml({ admin: new User("Alice") }, formatters)
+// → <admin>User: Alice</admin>
 
 // Complex data
 llml({
@@ -277,7 +329,7 @@ llml({
     { name: "Bob", age: 25 }
   ]
 })
-// → <users-list>
+// → <users>
 //     <users-1>
 //       <name>Alice</name>
 //       <age>30</age>
@@ -288,6 +340,8 @@ llml({
 //     </users-2>
 //   </users>
 ```
+
+For detailed information on creating custom formatters, see our [Formatters Guide](docs/formatters.md).
 
 ## 🤝 Contributing
 

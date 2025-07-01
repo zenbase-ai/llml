@@ -3,7 +3,7 @@ import { llml } from "../src/index"
 
 describe("Basic Value Formatting", () => {
   it("should handle null values", () => {
-    const result = llml()
+    const result = llml(undefined)
     const expected = ""
     expect(result).toBe(expected)
   })
@@ -46,7 +46,7 @@ describe("Basic Value Formatting", () => {
 
   it("should handle undefined values", () => {
     const result = llml({ nothing: undefined })
-    const expected = "<nothing>undefined</nothing>"
+    const expected = "<nothing></nothing>"
     expect(result).toBe(expected)
   })
 
