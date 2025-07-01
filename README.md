@@ -1,30 +1,39 @@
 # LLML - Lightweight Language Markup Language
 
-Convert data structures into human-readable, XML-like markup across multiple languages.
+Composible primitive for transforming data structures into a prompt.
 
-LLML is a data serialization library available in **Python**, **TypeScript/JavaScript**, **Rust**, and **Go** that transforms nested data structures (dictionaries/objects, lists/arrays, primitives) into well-formatted, XML-like markup.
+LLML is available in **Python**, **TypeScript/JavaScript**, **Rust**, and **Go**. It transforms nested data structures (dictionaries/objects, lists/arrays, primitives) into well-formatted, XML-like markup.
 
 📋 [Full Technical Specification](.cursor/rules/spec.mdc)
 
-```python
-# Python
-from zenbase_llml import llml
+```typescript
+import { llml } from "@zenbase/llml"
 
 llml({name: "Alice", age: 30})
-# Output: <name>Alice</name>
+# Return: <name>Alice</name>
 #         <age>30</age>
 
-llml({instructions: "You are a helpful assistant.", rules: ["be concise", "be helpful", "be accurate"]})
-# Output: <instructions>You are a helpful assistant.</instructions>
+const instructions = '...'
+const rules = { ... } 
+const basePrompt = llml({ instructions, rules })
+const agentPrompt = llml({
+  basePrompt,
+  context: { ... } ,
+  userRequest: '...',
+})
+# Return: <instructions>You are a helpful assistant.</instructions>
 #         <rules>
 #           <rules-1>be concise</rules-1>
 #           <rules-2>be helpful</rules-2>
 #           <rules-3>be accurate</rules-3>
 #         </rules>
+#         <context>
+#          ...
+# TODO
 ```
 
 <details>
-<summary><b>Quick Examples in TS/JS/Rust/Go</b></summary>
+<summary><b>Cheatsheet</b></summary>
 <br>
 
 ```typescript
@@ -203,11 +212,9 @@ ragPrompt := llml.Sprintf(map[string]any{
 
 ## Benefits
 
-1. 🏗️ **Structured Prompt Engineering**: Replace fragile string concatenation and template management with systematic data-to-markup conversion.
-2. 📊 **Complex Data Simplification**: Transform nested configuration objects, user data, and multi-part instructions into clean, readable markup without manual formatting.
-3. 🔀 **Cross-Language Reliability**: Identical output across Python, TypeScript, Rust, and Go means your prompt generation works the same regardless of your backend language.
-4. 🛠️ **Maintainable Prompt Templates**: Stop maintaining brittle template strings that break when data structures change. With LLML, your prompts are just data structures—add new fields, reorganize objects, or change array contents, and the markup automatically updates with proper formatting and numbering.
-5. 🤖 **LLM-Optimized Output**: LLML's XML-like format with clear tag boundaries and numbered list items (`<rules-1>`, `<rules-2>`) reduces prompt ambiguity and reduces attentional load. Language models can reliably identify and reference specific sections, improving response accuracy and reducing hallucinations in complex, multi-part prompts.
+1. **Anti Arthritis: Less time managing indentation**
+2. **Functional Composable Prompts**: Stop maintaining brittle template strings that break when data structures change. With LLML, your prompts are just data structures—add new fields, reorganize objects, or change array contents, and the markup automatically updates with proper formatting and numbering.
+3. **Optimized for Model Attention**: LLML's XML-like format with clear tag boundaries and numbered list items (`<rules-1>`, `<rules-2>`) reduces prompt ambiguity and reduces attentional load. Language models can reliably identify and reference specific sections, improving response accuracy and reducing hallucinations in complex, multi-part prompts. **At Zenbase, we've found this improves output quality and adherence.**
 
 ## Table of Contents
 
