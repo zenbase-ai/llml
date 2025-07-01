@@ -9,6 +9,12 @@ export const formatObject = (
   llml: (data: unknown, formatters: Formatters) => string,
   formatters: Formatters,
 ) => {
+  // Check if object has a custom toString method (not the default Object.prototype.toString)
+  const obj = value as any
+  if (obj && typeof obj.toString === 'function' && obj.toString !== Object.prototype.toString) {
+    return obj.toString()
+  }
+
   const entries = Object.entries(value as Record<string, unknown>)
   if (entries.length === 0) {
     // Plain empty objects should return empty string

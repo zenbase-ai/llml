@@ -19,7 +19,8 @@
       "WebFetch(domain:github.com)",
       "Bash(node:*)",
       "Bash(fd:*)",
-      "Bash(python -m pytest -xvs)"
+      "Bash(python -m pytest -xvs)",
+      "Bash(find:*)"
     ],
     "deny": []
   }

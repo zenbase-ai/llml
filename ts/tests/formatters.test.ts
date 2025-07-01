@@ -193,7 +193,7 @@ describe("Custom Formatters", () => {
   describe("Built-in Type Formatting", () => {
     it("should format Date objects", () => {
       const result = llml({ timestamp: new Date("2023-01-01T00:00:00Z") })
-      expect(result).toBe("<timestamp>Sun Jan 01 2023 00:00:00 GMT+0000 (Coordinated Universal Time)</timestamp>")
+      expect(result).toBe("<timestamp>2023-01-01T00:00:00.000Z</timestamp>")
     })
 
     it("should format URL objects", () => {
