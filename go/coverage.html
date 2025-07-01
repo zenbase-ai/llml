@@ -1,0 +1,510 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>llml: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/zenbase-ai/llml/go/pkg/llml/llml.go (76.1%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package llml
+
+import (
+        "fmt"
+        "regexp"
+        "sort"
+        "strconv"
+        "strings"
+)
+
+// Options holds configuration for LLML formatting
+type Options struct {
+        Indent string
+        Prefix string
+        Strict bool
+}
+
+// Sprintf converts data structures to XML-like markup using a recursive approach
+// Supports various call patterns:
+//   - Sprintf() -&gt; ""
+//   - Sprintf(nil) -&gt; "nil"
+//   - Sprintf([]interface{}{}) -&gt; ""
+//   - Sprintf(map[string]interface{}{}) -&gt; ""
+//   - Sprintf(map[string]interface{}{"key": "value"}) -&gt; "&lt;key&gt;value&lt;/key&gt;"
+func Sprintf(data interface{}, opts ...Options) string <span class="cov8" title="1">{
+        options := Options{Indent: "", Prefix: "", Strict: false}
+        if len(opts) &gt; 0 </span><span class="cov8" title="1">{
+                options = opts[0]
+        }</span>
+
+        // Handle nil
+        <span class="cov8" title="1">if data == nil </span><span class="cov8" title="1">{
+                return "nil"
+        }</span>
+
+        // Handle maps (the main case)
+        <span class="cov8" title="1">if m, ok := data.(map[string]any); ok </span><span class="cov8" title="1">{
+                return formatMap(m, options)
+        }</span>
+        <span class="cov8" title="1">if m, ok := data.(map[string]interface{}); ok </span><span class="cov0" title="0">{
+                // Convert to map[string]any
+                anyMap := make(map[string]any)
+                for k, v := range m </span><span class="cov0" title="0">{
+                        anyMap[k] = v
+                }</span>
+                <span class="cov0" title="0">return formatMap(anyMap, options)</span>
+        }
+
+        // Handle slices
+        <span class="cov8" title="1">if s, ok := data.([]any); ok </span><span class="cov8" title="1">{
+                return formatSlice(s, options)
+        }</span>
+        <span class="cov8" title="1">if s, ok := data.([]interface{}); ok </span><span class="cov0" title="0">{
+                // Convert to []any
+                anySlice := make([]any, len(s))
+                copy(anySlice, s)
+                return formatSlice(anySlice, options)
+        }</span>
+
+        // Handle primitive types
+        <span class="cov8" title="1">switch v := data.(type) </span>{
+        case string:<span class="cov8" title="1">
+                return formatString(v, options.Indent)</span>
+        case bool:<span class="cov8" title="1">
+                return strconv.FormatBool(v)</span>
+        case int:<span class="cov8" title="1">
+                return strconv.Itoa(v)</span>
+        case int8:<span class="cov8" title="1">
+                return strconv.FormatInt(int64(v), 10)</span>
+        case int16:<span class="cov8" title="1">
+                return strconv.FormatInt(int64(v), 10)</span>
+        case int32:<span class="cov8" title="1">
+                return strconv.FormatInt(int64(v), 10)</span>
+        case int64:<span class="cov8" title="1">
+                return strconv.FormatInt(v, 10)</span>
+        case uint:<span class="cov8" title="1">
+                return strconv.FormatUint(uint64(v), 10)</span>
+        case uint8:<span class="cov8" title="1">
+                return strconv.FormatUint(uint64(v), 10)</span>
+        case uint16:<span class="cov8" title="1">
+                return strconv.FormatUint(uint64(v), 10)</span>
+        case uint32:<span class="cov8" title="1">
+                return strconv.FormatUint(uint64(v), 10)</span>
+        case uint64:<span class="cov8" title="1">
+                return strconv.FormatUint(v, 10)</span>
+        case float32:<span class="cov8" title="1">
+                return strconv.FormatFloat(float64(v), 'g', -1, 32)</span>
+        case float64:<span class="cov8" title="1">
+                return strconv.FormatFloat(v, 'g', -1, 64)</span>
+        default:<span class="cov8" title="1">
+                return fmt.Sprintf("%v", data)</span>
+        }
+}
+
+// formatMap handles the core recursive case: formatting key-value pairs
+func formatMap(m map[string]any, opts Options) string <span class="cov8" title="1">{
+        if len(m) == 0 </span><span class="cov8" title="1">{
+                return ""
+        }</span>
+
+        // Get sorted keys for consistent output
+        <span class="cov8" title="1">keys := make([]string, 0, len(m))
+        for k := range m </span><span class="cov8" title="1">{
+                keys = append(keys, k)
+        }</span>
+        <span class="cov8" title="1">sort.Strings(keys)
+
+        var parts []string
+        for _, key := range keys </span><span class="cov8" title="1">{
+                value := m[key]
+
+                // Recursively format this key-value pair
+                formatted := formatKeyValue(key, value, opts)
+                
+                // Skip empty results (like empty arrays)
+                if formatted != "" </span><span class="cov8" title="1">{
+                        if len(parts) &gt; 0 </span><span class="cov8" title="1">{
+                                parts = append(parts, "\n")
+                        }</span>
+                        <span class="cov8" title="1">parts = append(parts, formatted)</span>
+                }
+        }
+
+        <span class="cov8" title="1">return strings.Join(parts, "")</span>
+}
+
+// formatKeyValue handles a single key-value pair (the recursive unit)
+func formatKeyValue(key string, value any, opts Options) string <span class="cov8" title="1">{
+        fullKey := key
+        if opts.Prefix != "" </span><span class="cov8" title="1">{
+                fullKey = opts.Prefix + "-" + key
+        }</span>
+        <span class="cov8" title="1">kebabKey := toKebabCase(fullKey)
+
+        // Handle lists with wrapper tags
+        if slice, ok := value.([]any); ok </span><span class="cov8" title="1">{
+                return formatList(slice, key, opts)
+        }</span>
+        <span class="cov8" title="1">if slice, ok := value.([]interface{}); ok </span><span class="cov0" title="0">{
+                anySlice := make([]any, len(slice))
+                copy(anySlice, slice)
+                return formatList(anySlice, key, opts)
+        }</span>
+
+        // Handle nested maps
+        <span class="cov8" title="1">if nested, ok := value.(map[string]any); ok </span><span class="cov8" title="1">{
+                return formatNestedMap(nested, kebabKey, fullKey, opts)
+        }</span>
+        <span class="cov8" title="1">if nested, ok := value.(map[string]interface{}); ok </span><span class="cov0" title="0">{
+                anyMap := make(map[string]any)
+                for k, v := range nested </span><span class="cov0" title="0">{
+                        anyMap[k] = v
+                }</span>
+                <span class="cov0" title="0">return formatNestedMap(anyMap, kebabKey, fullKey, opts)</span>
+        }
+
+        // Handle primitive values
+        <span class="cov8" title="1">formatted := Sprintf(value)
+        if strings.Contains(formatted, "\n") </span><span class="cov8" title="1">{
+                return fmt.Sprintf("%s&lt;%s&gt;\n%s\n%s&lt;/%s&gt;",
+                        opts.Indent, kebabKey, formatted, opts.Indent, kebabKey)
+        }</span>
+        <span class="cov8" title="1">return fmt.Sprintf("%s&lt;%s&gt;%s&lt;/%s&gt;",
+                opts.Indent, kebabKey, formatted, kebabKey)</span>
+}
+
+// formatNestedMap handles nested map formatting
+func formatNestedMap(nested map[string]any, kebabKey, fullKey string, opts Options) string <span class="cov8" title="1">{
+        nestedOpts := Options{
+                Indent: opts.Indent + "  ",
+                Strict: opts.Strict,
+        }
+        
+        // In strict mode, use parent key as prefix. In non-strict mode, don't use prefix
+        if opts.Strict </span><span class="cov8" title="1">{
+                nestedOpts.Prefix = fullKey
+        }</span> else<span class="cov8" title="1"> {
+                nestedOpts.Prefix = ""
+        }</span>
+        
+        <span class="cov8" title="1">content := Sprintf(nested, nestedOpts)
+
+        if strings.Contains(content, "\n") </span><span class="cov8" title="1">{
+                return fmt.Sprintf("%s&lt;%s&gt;\n%s\n%s&lt;/%s&gt;",
+                        opts.Indent, kebabKey, content, opts.Indent, kebabKey)
+        }</span>
+        <span class="cov8" title="1">return fmt.Sprintf("%s&lt;%s&gt;%s&lt;/%s&gt;",
+                opts.Indent, kebabKey, content, kebabKey)</span>
+}
+
+// formatList handles list formatting with wrapper tags
+func formatList(items []any, key string, opts Options) string <span class="cov8" title="1">{
+        fullKey := key
+        if opts.Prefix != "" </span><span class="cov8" title="1">{
+                fullKey = opts.Prefix + "-" + key
+        }</span>
+        <span class="cov8" title="1">kebabKey := toKebabCase(fullKey)
+        wrapperTag := kebabKey
+
+        if len(items) == 0 </span><span class="cov8" title="1">{
+                return ""
+        }</span>
+
+        <span class="cov8" title="1">var parts []string
+        parts = append(parts, fmt.Sprintf("%s&lt;%s&gt;\n", opts.Indent, wrapperTag))
+
+        innerIndent := opts.Indent + "  "
+        for i, item := range items </span><span class="cov8" title="1">{
+                itemTag := fmt.Sprintf("%s-%d", kebabKey, i+1)
+
+                // Handle dictionary items
+                if dict, ok := item.(map[string]any); ok </span><span class="cov8" title="1">{
+                        parts = append(parts, fmt.Sprintf("%s&lt;%s&gt;\n", innerIndent, itemTag))
+                        nestedOpts := Options{
+                                Indent: innerIndent + "  ",
+                                Strict: opts.Strict,
+                        }
+                        // In strict mode, use array item tag as prefix. In non-strict mode, don't use prefix
+                        if opts.Strict </span><span class="cov8" title="1">{
+                                nestedOpts.Prefix = itemTag
+                        }</span> else<span class="cov8" title="1"> {
+                                nestedOpts.Prefix = ""
+                        }</span>
+                        <span class="cov8" title="1">content := Sprintf(dict, nestedOpts)
+                        parts = append(parts, content)
+                        parts = append(parts, fmt.Sprintf("\n%s&lt;/%s&gt;\n", innerIndent, itemTag))</span>
+                } else<span class="cov8" title="1"> if dict, ok := item.(map[string]interface{}); ok </span><span class="cov0" title="0">{
+                        anyDict := make(map[string]any)
+                        for k, v := range dict </span><span class="cov0" title="0">{
+                                anyDict[k] = v
+                        }</span>
+                        <span class="cov0" title="0">parts = append(parts, fmt.Sprintf("%s&lt;%s&gt;\n", innerIndent, itemTag))
+                        nestedOpts := Options{
+                                Indent: innerIndent + "  ",
+                                Strict: opts.Strict,
+                        }
+                        // In strict mode, use array item tag as prefix. In non-strict mode, don't use prefix
+                        if opts.Strict </span><span class="cov0" title="0">{
+                                nestedOpts.Prefix = itemTag
+                        }</span> else<span class="cov0" title="0"> {
+                                nestedOpts.Prefix = ""
+                        }</span>
+                        <span class="cov0" title="0">content := Sprintf(anyDict, nestedOpts)
+                        parts = append(parts, content)
+                        parts = append(parts, fmt.Sprintf("\n%s&lt;/%s&gt;\n", innerIndent, itemTag))</span>
+                } else<span class="cov8" title="1"> {
+                        // Handle simple items
+                        formatted := Sprintf(item)
+                        parts = append(parts, fmt.Sprintf("%s&lt;%s&gt;%s&lt;/%s&gt;\n",
+                                innerIndent, itemTag, formatted, itemTag))
+                }</span>
+        }
+
+        <span class="cov8" title="1">parts = append(parts, fmt.Sprintf("%s&lt;/%s&gt;", opts.Indent, wrapperTag))
+        return strings.Join(parts, "")</span>
+}
+
+// formatSlice handles direct slice calls with numeric tags
+func formatSlice(items []any, opts Options) string <span class="cov8" title="1">{
+        if len(items) == 0 </span><span class="cov8" title="1">{
+                return ""
+        }</span>
+
+        <span class="cov8" title="1">var parts []string
+        for i, item := range items </span><span class="cov8" title="1">{
+                itemTag := strconv.Itoa(i + 1)
+                if opts.Prefix != "" </span><span class="cov8" title="1">{
+                        itemTag = opts.Prefix + "-" + itemTag
+                }</span>
+
+                // Handle dictionary items in direct arrays
+                <span class="cov8" title="1">if dict, ok := item.(map[string]any); ok </span><span class="cov8" title="1">{
+                        var content string
+                        if len(dict) == 0 </span><span class="cov8" title="1">{
+                                content = ""
+                        }</span> else<span class="cov8" title="1"> {
+                                nestedOpts := Options{
+                                        Indent: opts.Indent + "  ",
+                                        Prefix: itemTag,
+                                        Strict: opts.Strict,
+                                }
+                                content = Sprintf(dict, nestedOpts)
+                        }</span>
+                        
+                        <span class="cov8" title="1">if content == "" </span><span class="cov8" title="1">{
+                                parts = append(parts, fmt.Sprintf("%s&lt;%s&gt;&lt;/%s&gt;", opts.Indent, itemTag, itemTag))
+                        }</span> else<span class="cov8" title="1"> {
+                                // Force multiline format for objects in direct arrays
+                                parts = append(parts, fmt.Sprintf("%s&lt;%s&gt;\n%s\n%s&lt;/%s&gt;",
+                                        opts.Indent, itemTag, content, opts.Indent, itemTag))
+                        }</span>
+                } else<span class="cov8" title="1"> if dict, ok := item.(map[string]interface{}); ok </span><span class="cov0" title="0">{
+                        anyDict := make(map[string]any)
+                        for k, v := range dict </span><span class="cov0" title="0">{
+                                anyDict[k] = v
+                        }</span>
+                        <span class="cov0" title="0">var content string
+                        if len(anyDict) == 0 </span><span class="cov0" title="0">{
+                                content = ""
+                        }</span> else<span class="cov0" title="0"> {
+                                nestedOpts := Options{
+                                        Indent: opts.Indent + "  ",
+                                        Prefix: itemTag,
+                                        Strict: opts.Strict,
+                                }
+                                content = Sprintf(anyDict, nestedOpts)
+                        }</span>
+                        
+                        <span class="cov0" title="0">if content == "" </span><span class="cov0" title="0">{
+                                parts = append(parts, fmt.Sprintf("%s&lt;%s&gt;&lt;/%s&gt;", opts.Indent, itemTag, itemTag))
+                        }</span> else<span class="cov0" title="0"> {
+                                // Force multiline format for objects in direct arrays
+                                parts = append(parts, fmt.Sprintf("%s&lt;%s&gt;\n%s\n%s&lt;/%s&gt;",
+                                        opts.Indent, itemTag, content, opts.Indent, itemTag))
+                        }</span>
+                } else<span class="cov8" title="1"> if slice, ok := item.([]any); ok </span><span class="cov8" title="1">{
+                        // Handle array items in direct arrays - skip empty arrays
+                        if len(slice) &gt; 0 </span><span class="cov8" title="1">{
+                                // For non-empty arrays, format recursively
+                                nestedResult := formatSlice(slice, Options{
+                                        Indent: opts.Indent + "  ",
+                                        Prefix: "",
+                                        Strict: opts.Strict,
+                                })
+                                if nestedResult != "" </span><span class="cov8" title="1">{
+                                        parts = append(parts, fmt.Sprintf("%s&lt;%s&gt;\n%s\n%s&lt;/%s&gt;",
+                                                opts.Indent, itemTag, nestedResult, opts.Indent, itemTag))
+                                }</span>
+                        }
+                        // Empty arrays are skipped implicitly
+                } else<span class="cov8" title="1"> if slice, ok := item.([]interface{}); ok </span><span class="cov0" title="0">{
+                        // Handle array items in direct arrays - skip empty arrays
+                        anySlice := make([]any, len(slice))
+                        copy(anySlice, slice)
+                        if len(anySlice) &gt; 0 </span><span class="cov0" title="0">{
+                                // For non-empty arrays, format recursively
+                                nestedResult := formatSlice(anySlice, Options{
+                                        Indent: opts.Indent + "  ",
+                                        Prefix: "",
+                                        Strict: opts.Strict,
+                                })
+                                if nestedResult != "" </span><span class="cov0" title="0">{
+                                        parts = append(parts, fmt.Sprintf("%s&lt;%s&gt;\n%s\n%s&lt;/%s&gt;",
+                                                opts.Indent, itemTag, nestedResult, opts.Indent, itemTag))
+                                }</span>
+                        }
+                        // Empty arrays are skipped implicitly
+                } else<span class="cov8" title="1"> {
+                        // Handle simple items
+                        formatted := Sprintf(item)
+                        if formatted != "" </span><span class="cov8" title="1">{
+                                parts = append(parts, fmt.Sprintf("%s&lt;%s&gt;%s&lt;/%s&gt;",
+                                        opts.Indent, itemTag, formatted, itemTag))
+                        }</span>
+                        // Empty items are skipped implicitly
+                }
+        }
+
+        // If all items were skipped, return empty string
+        <span class="cov8" title="1">if len(parts) == 0 </span><span class="cov8" title="1">{
+                return ""
+        }</span>
+
+        <span class="cov8" title="1">return strings.Join(parts, "\n")</span>
+}
+
+// formatString handles string formatting with multiline support
+func formatString(s string, _indent string) string <span class="cov8" title="1">{
+        s = strings.TrimSpace(s)
+        if strings.Contains(s, "\n") </span><span class="cov8" title="1">{
+                lines := strings.Split(s, "\n")
+                var formatted []string
+                for _, line := range lines </span><span class="cov8" title="1">{
+                        formatted = append(formatted, "  "+strings.TrimSpace(line))
+                }</span>
+                <span class="cov8" title="1">return strings.Join(formatted, "\n")</span>
+        }
+        <span class="cov8" title="1">return s</span>
+}
+
+// toKebabCase converts text to kebab-case format
+// Handles camelCase, PascalCase, snake_case, spaces, and acronyms correctly
+func toKebabCase(text string) string <span class="cov8" title="1">{
+        if text == "" </span><span class="cov8" title="1">{
+                return text
+        }</span>
+
+        // Replace spaces and underscores with hyphens
+        <span class="cov8" title="1">result := regexp.MustCompile(`[\s_]+`).ReplaceAllString(text, "-")
+
+        // Handle sequences of uppercase letters followed by lowercase (acronyms)
+        // e.g., "XMLHttpRequest" -&gt; "XML-Http-Request"
+        result = regexp.MustCompile(`([A-Z]+)([A-Z][a-z])`).ReplaceAllString(result, "$1-$2")
+
+        // Handle lowercase followed by uppercase  
+        // e.g., "camelCase" -&gt; "camel-Case"
+        result = regexp.MustCompile(`([a-z\d])([A-Z])`).ReplaceAllString(result, "$1-$2")
+
+        // Convert to lowercase
+        return strings.ToLower(result)</span>
+}
+
+// LLML is a backwards compatibility alias for Sprintf
+// Deprecated: Use Sprintf instead
+func LLML(data interface{}, opts ...Options) string <span class="cov8" title="1">{
+        return Sprintf(data, opts...)
+}</span>
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

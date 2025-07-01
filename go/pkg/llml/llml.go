@@ -2,7 +2,6 @@ package llml
 
 import (
 	"fmt"
-	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -37,24 +36,10 @@ func Sprintf(data interface{}, opts ...Options) string {
 	if m, ok := data.(map[string]any); ok {
 		return formatMap(m, options)
 	}
-	if m, ok := data.(map[string]interface{}); ok {
-		// Convert to map[string]any
-		anyMap := make(map[string]any)
-		for k, v := range m {
-			anyMap[k] = v
-		}
-		return formatMap(anyMap, options)
-	}
 
 	// Handle slices
 	if s, ok := data.([]any); ok {
 		return formatSlice(s, options)
-	}
-	if s, ok := data.([]interface{}); ok {
-		// Convert to []any
-		anySlice := make([]any, len(s))
-		copy(anySlice, s)
-		return formatSlice(anySlice, options)
 	}
 
 	// Handle primitive types
@@ -130,42 +115,29 @@ func formatKeyValue(key string, value any, opts Options) string {
 	if opts.Prefix != "" {
 		fullKey = opts.Prefix + "-" + key
 	}
-	kebabKey := toKebabCase(fullKey)
 
 	// Handle lists with wrapper tags
 	if slice, ok := value.([]any); ok {
 		return formatList(slice, key, opts)
 	}
-	if slice, ok := value.([]interface{}); ok {
-		anySlice := make([]any, len(slice))
-		copy(anySlice, slice)
-		return formatList(anySlice, key, opts)
-	}
 
 	// Handle nested maps
 	if nested, ok := value.(map[string]any); ok {
-		return formatNestedMap(nested, kebabKey, fullKey, opts)
-	}
-	if nested, ok := value.(map[string]interface{}); ok {
-		anyMap := make(map[string]any)
-		for k, v := range nested {
-			anyMap[k] = v
-		}
-		return formatNestedMap(anyMap, kebabKey, fullKey, opts)
+		return formatNestedMap(nested, fullKey, fullKey, opts)
 	}
 
 	// Handle primitive values
 	formatted := Sprintf(value)
 	if strings.Contains(formatted, "\n") {
 		return fmt.Sprintf("%s<%s>\n%s\n%s</%s>",
-			opts.Indent, kebabKey, formatted, opts.Indent, kebabKey)
+			opts.Indent, fullKey, formatted, opts.Indent, fullKey)
 	}
 	return fmt.Sprintf("%s<%s>%s</%s>",
-		opts.Indent, kebabKey, formatted, kebabKey)
+		opts.Indent, fullKey, formatted, fullKey)
 }
 
 // formatNestedMap handles nested map formatting
-func formatNestedMap(nested map[string]any, kebabKey, fullKey string, opts Options) string {
+func formatNestedMap(nested map[string]any, key, fullKey string, opts Options) string {
 	nestedOpts := Options{
 		Indent: opts.Indent + "  ",
 		Strict: opts.Strict,
@@ -182,10 +154,10 @@ func formatNestedMap(nested map[string]any, kebabKey, fullKey string, opts Optio
 
 	if strings.Contains(content, "\n") {
 		return fmt.Sprintf("%s<%s>\n%s\n%s</%s>",
-			opts.Indent, kebabKey, content, opts.Indent, kebabKey)
+			opts.Indent, key, content, opts.Indent, key)
 	}
 	return fmt.Sprintf("%s<%s>%s</%s>",
-		opts.Indent, kebabKey, content, kebabKey)
+		opts.Indent, key, content, key)
 }
 
 // formatList handles list formatting with wrapper tags
@@ -194,8 +166,7 @@ func formatList(items []any, key string, opts Options) string {
 	if opts.Prefix != "" {
 		fullKey = opts.Prefix + "-" + key
 	}
-	kebabKey := toKebabCase(fullKey)
-	wrapperTag := kebabKey
+	wrapperTag := fullKey
 
 	if len(items) == 0 {
 		return ""
@@ -206,7 +177,7 @@ func formatList(items []any, key string, opts Options) string {
 
 	innerIndent := opts.Indent + "  "
 	for i, item := range items {
-		itemTag := fmt.Sprintf("%s-%d", kebabKey, i+1)
+		itemTag := fmt.Sprintf("%s-%d", fullKey, i+1)
 
 		// Handle dictionary items
 		if dict, ok := item.(map[string]any); ok {
@@ -222,25 +193,6 @@ func formatList(items []any, key string, opts Options) string {
 				nestedOpts.Prefix = ""
 			}
 			content := Sprintf(dict, nestedOpts)
-			parts = append(parts, content)
-			parts = append(parts, fmt.Sprintf("\n%s</%s>\n", innerIndent, itemTag))
-		} else if dict, ok := item.(map[string]interface{}); ok {
-			anyDict := make(map[string]any)
-			for k, v := range dict {
-				anyDict[k] = v
-			}
-			parts = append(parts, fmt.Sprintf("%s<%s>\n", innerIndent, itemTag))
-			nestedOpts := Options{
-				Indent: innerIndent + "  ",
-				Strict: opts.Strict,
-			}
-			// In strict mode, use array item tag as prefix. In non-strict mode, don't use prefix
-			if opts.Strict {
-				nestedOpts.Prefix = itemTag
-			} else {
-				nestedOpts.Prefix = ""
-			}
-			content := Sprintf(anyDict, nestedOpts)
 			parts = append(parts, content)
 			parts = append(parts, fmt.Sprintf("\n%s</%s>\n", innerIndent, itemTag))
 		} else {
@@ -289,52 +241,11 @@ func formatSlice(items []any, opts Options) string {
 				parts = append(parts, fmt.Sprintf("%s<%s>\n%s\n%s</%s>",
 					opts.Indent, itemTag, content, opts.Indent, itemTag))
 			}
-		} else if dict, ok := item.(map[string]interface{}); ok {
-			anyDict := make(map[string]any)
-			for k, v := range dict {
-				anyDict[k] = v
-			}
-			var content string
-			if len(anyDict) == 0 {
-				content = ""
-			} else {
-				nestedOpts := Options{
-					Indent: opts.Indent + "  ",
-					Prefix: itemTag,
-					Strict: opts.Strict,
-				}
-				content = Sprintf(anyDict, nestedOpts)
-			}
-			
-			if content == "" {
-				parts = append(parts, fmt.Sprintf("%s<%s></%s>", opts.Indent, itemTag, itemTag))
-			} else {
-				// Force multiline format for objects in direct arrays
-				parts = append(parts, fmt.Sprintf("%s<%s>\n%s\n%s</%s>",
-					opts.Indent, itemTag, content, opts.Indent, itemTag))
-			}
 		} else if slice, ok := item.([]any); ok {
 			// Handle array items in direct arrays - skip empty arrays
 			if len(slice) > 0 {
 				// For non-empty arrays, format recursively
 				nestedResult := formatSlice(slice, Options{
-					Indent: opts.Indent + "  ",
-					Prefix: "",
-					Strict: opts.Strict,
-				})
-				if nestedResult != "" {
-					parts = append(parts, fmt.Sprintf("%s<%s>\n%s\n%s</%s>",
-						opts.Indent, itemTag, nestedResult, opts.Indent, itemTag))
-				}
-			}
-			// Empty arrays are skipped implicitly
-		} else if slice, ok := item.([]interface{}); ok {
-			// Handle array items in direct arrays - skip empty arrays
-			anySlice := make([]any, len(slice))
-			copy(anySlice, slice)
-			if len(anySlice) > 0 {
-				// For non-empty arrays, format recursively
-				nestedResult := formatSlice(anySlice, Options{
 					Indent: opts.Indent + "  ",
 					Prefix: "",
 					Strict: opts.Strict,
@@ -378,27 +289,6 @@ func formatString(s string, _indent string) string {
 	return s
 }
 
-// toKebabCase converts text to kebab-case format
-// Handles camelCase, PascalCase, snake_case, spaces, and acronyms correctly
-func toKebabCase(text string) string {
-	if text == "" {
-		return text
-	}
-
-	// Replace spaces and underscores with hyphens
-	result := regexp.MustCompile(`[\s_]+`).ReplaceAllString(text, "-")
-
-	// Handle sequences of uppercase letters followed by lowercase (acronyms)
-	// e.g., "XMLHttpRequest" -> "XML-Http-Request"
-	result = regexp.MustCompile(`([A-Z]+)([A-Z][a-z])`).ReplaceAllString(result, "$1-$2")
-
-	// Handle lowercase followed by uppercase  
-	// e.g., "camelCase" -> "camel-Case"
-	result = regexp.MustCompile(`([a-z\d])([A-Z])`).ReplaceAllString(result, "$1-$2")
-
-	// Convert to lowercase
-	return strings.ToLower(result)
-}
 
 // LLML is a backwards compatibility alias for Sprintf
 // Deprecated: Use Sprintf instead

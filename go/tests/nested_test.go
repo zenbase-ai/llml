@@ -28,11 +28,11 @@ func TestNestedDictWithKebabCase(t *testing.T) {
 			"maxRetries": 5,
 		},
 	})
-	assert.Contains(t, result, "<user-config>")
-	assert.Contains(t, result, "</user-config>")
-	// In non-strict mode (default), nested object properties are kebab-cased but don't include parent prefixes
-	assert.Contains(t, result, "<debug-mode>true</debug-mode>")
-	assert.Contains(t, result, "<max-retries>5</max-retries>")
+	assert.Contains(t, result, "<user_config>")
+	assert.Contains(t, result, "</user_config>")
+	// In non-strict mode (default), nested object properties use original key names
+	assert.Contains(t, result, "<debug_mode>true</debug_mode>")
+	assert.Contains(t, result, "<maxRetries>5</maxRetries>")
 }
 
 func TestNestedCamelCaseInObjects(t *testing.T) {
@@ -43,10 +43,10 @@ func TestNestedCamelCaseInObjects(t *testing.T) {
 			"XMLParser":  "enabled",
 		},
 	})
-	assert.Contains(t, result, "<user-config>")
-	assert.Contains(t, result, "</user-config>")
-	// In non-strict mode (default), nested object properties are kebab-cased but don't include parent prefixes
-	assert.Contains(t, result, "<debug-mode>true</debug-mode>")
-	assert.Contains(t, result, "<max-retries>5</max-retries>")
-	assert.Contains(t, result, "<xml-parser>enabled</xml-parser>")
+	assert.Contains(t, result, "<userConfig>")
+	assert.Contains(t, result, "</userConfig>")
+	// In non-strict mode (default), nested object properties use original key names
+	assert.Contains(t, result, "<debugMode>true</debugMode>")
+	assert.Contains(t, result, "<maxRetries>5</maxRetries>")
+	assert.Contains(t, result, "<XMLParser>enabled</XMLParser>")
 }

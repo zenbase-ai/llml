@@ -43,10 +43,10 @@ func TestListKebabCaseConversion(t *testing.T) {
 	result := llml.Sprintf(map[string]any{
 		"user_tasks": []any{"task1", "task2"},
 	})
-	expected := "<user-tasks>\n" +
-		"  <user-tasks-1>task1</user-tasks-1>\n" +
-		"  <user-tasks-2>task2</user-tasks-2>\n" +
-		"</user-tasks>"
+	expected := "<user_tasks>\n" +
+		"  <user_tasks-1>task1</user_tasks-1>\n" +
+		"  <user_tasks-2>task2</user_tasks-2>\n" +
+		"</user_tasks>"
 	assert.Equal(t, expected, result)
 }
 
@@ -75,12 +75,12 @@ func TestCamelCaseInArrayKeys(t *testing.T) {
 		"userTasks":   []any{"task1", "task2"},
 		"XMLElements": []any{"element1", "element2"},
 	})
-	assert.Contains(t, result, "<user-tasks>")
-	assert.Contains(t, result, "<user-tasks-1>task1</user-tasks-1>")
-	assert.Contains(t, result, "<user-tasks-2>task2</user-tasks-2>")
-	assert.Contains(t, result, "</user-tasks>")
-	assert.Contains(t, result, "<xml-elements>")
-	assert.Contains(t, result, "<xml-elements-1>element1</xml-elements-1>")
-	assert.Contains(t, result, "<xml-elements-2>element2</xml-elements-2>")
-	assert.Contains(t, result, "</xml-elements>")
+	assert.Contains(t, result, "<userTasks>")
+	assert.Contains(t, result, "<userTasks-1>task1</userTasks-1>")
+	assert.Contains(t, result, "<userTasks-2>task2</userTasks-2>")
+	assert.Contains(t, result, "</userTasks>")
+	assert.Contains(t, result, "<XMLElements>")
+	assert.Contains(t, result, "<XMLElements-1>element1</XMLElements-1>")
+	assert.Contains(t, result, "<XMLElements-2>element2</XMLElements-2>")
+	assert.Contains(t, result, "</XMLElements>")
 }

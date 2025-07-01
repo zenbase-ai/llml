@@ -82,11 +82,11 @@ func TestStrictModeFalseWithKebabCase(t *testing.T) {
 			"maxRetries": 5,
 		},
 	}, llml.Options{Strict: false})
-	assert.Contains(t, result, "<user-config>")
-	assert.Contains(t, result, "</user-config>")
-	// In non-strict mode, nested properties are kebab-cased but don't include parent prefixes
-	assert.Contains(t, result, "<debug-mode>true</debug-mode>")
-	assert.Contains(t, result, "<max-retries>5</max-retries>")
+	assert.Contains(t, result, "<user_config>")
+	assert.Contains(t, result, "</user_config>")
+	// In non-strict mode, nested properties use original key names
+	assert.Contains(t, result, "<debug_mode>true</debug_mode>")
+	assert.Contains(t, result, "<maxRetries>5</maxRetries>")
 }
 
 func TestStrictModeTrueWithKebabCase(t *testing.T) {
@@ -96,11 +96,11 @@ func TestStrictModeTrueWithKebabCase(t *testing.T) {
 			"maxRetries": 5,
 		},
 	}, llml.Options{Strict: true})
-	assert.Contains(t, result, "<user-config>")
-	assert.Contains(t, result, "</user-config>")
-	// In strict mode, nested properties are kebab-cased and include parent prefixes
-	assert.Contains(t, result, "<user-config-debug-mode>true</user-config-debug-mode>")
-	assert.Contains(t, result, "<user-config-max-retries>5</user-config-max-retries>")
+	assert.Contains(t, result, "<user_config>")
+	assert.Contains(t, result, "</user_config>")
+	// In strict mode, nested properties use original key names and include parent prefixes
+	assert.Contains(t, result, "<user_config-debug_mode>true</user_config-debug_mode>")
+	assert.Contains(t, result, "<user_config-maxRetries>5</user_config-maxRetries>")
 }
 
 func TestDefaultStrictModeBehavior(t *testing.T) {
