@@ -68,6 +68,27 @@ test lang="*":
     just rs test
   fi
 
+coverage lang="*":
+  #!/usr/bin/env bash
+  set -euxo pipefail # e = exit on error, u = treat unset variables as errors, x = print commands, o = print options, pipefail = exit on error in a pipeline
+
+  if [ "{{lang}}" = "*" ] || [ "{{lang}}" = "ts" ]; then
+    echo "=== TypeScript Coverage ==="
+    just ts test --coverage
+  fi
+  if [ "{{lang}}" = "*" ] || [ "{{lang}}" = "py" ]; then
+    echo "=== Python Coverage ==="
+    just py run pytest --cov=zenbase_llml --cov-report=term-missing
+  fi
+  if [ "{{lang}}" = "*" ] || [ "{{lang}}" = "go" ]; then
+    echo "=== Go Coverage ==="
+    just go test -coverprofile=coverage.out -coverpkg=github.com/zenbase-ai/llml/go/pkg/llml ./tests/...
+  fi
+  if [ "{{lang}}" = "*" ] || [ "{{lang}}" = "rs" ]; then
+    echo "=== Rust Coverage ==="
+    just rs tarpaulin
+  fi
+
 publish lang version:
   #!/usr/bin/env bash
   set -euxo pipefail

@@ -16,7 +16,10 @@
       "Bash(just go test)",
       "Bash(just test:*)",
       "Bash(grep:*)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(node:*)",
+      "Bash(fd:*)",
+      "Bash(python -m pytest -xvs)"
     ],
     "deny": []
   }

@@ -4,32 +4,64 @@ Composible primitive for transforming data structures into a prompt.
 
 LLML is available in **Python**, **TypeScript/JavaScript**, **Rust**, and **Go**. It transforms nested data structures (dictionaries/objects, lists/arrays, primitives) into well-formatted, XML-like markup.
 
+![Python Coverage](https://img.shields.io/badge/Python-92%25-brightgreen) ![TypeScript Coverage](https://img.shields.io/badge/TypeScript-100%25-brightgreen) ![Go Coverage](https://img.shields.io/badge/Go-100%25-brightgreen) ![Rust Coverage](https://img.shields.io/badge/Rust-91.67%25-brightgreen)
+
+*"A towel, it says, is about the most massively useful thing an interstellar hitchhiker can have."*
+
+LLML is the towel of data formats. It's not the most advanced, not the most efficient, not the most popular. But it's **massively useful** when you need to:
+
+- Take your messy, nested data structure
+- Make it comprehensible to an AI
+- Keep it readable for humans
+
+It's there when you need it. It does what you expect. It doesn't get in the way. And like a good towel, once you start using it, you wonder how you ever got along without it.
+
 📋 [Full Technical Specification](.cursor/rules/spec.mdc)
 
 ```typescript
 import { llml } from "@zenbase/llml"
 
 llml({name: "Alice", age: 30})
-# Return: <name>Alice</name>
-#         <age>30</age>
+// Return: <name>Alice</name>
+//         <age>30</age>
 
-const instructions = '...'
-const rules = { ... } 
-const basePrompt = llml({ instructions, rules })
+const containers = await containerSDK.getContainer({ filter: { metadata: { userId }}})
+const pmPrompt = await promptManagementTool.getPrompt({ id: "..." })
 const agentPrompt = llml({
-  basePrompt,
-  context: { ... } ,
-  userRequest: '...',
+  prompt: pmPrompt,
+  context: {
+    machines: containers.map(c => ({
+      id: c.id,
+      name: c.name,
+      env: c.envVars.map(e => `${e.key}=${e.value}`).join("\n")
+    })),
+    environment: "production",
+    session_id: "abc123" // preserves casing/spacing in keys
+  },
+  userRequest: "Deploy latest version to staging."
 })
-# Return: <instructions>You are a helpful assistant.</instructions>
-#         <rules>
-#           <rules-1>be concise</rules-1>
-#           <rules-2>be helpful</rules-2>
-#           <rules-3>be accurate</rules-3>
-#         </rules>
-#         <context>
-#          ...
-# TODO
+// Return: <prompt>You are an expert DevOps engineer. Deploy applications safely with proper validation and rollback procedures.</prompt>
+//         <context>
+//           <machines>
+//             <machines-1>
+//               <id>c1</id>
+//               <name>web-api</name>
+//               <env>
+//                 NODE_ENV=production
+//                 PORT=3000
+//               </env>
+//             </machines-1>
+//             <!-- additional machines -->
+//           </machines>
+//           <environment>production</environment>
+//           <session_id>abc123</session_id>
+//         </context>
+//         <userRequest>Deploy latest version to staging.</userRequest>
+await makeAIRequest(agentPrompt, {
+    tools: TOOLS,
+    toolChoice: "auto",
+    maxSteps: 10,
+})
 ```
 
 <details>
@@ -246,21 +278,19 @@ LLML transforms data using these core rules:
 
 1. **Simple Values**: `{key: "value"}` → `<key>value</key>`
 2. **Lists/Arrays**: `{items: ["a", "b"]}` → `<items><items-1>a</items-1><items-2>b</items-2></items>`
-3. **Nested Objects**: `{config: {debug: true}}` → `<config><debug>true</debug></config>` (default: strict=false)
-4. **Key Normalization**: All keys are converted to kebab-case automatically
+3. **Nested Objects**: `{config: {debug: true}}` → `<config><debug>true</debug></config>`
+4. **Key Preservation**: Dictionary keys are preserved exactly as provided
 5. **Empty Values**: Empty objects `{}` and arrays `[]` return empty strings
-6. **Strict Mode**: Optional setting to include parent key prefixes in nested objects
+6. **Extensible Formatting**: Custom formatters can be provided for specialized data types
 
 
 ## Features
 
-- 🔄 **Automatic kebab-case conversion**: Transform `user_name` → `user-name`, `maxRetries` → `max-retries`
 - 📝 **Smart list formatting**: Arrays become `<items><items-1>first</items-1><items-2>second</items-2></items>`
 - 🔁 **Recursive nested structures**: Objects within objects maintain proper hierarchy
-- ⚙️ **Strict mode control**: Choose whether nested properties include parent key prefixes
-- 📐 **Configurable indentation**: Custom spacing for nested elements
 - 📄 **Multiline content support**: Preserves line breaks with proper indentation
-- 🏷️ **Optional prefix namespacing**: Add prefixes to all generated tags
+- 🔧 **Extensible formatter system**: Customize formatting for any data type
+- 🎯 **Type-aware processing**: Different formatters handle different data types intelligently
 - ⚡ **Zero configuration**: Works out of the box with sensible defaults
 - 🔀 **Consistent cross-language output**: Identical results across Python, TypeScript, Rust, and Go
 
@@ -276,12 +306,12 @@ pip install zenbase-llml # or uv, rye, poetry, etc.
 from zenbase_llml import llml
 
 # Simple example
-llml(task="analyze", content="customer feedback")
+llml({"task": "analyze", "content": "customer feedback"})
 # Output: <task>analyze</task>
 #         <content>customer feedback</content>
 
 # List handling
-llml(rules=["be concise", "be helpful", "be accurate"])
+llml({"rules": ["be concise", "be helpful", "be accurate"]})
 # Output: <rules>
 #           <rules-1>be concise</rules-1>
 #           <rules-2>be helpful</rules-2>
@@ -289,22 +319,22 @@ llml(rules=["be concise", "be helpful", "be accurate"])
 #         </rules>
 
 # Example 1: Data Extraction
-extraction_prompt = llml(
-    task="Extract key information from customer feedback",
-    instructions="Identify and categorize customer sentiments and specific issues mentioned",
-    rules=[
+extraction_prompt = llml({
+    "task": "Extract key information from customer feedback",
+    "instructions": "Identify and categorize customer sentiments and specific issues mentioned",
+    "rules": [
         "Classify sentiment as positive, negative, or neutral",
         "Extract specific product features mentioned",
         "Identify any requested improvements or fixes",
         "Note any comparisons to competitors"
     ],
-    output_format={
+    "output_format": {
         "sentiment": "positive/negative/neutral",
         "features_mentioned": ["list of features"],
         "issues": ["list of problems"],
         "improvements": ["list of suggestions"]
     }
-)
+})
 # Output:
 # <task>Extract key information from customer feedback</task>
 # <instructions>Identify and categorize customer sentiments and specific issues mentioned</instructions>
@@ -314,24 +344,24 @@ extraction_prompt = llml(
 #   <rules-3>Identify any requested improvements or fixes</rules-3>
 #   <rules-4>Note any comparisons to competitors</rules-4>
 # </rules>
-# <output-format>
-#   <output-format-sentiment>positive/negative/neutral</output-format-sentiment>
-#   <output-format-features-mentioned>
-#     <features-mentioned-1>list of features</features-mentioned-1>
-#   </output-format-features-mentioned>
-#   <output-format-issues>
+# <output_format>
+#   <sentiment>positive/negative/neutral</sentiment>
+#   <features_mentioned>
+#     <features_mentioned-1>list of features</features_mentioned-1>
+#   </features_mentioned>
+#   <issues>
 #     <issues-1>list of problems</issues-1>
-#   </output-format-issues>
-#   <output-format-improvements>
+#   </issues>
+#   <improvements>
 #     <improvements-1>list of suggestions</improvements-1>
-#   </output-format-improvements>
-# </output-format>
+#   </improvements>
+# </output_format>
 
 # Example 2: RAG Chatbot
-rag_prompt = llml(
-    system="You are a helpful documentation assistant",
-    instructions="Answer questions based on the provided documentation context",
-    documents=[
+rag_prompt = llml({
+    "system": "You are a helpful documentation assistant",
+    "instructions": "Answer questions based on the provided documentation context",
+    "documents": [
         {
             "title": "API Authentication Guide",
             "content": "Our API uses OAuth 2.0 for authentication...",
@@ -343,13 +373,13 @@ rag_prompt = llml(
             "relevance_score": 0.82
         }
     ],
-    user_query="How do I authenticate with your API?",
-    constraints=[
+    "user_query": "How do I authenticate with your API?",
+    "constraints": [
         "Only use information from the provided documents",
         "Cite the document title when referencing information",
         "If information is not available, explicitly state so"
     ]
-)
+})
 # Output:
 # <system>You are a helpful documentation assistant</system>
 # <instructions>Answer questions based on the provided documentation context</instructions>
@@ -357,15 +387,15 @@ rag_prompt = llml(
 #   <documents-1>
 #     <title>API Authentication Guide</title>
 #     <content>Our API uses OAuth 2.0 for authentication...</content>
-#     <relevance-score>0.95</relevance-score>
+#     <relevance_score>0.95</relevance_score>
 #   </documents-1>
 #   <documents-2>
 #     <title>Rate Limiting Documentation</title>
 #     <content>API calls are limited to 1000 requests per hour...</content>
-#     <relevance-score>0.82</relevance-score>
+#     <relevance_score>0.82</relevance_score>
 #   </documents-2>
 # </documents>
-# <user-query>How do I authenticate with your API?</user-query>
+# <user_query>How do I authenticate with your API?</user_query>
 # <constraints>
 #   <constraints-1>Only use information from the provided documents</constraints-1>
 #   <constraints-2>Cite the document title when referencing information</constraints-2>
@@ -373,16 +403,16 @@ rag_prompt = llml(
 # </constraints>
 
 # Example 3: AI Agent with Workflows
-agent_prompt = llml(
-    role="DevOps automation agent",
-    context={
+agent_prompt = llml({
+    "role": "DevOps automation agent",
+    "context": {
         "environment": "production",
         "aws_region": "us-east-1",
         "services": ["web-api", "worker-queue", "database"],
         "last_deployment": "2024-01-15T10:30:00Z"
     },
-    instructions="Execute deployment workflow with safety checks",
-    workflows={
+    "instructions": "Execute deployment workflow with safety checks",
+    "workflows": {
         "deploy": [
             "Run pre-deployment health checks",
             "Create backup of current state",
@@ -398,47 +428,47 @@ agent_prompt = llml(
             "Send notification to ops channel"
         ]
     },
-    safety_rules=[
+    "safety_rules": [
         "Never skip health checks",
         "Always maintain 99.9% uptime SLA",
         "Require manual approval for database changes"
     ]
-)
+})
 print(agent_prompt)
 # Output:
 # <role>DevOps automation agent</role>
 # <context>
 #   <environment>production</environment>
-#   <aws-region>us-east-1</aws-region>
-#   <context-services>
+#   <aws_region>us-east-1</aws_region>
+#   <services>
 #     <services-1>web-api</services-1>
 #     <services-2>worker-queue</services-2>
 #     <services-3>database</services-3>
-#   </context-services>
-#   <last-deployment>2024-01-15T10:30:00Z</last-deployment>
+#   </services>
+#   <last_deployment>2024-01-15T10:30:00Z</last_deployment>
 # </context>
 # <instructions>Execute deployment workflow with safety checks</instructions>
 # <workflows>
-#   <workflows-deploy>
+#   <deploy>
 #     <deploy-1>Run pre-deployment health checks</deploy-1>
 #     <deploy-2>Create backup of current state</deploy-2>
 #     <deploy-3>Deploy to canary instance (5% traffic)</deploy-3>
 #     <deploy-4>Monitor metrics for 10 minutes</deploy-4>
 #     <deploy-5>If healthy, proceed to full deployment</deploy-5>
 #     <deploy-6>If issues detected, automatic rollback</deploy-6>
-#   </workflows-deploy>
-#   <workflows-rollback>
+#   </deploy>
+#   <rollback>
 #     <rollback-1>Stop new traffic to affected services</rollback-1>
 #     <rollback-2>Restore from latest backup</rollback-2>
 #     <rollback-3>Verify service health</rollback-3>
 #     <rollback-4>Send notification to ops channel</rollback-4>
-#   </workflows-rollback>
+#   </rollback>
 # </workflows>
-# <safety-rules>
-#   <safety-rules-1>Never skip health checks</safety-rules-1>
-#   <safety-rules-2>Always maintain 99.9% uptime SLA</safety-rules-2>
-#   <safety-rules-3>Require manual approval for database changes</safety-rules-3>
-# </safety-rules>
+# <safety_rules>
+#   <safety_rules-1>Never skip health checks</safety_rules-1>
+#   <safety_rules-2>Always maintain 99.9% uptime SLA</safety_rules-2>
+#   <safety_rules-3>Require manual approval for database changes</safety_rules-3>
+# </safety_rules>
 ```
 
 ### TypeScript/JavaScript
@@ -897,8 +927,8 @@ All implementations provide the same core functionality:
 - Convert dictionaries/objects to nested tag structures
 - Transform lists/arrays into numbered item lists
 - Handle primitives (strings, numbers, booleans) as tag content
-- Automatic key formatting to kebab-case
-- Configurable indentation and prefixing
+- Preserve dictionary keys exactly as provided
+- Extensible formatting system for custom data types
 
 See individual project READMEs for detailed API documentation:
 - [Python API Documentation](py/README.md)

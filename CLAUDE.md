@@ -23,6 +23,8 @@ LLML (Lightweight Language Markup Language) is a multi-language data serializati
 - **Consistent Output**: Identical results across all language implementations
 - **Human-Readable**: Produces clean, well-formatted markup
 - **LLM-Friendly**: Optimized for AI model consumption and understanding
+- **Extensible Formatters**: Customizable formatter system for specialized data types
+- **Type-Safe Architecture**: Modular formatter design with predicate-based type detection
 
 ## Project Structure
 
@@ -34,15 +36,20 @@ LLML (Lightweight Language Markup Language) is a multi-language data serializati
 │   ├── README.md
 │   ├── pyproject.toml
 │   ├── src/
-│   │   ├── llml.py          # Main implementation
-│   │   └── utils.py         # Helper utilities
+│   │   └── zenbase_llml/
+│   │       ├── llml.py      # Main implementation
+│   │       └── formatters/  # Formatter system
+│   │           ├── base/    # Base type formatters
+│   │           └── swag_xml/ # SwagXML formatters
 │   └── tests/
 ├── ts/                       # TypeScript implementation
 │   ├── README.md
 │   ├── package.json
 │   ├── src/
 │   │   ├── index.ts         # Main implementation
-│   │   └── utils.ts         # Helper utilities
+│   │   └── formatters/      # Formatter system
+│   │       ├── base/        # Base type formatters
+│   │       └── swag-xml/    # SwagXML formatters
 │   └── tests/
 ├── rs/                       # Rust implementation
 │   ├── README.md
@@ -100,9 +107,10 @@ just gemini -a -p "your prompt here"   # Run Gemini CLI
 - **Rust**: `cargo` for dependency management and testing
 - **Go**: Standard Go toolchain (`go test`, `go mod`)
 
-### 7. Configuration Options
-- **Indentation**: Custom indentation strings for nested elements
-- **Prefix**: Namespace all generated tags with a prefix
+### Configuration Options
+- **Custom Formatters**: Extensible formatter system for specialized data types
+- **Formatter Composition**: Combine and override default formatters for custom behavior
+- **Type-Specific Processing**: Define custom formatting logic for any data type
 
 ## Testing & Quality Assurance
 
@@ -114,12 +122,12 @@ The test suites ensure that all four implementations produce identical output fo
 ### 1. AI Prompt Engineering
 ```python
 # Python
-prompt = llml(
-    role="Senior Developer",
-    task="Code review the following function",
-    criteria=["Performance", "Readability", "Best practices"],
-    context={"language": "Python", "framework": "FastAPI"}
-)
+prompt = llml({
+    "role": "Senior Developer",
+    "task": "Code review the following function",
+    "criteria": ["Performance", "Readability", "Best practices"],
+    "context": {"language": "Python", "framework": "FastAPI"}
+})
 ```
 
 ### 2. Configuration Generation
@@ -172,6 +180,7 @@ agentPrompt := llml.Sprintf(map[string]any{
 ## Future Considerations
 
 - **Streaming Support**: For very large data structures
-- **Custom Formatters**: Plugin system for specialized formatting
 - **Schema Validation**: Optional validation against predefined schemas
 - **Output Formats**: Additional output formats beyond XML-like markup
+- **Performance Optimization**: Further optimization for formatter lookup and execution
+- **Formatter Registry**: Centralized registry for sharing custom formatters across projects

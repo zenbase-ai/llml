@@ -5,7 +5,7 @@ alwaysApply: true
 ---
 # LLML Technical Specification
 
-Version: 0.2.0, June 29th 2025
+Version: 0.3.0, July 1st 2025
 
 ## Overview
 
@@ -61,26 +61,14 @@ llml({value: None}) → "<value>None</value>"  # Python
 llml({value: undefined}) → "<value>undefined</value>"  # TypeScript
 ```
 
-### 3. Key Normalization (Kebab-Case Conversion)
+### 3. Key Preservation
 
-All keys are automatically converted to kebab-case:
+Keys are preserved as-is without transformation:
 
-**Snake Case:**
 ```
-user_name → user-name
-debug_mode → debug-mode
-```
-
-**CamelCase:**
-```
-userName → user-name
-maxRetries → max-retries
-userAge → user-age
-```
-
-**Spaces:**
-```
-"key with spaces" → key-with-spaces
+llml({user_name: "Alice"}) → "<user_name>Alice</user_name>"
+llml({userName: "Bob"}) → "<userName>Bob</userName>"
+llml({"key with spaces": "value"}) → "<key with spaces>value</key with spaces>"
 ```
 
 ### 4. Multiple Key-Value Pairs
@@ -121,14 +109,14 @@ llml({numbers: [1, 2, 3]})
 </numbers>
 ```
 
-**Kebab-Case Array Names:**
+**Array Names:**
 ```
 llml({user_tasks: ["task1", "task2"]})
 →
-<user-tasks>
-  <user-tasks-1>task1</user-tasks-1>
-  <user-tasks-2>task2</user-tasks-2>
-</user-tasks>
+<user_tasks>
+  <user_tasks-1>task1</user_tasks-1>
+  <user_tasks-2>task2</user_tasks-2>
+</user_tasks>
 ```
 
 ### 6. Direct Array Formatting
@@ -157,18 +145,18 @@ llml([1, "hello", true])
 llml([{name: "Alice"}, {name: "Bob"}])
 →
 <1>
-  <1-name>Alice</1-name>
+  <name>Alice</name>
 </1>
 <2>
-  <2-name>Bob</2-name>
+  <name>Bob</name>
 </2>
 ```
 
 ### 7. Nested Object Formatting
 
-Nested objects are formatted recursively with proper indentation. By default (`strict: false`), nested object properties do not include parent key prefixes:
+Nested objects are formatted recursively with proper indentation. Nested object properties do not include parent key prefixes:
 
-**Simple Nesting (Default):**
+**Simple Nesting:**
 ```
 llml({config: {debug: true, timeout: 30}})
 →
@@ -178,19 +166,19 @@ llml({config: {debug: true, timeout: 30}})
 </config>
 ```
 
-**With Kebab-Case Conversion (Default):**
+**Key Preservation:**
 ```
 llml({user_config: {debug_mode: true, maxRetries: 5}})
 →
-<user-config>
-  <debug-mode>true</debug-mode>
-  <max-retries>5</max-retries>
-</user-config>
+<user_config>
+  <debug_mode>true</debug_mode>
+  <maxRetries>5</maxRetries>
+</user_config>
 ```
 
 ### 8. Arrays Containing Objects
 
-When arrays contain objects, each object is wrapped with the array name and index. By default (`strict: false`), object properties within arrays do not include the array item prefix:
+When arrays contain objects, each object is wrapped with the array name and index. Object properties within arrays do not include the array item prefix:
 
 ```
 llml({data: [{name: "Alice", age: 30}, {name: "Bob", age: 25}]})
@@ -209,7 +197,7 @@ llml({data: [{name: "Alice", age: 30}, {name: "Bob", age: 25}]})
 
 ### 9. Complex Mixed Content
 
-Mixed content types are handled by applying the appropriate rule for each type. By default (`strict: false`), nested object properties do not include parent key prefixes:
+Mixed content types are handled by applying the appropriate rule for each type. Nested object properties do not include parent key prefixes:
 
 ```
 llml({
@@ -232,7 +220,7 @@ llml({
 
 ### 10. Deep Nesting
 
-Deep nesting follows the same rules recursively. By default (`strict: false`), nested object properties do not include parent key prefixes:
+Deep nesting follows the same rules recursively. Nested object properties do not include parent key prefixes:
 
 ```
 llml({level1: {level2: {items: ["a", "b"]}}})
@@ -317,71 +305,42 @@ llml(["a", "b"], {prefix: "item"})
 <item-2>b</item-2>
 ```
 
-### Strict Mode
+### Renderer System
 
-The `strict` option controls whether object keys are used as prefixes in nested fields:
+LLML uses a pluggable renderer system to support different output formats. The default renderer is SwagXML, which produces the XML-like markup format.
 
-- `strict: false` (default): No object key prefixes in nested fields
-- `strict: true`: Object keys are used as prefixes (current behavior)
+> SwagXML means it's Cyrus' Scientific Wild Ass Guess on what is the best input prompt structure, and it's currently a loose, XML-inspired markup language.
 
-**Strict Mode Disabled (Default):**
+**Default SwagXML Renderer:**
 ```
-llml({config: {debug: true, timeout: 30}}, {strict: false})
+llml({config: {debug: true, timeout: 30}})
+// Uses createSwagXML() by default
 →
 <config>
   <debug>true</debug>
   <timeout>30</timeout>
 </config>
-
-llml({user_config: {debug_mode: true, maxRetries: 5}}, {strict: false})
-→
-<user-config>
-  <debug-mode>true</debug-mode>
-  <max-retries>5</max-retries>
-</user-config>
-
-llml({data: [{name: "Alice", age: 30}, {name: "Bob", age: 25}]}, {strict: false})
-→
-<data>
-  <data-1>
-    <name>Alice</name>
-    <age>30</age>
-  </data-1>
-  <data-2>
-    <name>Bob</name>
-    <age>25</age>
-  </data-2>
-</data>
 ```
 
-**Strict Mode Enabled:**
+**Custom Renderer:**
 ```
-llml({config: {debug: true, timeout: 30}}, {strict: true})
+llml({data: "value"}, {renderer: createSwagXMLRenderer({indent: "  ", prefix: "app"})})
 →
-<config>
-  <config-debug>true</config-debug>
-  <config-timeout>30</config-timeout>
-</config>
+  <app-data>value</app-data>
+```
 
-llml({user_config: {debug_mode: true, maxRetries: 5}}, {strict: true})
+**Alternative Renderers:**
+```
+// JSON renderer (hypothetical)
+llml({name: "Alice", age: 30}, {renderer: createJSONRenderer()})
 →
-<user-config>
-  <user-config-debug-mode>true</user-config-debug-mode>
-  <user-config-max-retries>5</user-config-max-retries>
-</user-config>
+{"name": "Alice", "age": 30}
 
-llml({data: [{name: "Alice", age: 30}, {name: "Bob", age: 25}]}, {strict: true})
+// YAML renderer (hypothetical)
+llml({config: {debug: true}}, {renderer: createYAMLRenderer()})
 →
-<data>
-  <data-1>
-    <data-1-name>Alice</data-1-name>
-    <data-1-age>30</data-1-age>
-  </data-1>
-  <data-2>
-    <data-2-name>Bob</data-2-name>
-    <data-2-age>25</data-2-age>
-  </data-2>
-</data>
+config:
+  debug: true
 ```
 
 ## Language-Specific Implementation Details
@@ -390,12 +349,23 @@ llml({data: [{name: "Alice", age: 30}, {name: "Bob", age: 25}]}, {strict: true})
 
 **TypeScript:**
 ```typescript
-function llml(data?: any, options?: {indent?: string, prefix?: string, strict?: boolean}): string
+interface SwagXMLOptions {
+  indent?: string;
+  prefix?: string;
+}
+
+interface LLMLOptions {
+  renderer?: Renderer; // defaults to createSwagXML()
+}
+
+function llml(data?: any, options?: LLMLOptions): string
+function createSwagXML(options?: SwagXMLOptions): Renderer
 ```
 
 **Python:**
 ```python
-def llml(*args, options: Options = None, indent: str = "", prefix: str = "", strict: bool = False, **parts) -> str
+def llml(*args, options: Options = None, renderer: Renderer = None, **parts) -> str
+def create_swag_xml(indent: str = "", prefix: str = "") -> Renderer
 ```
 
 ### Type Representation
@@ -456,13 +426,11 @@ llml({name: "Alice", age: 30})
 - Array items are indented one level deeper than their wrapper
 - Object properties within arrays inherit the array item's indentation level
 
-## Tag Naming Convention
+## Tag Naming Convention (SwagXML Renderer)
 
-1. Convert all keys to kebab-case
+1. Preserve all keys as-is (no case conversion)
 2. For array items, append `-{index}` to the key name (1-indexed)
-3. For nested objects:
-   - If `strict: false` (default): Use child key name only (no parent key prefix)
-   - If `strict: true`: Concatenate parent and child keys with `-`
+3. For nested objects: Use child key name only (no parent key prefix)
 4. Apply prefix to all generated tag names if specified
 
 ## Validation Requirements
@@ -471,7 +439,7 @@ Implementations must produce identical output for identical input across all sup
 
 1. All primitive type handling
 2. Empty value scenarios
-3. Kebab-case conversion accuracy
+3. Key preservation accuracy
 4. Array formatting consistency
 5. Nested structure handling
 6. Configuration option behavior
