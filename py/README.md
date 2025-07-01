@@ -10,11 +10,11 @@ LLML transforms your data into beautifully formatted XML-like markup with zero f
 from zenbase_llml import llml
 
 # Simple values
-print(llml(greeting="Hello World"))
+print(llml({"greeting": "Hello World"}))
 # Output: <greeting>Hello World</greeting>
 
 # Lists become numbered items
-print(llml(tasks=["Buy milk", "Walk dog", "Code LLML"]))
+print(llml({"tasks": ["Buy milk", "Walk dog", "Code LLML"]}))
 # Output:
 # <tasks>
 #   <tasks-1>Buy milk</tasks-1>
@@ -23,21 +23,21 @@ print(llml(tasks=["Buy milk", "Walk dog", "Code LLML"]))
 # </tasks>
 
 # Complex nested structures
-print(llml(
-    title="My Project",
-    features=["Fast", "Simple", "Powerful"],
-    config={"debug": True, "version": "1.0"}
-))
+print(llml({
+    "title": "My Project",
+    "features": ["Fast", "Simple", "Powerful"],
+    "config": {"debug": True, "version": "1.0"}
+}))
 ```
 
 ## 🎯 Why LLML?
 
 - **🔥 Zero Learning Curve**: One function, infinite possibilities
 - **🎨 Beautiful Output**: Automatically formatted, properly indented
-- **🔧 Type Safe**: Built with beartype for runtime type checking
+- **🔧 Flexible Architecture**: Extensible formatter system for custom types
 - **⚡ Lightning Fast**: Minimal overhead, maximum performance
 - **🌟 Pythonic**: Feels natural, works everywhere
-- **⚙️ Strict Mode**: Control nested property prefixes with `strict` parameter
+- **🔧 Customizable**: Create your own formatters for specialized output
 
 ## 🛠️ Installation
 
@@ -47,26 +47,19 @@ pip install zenbase-llml
 
 ## 📚 Advanced Usage
 
-### Prefix Support
-```python
-# Add prefix to all keys
-print(llml(message="Hello", prefix="app"))
-# Output: <app-message>Hello</app-message>
-```
-
 ### Multi-line Content
 ```python
 instructions = """
 Step 1: Install LLML
-Step 2: Import lml
+Step 2: Import llml
 Step 3: Create magic
 """
 
-llml(instructions=instructions)
+print(llml({"instructions": instructions}))
 # Output:
 # <instructions>
 # Step 1: Install LLML
-# Step 2: Import lml
+# Step 2: Import llml
 # Step 3: Create magic
 # </instructions>
 ```
@@ -86,54 +79,64 @@ prompt_data = {
     }
 }
 
-print(llml(**prompt_data))
-
-# Example with strict mode enabled
-print(llml(config={"debug": True, "timeout": 30}, strict=True))
-# Output: <config>
-#           <config-debug>True</config-debug>
-#           <config-timeout>30</config-timeout>
-#         </config>
-
-# Example with strict mode disabled (default)
-print(llml(config={"debug": True, "timeout": 30}, strict=False))
-# Output: <config>
-#           <debug>True</debug>
-#           <timeout>30</timeout>
-#         </config>
+print(llml(prompt_data))
 ```
+
+### Custom Formatters
+LLML uses an extensible formatter system. You can create custom formatters for specialized types:
+
+```python
+from zenbase_llml import llml
+from zenbase_llml.formatters.swag_xml import swag_xml
+from datetime import datetime
+
+# Custom date formatter
+def is_date(value):
+    return isinstance(value, datetime)
+
+def format_date(value, llml_func, formatters=None):
+    return f"<date>{value.strftime('%Y-%m-%d')}</date>"
+
+# Create custom formatter map
+custom_formatters = {**swag_xml, is_date: format_date}
+
+# Use with custom formatters
+result = llml({"created": datetime.now()}, formatters=custom_formatters)
+```
+
+For detailed information on creating and using formatters, see our [Formatters Guide](docs/formatters.md).
 
 ## 🎪 Use Cases
 
 ### 🤖 AI Prompt Engineering
 Perfect for structuring complex prompts:
 ```python
-prompt = llml(
-    role="Senior Python Developer",
-    task="Code review the following function",
-    criteria=["Performance", "Readability", "Best practices"],
-    code=function_to_review
-)
+prompt = llml({
+    "role": "Senior Python Developer",
+    "task": "Code review the following function",
+    "criteria": ["Performance", "Readability", "Best practices"],
+    "code": function_to_review
+})
 ```
 
 ### ⚙️ Configuration Generation
 Generate clean config files:
 ```python
-config = llml(
-    database={"host": "localhost", "port": 5432},
-    features=["logging", "caching", "monitoring"],
-    environment="production"
-)
+config = llml({
+    "database": {"host": "localhost", "port": 5432},
+    "features": ["logging", "caching", "monitoring"],
+    "environment": "production"
+})
 ```
 
 ### 📄 Document Structure
 Create structured documents:
 ```python
-document = llml(
-    title="API Documentation",
-    sections=["Authentication", "Endpoints", "Examples"],
-    metadata={"version": "2.1", "author": "Dev Team"}
-)
+document = llml({
+    "title": "API Documentation",
+    "sections": ["Authentication", "Endpoints", "Examples"],
+    "metadata": {"version": "2.1", "author": "Dev Team"}
+})
 ```
 
 ## 🧪 Testing

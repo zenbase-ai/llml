@@ -1,4 +1,4 @@
-from zenbase_llml import LLMLOptions, llml
+from zenbase_llml import llml
 
 
 def test_llml_handles_non_string_dict_keys():
@@ -9,7 +9,7 @@ def test_llml_handles_non_string_dict_keys():
         }
     }
     # We only care that llml() *does not* crash.
-    result = llml("variables", payload["variables"], options=LLMLOptions(strict=False))
+    result = llml(payload)
 
     # Verify the result is properly formatted
     assert "<variables>" in result
@@ -30,7 +30,7 @@ def test_llml_handles_mixed_key_types():
     }
 
     # Should not crash and should produce valid output
-    result = llml("mixed", data["mixed"], options=LLMLOptions(strict=False))
+    result = llml(data)
 
     assert "<mixed>" in result
     assert "</mixed>" in result
@@ -45,7 +45,7 @@ def test_llml_handles_nested_non_string_keys():
     data = {"nested": {1: {2: "deeply_nested", "inner": "value"}}}
 
     # Should not crash
-    result = llml("nested", data["nested"], options=LLMLOptions(strict=False))
+    result = llml(data)
 
     assert "<nested>" in result
     assert "</nested>" in result
