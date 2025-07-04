@@ -1,1 +1,1 @@
-export { swagXML } from "./swag-xml"
+export { vibeXML } from "./vibe-xml"

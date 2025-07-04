@@ -23,7 +23,7 @@
 		"noUnusedParameters": false,
 		"noPropertyAccessFromIndexSignature": false,
 		"isolatedDeclarations": true,
-		"declaration": true,
+		"declaration": true
 	},
 	"exclude": ["node_modules", "dist", "bunup.config.ts"]
 }

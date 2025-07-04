@@ -14,7 +14,7 @@ When you call `llml(data)`, it iterates through the formatters in order until it
 ```typescript
 import { llml } from "@zenbase/llml";
 
-// Uses default SwagXML formatters
+// Uses default VibeXML formatters
 const result = llml({
     name: "Alice",
     age: 30,
@@ -39,15 +39,15 @@ const formatString: FormatFunction = (value: string) =>
     value.trim();
 ```
 
-### Default SwagXML Formatters
+### Default VibeXML Formatters
 
-The `swagXML()` function creates a formatter Map with built-in formatters:
+The `vibeXML()` function creates a formatter Map with built-in formatters:
 
 ```typescript
-import { llml, swagXML } from "../src";
+import { llml, vibeXML } from "../src";
 
 // Get the default formatter map
-const formatters = swagXML;
+const formatters = vibeXML;
 console.log(formatters); // Map(8) { [Function: isString] => [Function: formatString], ... }
 
 // Use custom formatters
@@ -71,14 +71,14 @@ The default formatters handle:
 Replace or add formatters to the default map:
 
 ```typescript
-import { llml, swagXML } from "@zenbase/llml";
+import { llml, vibeXML } from "@zenbase/llml";
 import { isDate } from "@zenbase/llml/formatters/swag-xml";
 
 const formatDateCustom = (value: Date) =>
     value.toISOString().split('T')[0]; // YYYY-MM-DD format
 
 // Get default formatters and override date formatting
-const formatters = swagXML();
+const formatters = vibeXML();
 formatters.set(isDate, formatDateCustom);
 
 // Use with custom date formatting
@@ -92,7 +92,7 @@ const result = llml(data, formatters);
 Put your custom formatters first (higher priority):
 
 ```typescript
-import { llml, swagXML } from "@zenbase/llml";
+import { llml, vibeXML } from "@zenbase/llml";
 
 class User {
     constructor(public name: string, public email: string) {}
@@ -103,7 +103,7 @@ const isUser = (v: unknown): v is User => v instanceof User;
 const formatUser = (value: User) => `${value.name} (${value.email})`;
 
 // Create new map with custom formatter first
-const formatters = swagXML({
+const formatters = vibeXML({
     formatters: [isUser, formatUser]
 })
 
@@ -112,12 +112,12 @@ const result = llml(data, formatters);
 // Output: <admin>Alice (alice@example.com)</admin>
 ```
 
-### Method 3: Using swagXML Options
+### Method 3: Using vibeXML Options
 
 Use the built-in custom formatter support:
 
 ```typescript
-const formatters = swagXML({ formatters: [[isUser, formatUser]] });
+const formatters = vibeXML({ formatters: [[isUser, formatUser]] });
 const result = llml(data, formatters);
 ```
 
@@ -141,7 +141,7 @@ const isURL = (v: unknown): v is string => {
 const formatURL = (value: string) => `[${value}]`;
 
 // These take precedence over the builtin string formatter
-const formatters = swagXML({
+const formatters = vibeXML({
     formatters: [[isEmail, formatEmail], [isURL, formatURL]]
 });
 
@@ -221,7 +221,7 @@ const formatters = new Map();
 formatters.set(isProject, formatProject);
 
 // Add default formatters
-const defaultFormatters = swagXML();
+const defaultFormatters = vibeXML();
 for (const [predicate, formatter] of defaultFormatters) {
     formatters.set(predicate, formatter);
 }
@@ -267,7 +267,7 @@ formatters.set(isSensitiveString, formatSensitive);
 formatters.set(isLargeNumber, formatLargeNumber);
 
 // Add default formatters
-const defaultFormatters = swagXML();
+const defaultFormatters = vibeXML();
 for (const [predicate, formatter] of defaultFormatters) {
     formatters.set(predicate, formatter);
 }
@@ -383,7 +383,7 @@ const formatCurrency = (value: CurrencyAmount) => {
 Here's a complete example showing how to handle custom data types:
 
 ```typescript
-import { llml, swagXML } from "../src";
+import { llml, vibeXML } from "../src";
 import type { FormatterMap } from "../src";
 
 class BlogPost {
@@ -437,7 +437,7 @@ formatters.set(isAuthor, formatAuthor);
 formatters.set(isDate, formatBlogDateTime);
 
 // Add default formatters
-const defaultFormatters = swagXML();
+const defaultFormatters = vibeXML();
 for (const [predicate, formatter] of defaultFormatters) {
     formatters.set(predicate, formatter);
 }
@@ -472,7 +472,7 @@ For easier formatter management, you can create utility functions:
 
 ```typescript
 import type { FormatterMap, Predicate, FormatFunction } from "../src";
-import { swagXML } from "../src";
+import { vibeXML } from "../src";
 
 /** Creates a new formatter map with custom formatters taking precedence */
 export function createFormatters(
@@ -481,7 +481,7 @@ export function createFormatters(
     const formatters = new Map(customFormatters);
 
     // Add default formatters that don't conflict
-    const defaultFormatters = swagXML();
+    const defaultFormatters = vibeXML();
     for (const [predicate, formatter] of defaultFormatters) {
         if (!formatters.has(predicate)) {
             formatters.set(predicate, formatter);

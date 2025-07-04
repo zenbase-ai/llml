@@ -1,61 +1,61 @@
 {
-  "name": "@zenbase/llml",
-  "description": "Lightweight Language Markup Language - Convert nested data structures to human-readable, XML-like markup",
-  "version": "0.3.0",
-  "type": "module",
-  "files": [
-    "src",
-    "README.md",
-    "LICENSE",
-    "dist"
-  ],
-  "module": "./dist/index.js",
-  "main": "./dist/index.cjs",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
-      },
-      "require": {
-        "types": "./dist/index.d.cts",
-        "default": "./dist/index.cjs"
-      }
-    }
-  },
-  "keywords": [
-    "llml",
-    "markup",
-    "serialization",
-    "xml",
-    "ai",
-    "prompt",
-    "data-structure"
-  ],
-  "author": "Zenbase AI",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/zenbase-ai/llml.git",
-    "directory": "ts"
-  },
-  "scripts": {
-    "test": "bun test",
-    "test:watch": "bun test --watch",
-    "test:run": "bun test",
-    "dev": "bunup --watch"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^2.0.6",
-    "@types/bun": "latest",
-    "bunup": "^0.8.50",
-    "vitest": "^3.2.4"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
-  },
-  "dependencies": {
-    "dedent": "^1.6.0"
-  },
-  "license": "MIT"
+	"name": "@zenbase/llml",
+	"description": "Lightweight Language Markup Language - Convert nested data structures to human-readable, XML-like markup",
+	"version": "0.3.0",
+	"type": "module",
+	"files": [
+		"src",
+		"README.md",
+		"LICENSE",
+		"dist"
+	],
+	"module": "./dist/index.js",
+	"main": "./dist/index.cjs",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"import": {
+				"types": "./dist/index.d.ts",
+				"default": "./dist/index.js"
+			},
+			"require": {
+				"types": "./dist/index.d.cts",
+				"default": "./dist/index.cjs"
+			}
+		}
+	},
+	"keywords": [
+		"llml",
+		"markup",
+		"serialization",
+		"xml",
+		"ai",
+		"prompt",
+		"data-structure"
+	],
+	"author": "Zenbase AI",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/zenbase-ai/llml.git",
+		"directory": "ts"
+	},
+	"scripts": {
+		"test": "bun test",
+		"test:watch": "bun test --watch",
+		"test:run": "bun test",
+		"dev": "bunup --watch"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.0.6",
+		"@types/bun": "latest",
+		"bunup": "^0.8.50",
+		"vitest": "^3.2.4"
+	},
+	"peerDependencies": {
+		"typescript": "^5.0.0"
+	},
+	"dependencies": {
+		"dedent": "^1.6.0"
+	},
+	"license": "MIT"
 }

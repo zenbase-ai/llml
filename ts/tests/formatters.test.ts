@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { llml, swagXML } from "../src"
+import { llml, vibeXML } from "../src"
 
 describe("Custom Formatters", () => {
   describe("Basic Formatter Functionality", () => {
@@ -15,7 +15,7 @@ describe("Custom Formatters", () => {
         (v: MyDomainType) => `${v.myDomainField}.......`,
       )
 
-      const formatters = swagXML({ formatters: customFormatters })
+      const formatters = vibeXML({ formatters: customFormatters })
       const result = llml({ user: new MyDomainType("alice"), count: 42 }, formatters)
 
       expect(result).toBe("<user>alice.......</user>\n<count>42</count>")
@@ -69,7 +69,7 @@ describe("Custom Formatters", () => {
         () => "SECOND",
       )
 
-      const formatters = swagXML({ formatters: customFormatters })
+      const formatters = vibeXML({ formatters: customFormatters })
       const result = llml({ text: "hello" }, formatters)
 
       expect(result).toBe("<text>FIRST</text>")
@@ -82,7 +82,7 @@ describe("Custom Formatters", () => {
         (v: Date) => v.toISOString().split("T")[0],
       )
 
-      const formatters = swagXML({ formatters: customFormatters })
+      const formatters = vibeXML({ formatters: customFormatters })
       const result = llml({ text: "hello", number: 42 }, formatters)
 
       expect(result).toBe("<text>hello</text>\n<number>42</number>")
@@ -99,7 +99,7 @@ describe("Custom Formatters", () => {
         () => "BAD",
       )
 
-      const formatters = swagXML({ formatters: customFormatters })
+      const formatters = vibeXML({ formatters: customFormatters })
 
       expect(() => {
         llml({ text: "hello" }, formatters)
@@ -115,7 +115,7 @@ describe("Custom Formatters", () => {
         },
       )
 
-      const formatters = swagXML({ formatters: customFormatters })
+      const formatters = vibeXML({ formatters: customFormatters })
 
       expect(() => {
         llml({ text: "hello" }, formatters)
@@ -132,7 +132,7 @@ describe("Custom Formatters", () => {
         ) {}
       }
 
-      const formatters = swagXML({
+      const formatters = vibeXML({
         formatters: [[(v: unknown): v is Money => v instanceof Money, (v: Money) => `${v.amount} ${v.currency}`]],
       })
       const result = llml(
@@ -158,7 +158,7 @@ describe("Custom Formatters", () => {
         (v: User) => `User: ${v.name}`,
       )
 
-      const formatters = swagXML({ formatters: customFormatters })
+      const formatters = vibeXML({ formatters: customFormatters })
       const result = llml(
         {
           team: {
@@ -183,7 +183,7 @@ describe("Custom Formatters", () => {
         (v: Item) => `Custom: ${v.name}`,
       )
 
-      const formatters = swagXML({ formatters: customFormatters })
+      const formatters = vibeXML({ formatters: customFormatters })
       const result = llml([new Item("Widget"), new Item("Gadget")], formatters)
 
       expect(result).toBe("<1>Custom: Widget</1>\n" + "<2>Custom: Gadget</2>")
@@ -208,7 +208,7 @@ describe("Custom Formatters", () => {
         (v: boolean) => (v ? "YES" : "NO"),
       )
 
-      const formatters = swagXML({ formatters: customFormatters })
+      const formatters = vibeXML({ formatters: customFormatters })
       const result = llml({ enabled: true, disabled: false }, formatters)
 
       expect(result).toBe("<enabled>YES</enabled>\n<disabled>NO</disabled>")

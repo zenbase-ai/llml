@@ -2,7 +2,7 @@
 
 **The most elegant way to generate structured text in TypeScript/JavaScript.**
 
-LLML transforms your data into beautifully formatted XML-like markup with zero fuss and maximum flexibility. Perfect for prompt engineering, configuration generation, and structured document creation.
+LLML transforms your data into beautifully formatted XML-like markup with zero fuss and maximum flexibility. Perfect for context engineering, configuration generation, and structured document creation.
 
 ## ⚡ Quick Start
 
@@ -69,7 +69,7 @@ yarn install
 LLML uses an extensible formatter system. You can create custom formatters for specialized data types:
 
 ```typescript
-import { llml, swagXML } from '@zenbase/llml';
+import { llml, vibeXML } from '@zenbase/llml';
 
 // Custom formatters for domain objects
 class User {
@@ -91,8 +91,8 @@ customFormatters.set(
   (v: Money) => `${v.amount} ${v.currency}`
 );
 
-// Use with swagXML
-const formatters = swagXML({ formatters: customFormatters });
+// Use with vibeXML
+const formatters = vibeXML({ formatters: customFormatters });
 const result = llml({
   customer: new User("Alice", "alice@example.com"),
   price: new Money(100, "USD")
@@ -113,7 +113,7 @@ customFormatters.set(
   (v: boolean) => v ? "YES" : "NO"
 );
 
-const formatters = swagXML({ formatters: customFormatters });
+const formatters = vibeXML({ formatters: customFormatters });
 const result = llml({ enabled: true, disabled: false }, formatters);
 // Output:
 // <enabled>YES</enabled>
@@ -279,7 +279,7 @@ bun run tsc --noEmit
 
 **Parameters:**
 - `data: unknown` - The data to convert to markup
-- `formatters?: Formatters` - Optional custom formatters (defaults to `swagXML()`)
+- `formatters?: Formatters` - Optional custom formatters (defaults to `vibeXML()`)
 
 **Types:**
 ```typescript
@@ -294,9 +294,9 @@ type Formatters = Iterable<[Predicate, Formatter]>;
 
 **Returns:** `string` - The formatted markup
 
-### `swagXML(options?)`
+### `vibeXML(options?)`
 
-Creates the default SwagXML formatters with optional customization:
+Creates the default VibeXML formatters with optional customization:
 
 **Parameters:**
 - `options?: { formatters?: Formatters }` - Custom formatters to merge with defaults
@@ -318,7 +318,7 @@ customFormatters.set(
   (v: User) => `User: ${v.name}`
 );
 
-const formatters = swagXML({ formatters: customFormatters });
+const formatters = vibeXML({ formatters: customFormatters });
 llml({ admin: new User("Alice") }, formatters)
 // → <admin>User: Alice</admin>
 

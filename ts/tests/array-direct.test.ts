@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { llml, swagXML } from "../src/index"
+import { llml, vibeXML } from "../src/index"
 
 describe("Direct Array Formatting", () => {
   it("should format direct arrays with numbered tags", () => {
@@ -27,7 +27,7 @@ describe("Direct Array Formatting", () => {
   })
 
   it("should handle arrays with formatters (indent option ignored for now)", () => {
-    const formatters = swagXML({ indent: "  " })
+    const formatters = vibeXML({ indent: "  " })
     const result = llml(["a", "b"], formatters)
     const expected = "<1>a</1>\n<2>b</2>"
     expect(result).toBe(expected)

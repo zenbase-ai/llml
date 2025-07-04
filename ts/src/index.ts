@@ -5,6 +5,6 @@
 
 // Re-export built-in formatters for convenience
 export * from "./formatters"
-export { swagXML } from "./formatters"
+export { vibeXML } from "./formatters"
 export { llml } from "./llml"
 export type { Formatter, Formatters, Predicate } from "./types"
