@@ -10,7 +10,7 @@ from ..types import Formatters
 from .dict import format_dict, is_dict
 from .list import format_list, is_list
 
-swag_xml: Formatters = {
+vibe_xml: Formatters = {
     is_str: format_str,
     is_int: format_int,
     is_float: format_float,

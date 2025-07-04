@@ -14,7 +14,7 @@ When you call `llml(data)`, it iterates through the formatters in order until it
 ```python
 from zenbase_llml import llml
 
-# Uses default SwagXML formatters
+# Uses default VibeXML formatters
 result = llml({
     "name": "Alice",
     "age": 30,
@@ -39,16 +39,16 @@ def format_string(value, llml, formatters=None) -> str:
 string_formatter = (is_string, format_string)
 ```
 
-### Default SwagXML Formatters
+### Default VibeXML Formatters
 
-The `swag_xml()` function creates a formatter map with built-in formatters:
+The `vibe_xml()` function creates a formatter map with built-in formatters:
 
 ```python
 from zenbase_llml import llml
-from zenbase_llml.formatters import swag_xml
+from zenbase_llml.formatters import vibe_xml
 
 # Get the default formatter map
-formatters = swag_xml()
+formatters = vibe_xml()
 print(type(formatters))  # <class 'dict'>
 
 # Use custom formatters
@@ -73,7 +73,7 @@ Replace or add formatters to the default map:
 ```python
 from datetime import datetime
 from zenbase_llml import llml
-from zenbase_llml.formatters.swag_xml import swag_xml, is_datetime
+from zenbase_llml.formatters.vibe_xml import vibe_xml, is_datetime
 
 def format_datetime_custom(value, _llml, _formatters=None):
     return value.strftime("%Y-%m-%d %H:%M:%S")
@@ -81,7 +81,7 @@ def format_datetime_custom(value, _llml, _formatters=None):
 # Get default formatters and override datetime formatting
 formatters = {
     is_datetime: format_datetime_custom
-    **swag_xml,
+    **vibe_xml,
 }
 
 # Use with custom datetime formatting
@@ -109,7 +109,7 @@ def format_user(value, llml, formatters=None):
 # Insertion order is important! This takes precedence so User doesn't hit the fallback __str__
 formatters = {
     is_user: format_user,
-    **swag_xml,  # Include all default formatters
+    **vibe_xml,  # Include all default formatters
 }
 
 data = {"admin": User("Alice", "alice@example.com")}
@@ -122,7 +122,7 @@ result = llml(data, formatters)
 ### Advanced Date Formatting
 
 ```python
-from zenbase_llml.formatters.swag_xml import swag_xml, is_date, is_datetime
+from zenbase_llml.formatters.vibe_xml import vibe_xml, is_date, is_datetime
 
 from datetime import datetime, date
 
@@ -135,7 +135,7 @@ def format_datetime_readable(value, _llml, _formatters=None):
 formatters = {
     is_date: format_date_iso,
     is_datetime: format_datetime_readable,
-    **swag_xml,
+    **vibe_xml,
 }
 
 data = {
@@ -174,7 +174,7 @@ def format_url(value, _llml, _formatters=None):
 formatters = {
     is_email: format_email,
     is_url: format_url,
-    **swag_xml,
+    **vibe_xml,
 }
 
 data = {
@@ -220,7 +220,7 @@ def format_distance(value, _llml, _formatters=None):
 formatters = {
     (lambda value: isinstance(value, Temperature), format_temperature),
     (lambda value: isinstance(value, Distance), format_distance),
-    **swag_xml,
+    **vibe_xml,
 }
 
 data = {
@@ -256,7 +256,7 @@ def format_project(value, llml, formatters):
 
 formatters = {
     is_project: format_project,
-    **swag_xml(),
+    **vibe_xml(),
 }
 
 project = Project("LLML", ["implement", "test", "document"])
@@ -297,7 +297,7 @@ def format_large_number(value, llml, formatters=None):
 formatters = {
     is_sensitive_string: format_sensitive,
     is_large_number: format_large_number,
-    **swag_xml(),
+    **vibe_xml(),
 }
 
 data = {
@@ -407,7 +407,7 @@ Here's a complete example showing how to handle custom data types:
 ```python
 from datetime import datetime
 from zenbase_llml import llml
-from zenbase_llml.formatters import swag_xml
+from zenbase_llml.formatters import vibe_xml
 
 class BlogPost:
     def __init__(self, title, author, published, tags):
@@ -452,7 +452,7 @@ formatters = {
     is_blog_post: format_blog_post,
     is_author: format_author,
     is_datetime: format_blog_datetime,
-    **swag_xml(),
+    **vibe_xml(),
 }
 
 # Use the formatters
@@ -481,7 +481,7 @@ print(result)
 
 ## Next Steps
 
-- Explore the built-in formatters in `zenbase_llml.formatters.swag_xml`
+- Explore the built-in formatters in `zenbase_llml.formatters.vibe_xml`
 - Create your own formatter library for common data types
 - Consider performance implications for large datasets
 - Share useful formatters with the community!

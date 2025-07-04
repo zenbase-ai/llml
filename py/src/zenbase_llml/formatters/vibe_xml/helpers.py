@@ -2,7 +2,7 @@ from textwrap import dedent
 
 
 def format_key_value(key: str, value, llml, formatters):
-    """Helper function to format key-value pairs in SwagXML style"""
+    """Helper function to format key-value pairs in VibeXML style"""
     if isinstance(value, list):
         if len(value) == 0:
             return ""

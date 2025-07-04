@@ -2,7 +2,7 @@
 
 **The most elegant way to generate structured text in Python.**
 
-LLML transforms your data into beautifully formatted XML-like markup with zero fuss and maximum flexibility. Perfect for prompt engineering, configuration generation, and structured document creation.
+LLML transforms your data into beautifully formatted XML-like markup with zero fuss and maximum flexibility. Perfect for context engineering, configuration generation, and structured document creation.
 
 ## ⚡ Quick Start
 
@@ -87,7 +87,7 @@ LLML uses an extensible formatter system. You can create custom formatters for s
 
 ```python
 from zenbase_llml import llml
-from zenbase_llml.formatters.swag_xml import swag_xml
+from zenbase_llml.formatters.vibe_xml import vibe_xml
 from datetime import datetime
 
 # Custom date formatter
@@ -98,7 +98,7 @@ def format_date(value, llml_func, formatters=None):
     return f"<date>{value.strftime('%Y-%m-%d')}</date>"
 
 # Create custom formatter map
-custom_formatters = {**swag_xml, is_date: format_date}
+custom_formatters = {**vibe_xml, is_date: format_date}
 
 # Use with custom formatters
 result = llml({"created": datetime.now()}, formatters=custom_formatters)

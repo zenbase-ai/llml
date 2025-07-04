@@ -1,15 +1,15 @@
 import typing as t
 
-from .formatters.swag_xml import Formatters, swag_xml
+from .formatters.vibe_xml import Formatters, vibe_xml
 
-__all__ = ["llml", "swag_xml", "Formatters"]
+__all__ = ["llml", "vibe_xml", "Formatters"]
 
 
 # Sentinel value to detect when no arguments are provided
 _SENTINEL = object()
 
 
-def llml(data: t.Any = _SENTINEL, formatters: Formatters = swag_xml) -> str:
+def llml(data: t.Any = _SENTINEL, formatters: Formatters = vibe_xml) -> str:
     """
     Core LLML function - ultra-simple formatter Map approach
     Takes data and a formatter Map, applies the first matching formatter
