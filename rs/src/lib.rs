@@ -9,11 +9,12 @@ Converts data structures to XML-like markup with specific formatting rules.
 - Formats arrays as numbered lists with wrapper tags
 - Supports nested objects and kebab-case conversion
 - Handles indentation, prefixes, and multiline strings
+- Extensible trait-based system for custom types
 
 ## Usage
 
 ```rust
-use zenbase_llml::{llml, llml_with_options, LLMLOptions};
+use zenbase_llml::{llml, llml_with_options, LLMLOptions, Prompt};
 use serde_json::json;
 
 let data = json!({"instructions": "Follow these steps"});
@@ -23,6 +24,16 @@ let result = llml(&data);
 // For custom formatting:
 let options = LLMLOptions { indent: "  ".to_string(), prefix: String::new(), strict: false };
 let result = llml_with_options(&data, Some(options));
+
+// Custom types can implement the Prompt trait:
+struct CustomType { name: String }
+impl Prompt for CustomType {
+    fn to_prompt(&self) -> String {
+        format!("Custom: {}", self.name)
+    }
+}
+let custom = CustomType { name: "example".to_string() };
+let result = llml(&custom);
 ```
 */
 
@@ -30,6 +41,61 @@ use serde_json::Value;
 
 mod utils;
 use utils::format_value;
+
+/// Core trait for converting values to prompt-friendly strings
+pub trait Prompt {
+    fn to_prompt(&self) -> String;
+}
+
+/// Specialized implementation for Value that provides LLML formatting
+impl Prompt for Value {
+    fn to_prompt(&self) -> String {
+        format_value(self, &LLMLOptions::default())
+    }
+}
+
+/// Implementation for basic types that should use Display
+impl Prompt for String {
+    fn to_prompt(&self) -> String {
+        self.to_string()
+    }
+}
+
+impl Prompt for &str {
+    fn to_prompt(&self) -> String {
+        self.to_string()
+    }
+}
+
+impl Prompt for i32 {
+    fn to_prompt(&self) -> String {
+        self.to_string()
+    }
+}
+
+impl Prompt for i64 {
+    fn to_prompt(&self) -> String {
+        self.to_string()
+    }
+}
+
+impl Prompt for f32 {
+    fn to_prompt(&self) -> String {
+        self.to_string()
+    }
+}
+
+impl Prompt for f64 {
+    fn to_prompt(&self) -> String {
+        self.to_string()
+    }
+}
+
+impl Prompt for bool {
+    fn to_prompt(&self) -> String {
+        self.to_string()
+    }
+}
 
 /// Configuration LLMLOptions for LLML formatting
 #[derive(Debug, Clone, Default)]
@@ -50,8 +116,8 @@ pub struct LLMLOptions {
 /// - `llml(&json!({}))` → `""`
 /// - `llml(&json!({"key": "value"}))` → `"<key>value</key>"`
 /// - `llml_with_options(&data, LLMLOptions)` → formatted with custom LLMLOptions
-pub fn llml(data: &Value) -> String {
-    format_value(data, &LLMLOptions::default())
+pub fn llml<T: Prompt>(data: &T) -> String {
+    data.to_prompt()
 }
 
 /// LLML function with explicit LLMLOptions - use when you need custom formatting
@@ -193,5 +259,38 @@ mod tests {
         // And should have a predictable order (alphabetical in this case)
         let expected = "<alpha>value1</alpha>\n<beta>value2</beta>\n<delta>value4</delta>\n<gamma>value3</gamma>";
         assert_eq!(result1, expected);
+    }
+
+    #[test]
+    fn test_custom_prompt_implementation() {
+        // Test that custom types can implement Prompt trait
+        #[derive(Debug)]
+        struct CustomType {
+            name: String,
+            value: i32,
+        }
+
+        impl Prompt for CustomType {
+            fn to_prompt(&self) -> String {
+                format!("Custom: {} = {}", self.name, self.value)
+            }
+        }
+
+        let custom = CustomType {
+            name: "test".to_string(),
+            value: 42,
+        };
+
+        let result = llml(&custom);
+        assert_eq!(result, "Custom: test = 42");
+    }
+
+    #[test]
+    fn test_basic_type_prompt_implementations() {
+        // Test that basic types work with the trait
+        assert_eq!(llml(&"hello"), "hello");
+        assert_eq!(llml(&42), "42");
+        assert_eq!(llml(&true), "true");
+        assert_eq!(llml(&3.14), "3.14");
     }
 }
