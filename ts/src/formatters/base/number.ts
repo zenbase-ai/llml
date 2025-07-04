@@ -1,9 +1,9 @@
-import type { Formatters } from "../types"
+import type { Formatters } from "../types";
 
-export const isNumber = (v: unknown) => typeof v === "number"
+export const isNumber = (v: unknown): boolean => typeof v === "number";
 
 export const formatNumber = (
-  value: unknown,
-  _llml: (data: unknown, formatters: Formatters) => string,
-  _formatters: Formatters,
-) => String(value)
+	value: unknown,
+	_llml: (data: unknown, formatters: Formatters) => string,
+	_formatters: Formatters,
+): string => String(value);

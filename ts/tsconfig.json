@@ -5,8 +5,7 @@
 		"target": "ESNext",
 		"module": "ESNext",
 		"moduleDetection": "force",
-		"jsx": "react-jsx",
-		"allowJs": true,
+		"allowJs": false,
 
 		// Bundler mode
 		"moduleResolution": "bundler",
@@ -22,6 +21,9 @@
 		// Some stricter flags (disabled by default)
 		"noUnusedLocals": false,
 		"noUnusedParameters": false,
-		"noPropertyAccessFromIndexSignature": false
-	}
+		"noPropertyAccessFromIndexSignature": false,
+		"isolatedDeclarations": true,
+		"declaration": true,
+	},
+	"exclude": ["node_modules", "dist", "bunup.config.ts"]
 }
