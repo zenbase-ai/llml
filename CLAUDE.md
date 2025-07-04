@@ -10,21 +10,26 @@ Reference .cursor/rules/{language = ["py", "ts", "go", "rs"]}.mdc
 
 ## Project Overview
 
-LLML (Lightweight Language Markup Language) is a multi-language data serialization library that converts nested data structures into human-readable, XML-like markup. The project provides identical functionality across four programming languages: Python, TypeScript/JavaScript, Rust, and Go.
+LLML (Lightweight Language Markup Language) is **React for Prompts** - a multi-language compositional primitive that revolutionizes AI context engineering. Just as React transformed web development by making complex UIs composable and maintainable, LLML transforms AI development by making complex contexts composable and maintainable.
+
+The project provides identical functionality across four programming languages: Python, TypeScript/JavaScript, Rust, and Go, converting nested data structures into human-readable, XML-like markup optimized for AI model attention.
 
 ### Core Purpose
-- **AI Prompt Engineering**: Structure complex, multi-part prompts for Large Language Models
-- **Configuration Generation**: Create clean, readable configuration files from data
+- **Compositional Context Engineering**: Build complex AI contexts from simple, reusable components
+- **Declarative AI Interactions**: Describe what your prompt should contain, not how to format it
+- **Maintainable AI Systems**: Replace brittle string concatenation with robust data composition
 - **Structured Document Creation**: Generate documents with clear hierarchy from data structures
-- **Data Serialization**: Convert data into more readable format than JSON/YAML for specific applications
+- **Data Serialization**: Convert data into more readable format than JSON/YAML for AI applications
 
 ### Key Benefits
+- **Component-Like Composition**: Build complex prompts from simple, reusable pieces
+- **Declarative Approach**: Focus on what you want, not how to format it
+- **Maintainable & Robust**: Changes to data automatically propagate without breaking
 - **Zero Configuration**: Works out-of-the-box with sensible defaults
 - **Consistent Output**: Identical results across all language implementations
-- **Human-Readable**: Produces clean, well-formatted markup
-- **LLM-Friendly**: Optimized for AI model consumption and understanding
-- **Extensible Formatters**: Customizable formatter system for specialized data types
-- **Type-Safe Architecture**: Modular formatter design with predicate-based type detection
+- **LLM-Optimized**: Structured format reduces AI model cognitive load and improves performance
+- **Developer Experience**: Type-safe, predictable, debuggable context engineering
+- **Extensible Formatters**: Customizable formatter system like React's component system
 
 ## Project Structure
 
@@ -40,7 +45,7 @@ LLML (Lightweight Language Markup Language) is a multi-language data serializati
 │   │       ├── llml.py      # Main implementation
 │   │       └── formatters/  # Formatter system
 │   │           ├── base/    # Base type formatters
-│   │           └── swag_xml/ # SwagXML formatters
+│   │           └── vibe_xml/ # VibeXML formatters
 │   └── tests/
 ├── ts/                       # TypeScript implementation
 │   ├── README.md
@@ -49,7 +54,7 @@ LLML (Lightweight Language Markup Language) is a multi-language data serializati
 │   │   ├── index.ts         # Main implementation
 │   │   └── formatters/      # Formatter system
 │   │       ├── base/        # Base type formatters
-│   │       └── swag-xml/    # SwagXML formatters
+│   │       └── vibe-xml/    # VibeXML formatters
 │   └── tests/
 ├── rs/                       # Rust implementation
 │   ├── README.md
@@ -108,9 +113,12 @@ just gemini -a -p "your prompt here"   # Run Gemini CLI
 - **Go**: Standard Go toolchain (`go test`, `go mod`)
 
 ### Configuration Options
-- **Custom Formatters**: Extensible formatter system for specialized data types
+- **Custom Formatters**: Extensible formatter system for specialized data types (like React components)
 - **Formatter Composition**: Combine and override default formatters for custom behavior
 - **Type-Specific Processing**: Define custom formatting logic for any data type
+- **Component-Like Reusability**: Build libraries of reusable prompt components
+
+For a deep dive into the React analogy and compositional patterns, see [REACT.md](REACT.md).
 
 ## Testing & Quality Assurance
 
@@ -119,53 +127,80 @@ The test suites ensure that all four implementations produce identical output fo
 
 ## Usage Examples
 
-### 1. AI Prompt Engineering
+### 1. Compositional Context Engineering
 ```python
-# Python
+# Python - Build prompts like React components
+role_component = "Senior Developer"
+task_component = "Code review the following function"
+criteria_component = ["Performance", "Readability", "Best practices"]
+context_component = {"language": "Python", "framework": "FastAPI"}
+
+# Compose them together
 prompt = llml({
-    "role": "Senior Developer",
-    "task": "Code review the following function",
-    "criteria": ["Performance", "Readability", "Best practices"],
-    "context": {"language": "Python", "framework": "FastAPI"}
+    "role": role_component,
+    "task": task_component,
+    "criteria": criteria_component,
+    "context": context_component
 })
 ```
 
-### 2. Configuration Generation
+### 2. Reusable Configuration Components
 ```typescript
-// TypeScript
+// TypeScript - Compose configurations from reusable parts
+const dbConfig = { host: "localhost", port: 5432 }
+const featureSet = ["logging", "caching", "monitoring"]
+const envSettings = { environment: "production", region: "us-east-1" }
+
 const config = llml({
-    database: { host: "localhost", port: 5432 },
-    features: ["logging", "caching", "monitoring"],
-    environment: "production"
+    database: dbConfig,
+    features: featureSet,
+    deployment: envSettings
 });
 ```
 
-### 3. RAG Chatbot Context
+### 3. Composable RAG Context
 ```rust
-// Rust
+// Rust - Build RAG context from reusable components
+let system_prompt = "You are a helpful documentation assistant";
+let retrieved_docs = [
+    {"title": "API Guide", "content": "...", "relevance": 0.95},
+    {"title": "Rate Limits", "content": "...", "relevance": 0.82}
+];
+let user_query = "How do I authenticate?";
+let instructions = ["Use only provided documents", "Cite sources"];
+
 let rag_context = llml(&json!({
-    "system": "You are a helpful documentation assistant",
-    "documents": [
-        {"title": "API Guide", "content": "...", "relevance": 0.95},
-        {"title": "Rate Limits", "content": "...", "relevance": 0.82}
-    ],
-    "query": "How do I authenticate?"
+    "system": system_prompt,
+    "documents": retrieved_docs,
+    "query": user_query,
+    "instructions": instructions
 }));
 ```
 
-### 4. Complex Workflow Definition
+### 4. Component-Based Agent Workflows
 ```go
-// Go
+// Go - Compose agent prompts from workflow components
+roleComponent := "DevOps Agent"
+deployWorkflow := []any{
+    "Run health checks",
+    "Create backup", 
+    "Deploy to canary",
+    "Monitor metrics"
+}
+safetyRules := []any{
+    "Never skip health checks",
+    "Always maintain 99.9% uptime SLA"
+}
+contextData := map[string]any{
+    "environment": "production",
+    "region": "us-east-1"
+}
+
 agentPrompt := llml.Sprintf(map[string]any{
-    "role": "DevOps Agent",
-    "workflows": map[string]any{
-        "deploy": []any{
-            "Run health checks",
-            "Create backup",
-            "Deploy to canary",
-            "Monitor metrics"
-        }
-    }
+    "role": roleComponent,
+    "context": contextData,
+    "workflows": map[string]any{"deploy": deployWorkflow},
+    "safety": safetyRules
 })
 ```
 

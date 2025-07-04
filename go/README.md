@@ -4,7 +4,7 @@ Go implementation of the Lightweight Language Markup Language (LLML) library.
 
 ## Overview
 
-LLML is a data serialization library that transforms nested data structures (maps, slices, primitives) into well-formatted, XML-like markup. It's designed for tasks like AI prompt engineering, configuration file generation, and creating structured documents from data.
+LLML is a data serialization library that transforms nested data structures (maps, slices, primitives) into well-formatted, XML-like markup. It's designed for tasks like AI context engineering, configuration file generation, and creating structured documents from data.
 
 ## Features
 

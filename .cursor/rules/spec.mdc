@@ -305,67 +305,176 @@ llml(["a", "b"], {prefix: "item"})
 <item-2>b</item-2>
 ```
 
-### Renderer System
+### Formatter System
 
-LLML uses a pluggable renderer system to support different output formats. The default renderer is SwagXML, which produces the XML-like markup format.
+LLML uses a pluggable formatter system to support different output formats and enable language-specific idioms. Each language implementation uses the most idiomatic approach for that language.
 
-> SwagXML means it's Cyrus' Scientific Wild Ass Guess on what is the best input prompt structure, and it's currently a loose, XML-inspired markup language.
+> VibeXML means it's Cyrus' Scientific Wild Ass Guess on what is the best input prompt structure, and it's currently a loose, XML-inspired markup language.
 
-**Default SwagXML Renderer:**
-```
-llml({config: {debug: true, timeout: 30}})
-// Uses createSwagXML() by default
-→
-<config>
-  <debug>true</debug>
-  <timeout>30</timeout>
-</config>
+**Language-Specific Idiomatic Approaches:**
+
+**Rust - Trait-Based System:**
+```rust
+// Rust uses traits for type-safe, extensible formatting
+use zenbase_llml::{llml, Prompt};
+
+// Built-in types implement Prompt trait
+let result = llml(&json!({"config": {"debug": true}}));
+
+// Custom types implement Prompt trait
+struct CustomType { name: String }
+impl Prompt for CustomType {
+    fn to_prompt(&self) -> String {
+        format!("Custom: {}", self.name)
+    }
+}
+let custom = CustomType { name: "example".to_string() };
+let result = llml(&custom);
 ```
 
-**Custom Renderer:**
-```
-llml({data: "value"}, {renderer: createSwagXMLRenderer({indent: "  ", prefix: "app"})})
-→
-  <app-data>value</app-data>
+**TypeScript - Formatter Maps with Predicates:**
+```typescript
+// TypeScript uses Map<predicate, formatter> for type safety and performance
+import { llml, vibeXML } from 'zenbase-llml';
+
+// Use default VibeXML formatters
+const result = llml({config: {debug: true, timeout: 30}});
+
+// Custom formatters
+const customFormatters = vibeXML();
+const result = llml(data, customFormatters);
 ```
 
-**Alternative Renderers:**
-```
-// JSON renderer (hypothetical)
-llml({name: "Alice", age: 30}, {renderer: createJSONRenderer()})
-→
-{"name": "Alice", "age": 30}
+**Python - Formatter Dictionaries with Predicates:**
+```python
+# Python uses {predicate: formatter} mapping for clarity
+from zenbase_llml import llml, swag_xml
 
-// YAML renderer (hypothetical)
-llml({config: {debug: true}}, {renderer: createYAMLRenderer()})
-→
-config:
-  debug: true
+# Use default swag_xml formatters
+result = llml({"config": {"debug": True, "timeout": 30}})
+
+# Custom formatters
+custom_formatters = swag_xml.copy()
+result = llml(data, custom_formatters)
 ```
+
+**Go - Interface-Based System:**
+```go
+// Go uses interfaces for type-safe, extensible formatting
+import "github.com/zenbase-ai/llml/go/pkg/llml"
+
+// Built-in types implement Stringer interface
+result := llml.Format(map[string]interface{}{
+    "config": map[string]interface{}{
+        "debug": true,
+        "timeout": 30,
+    },
+})
+```
+
+## Language-Specific Idiomatic Patterns
+
+Each language implementation follows the most idiomatic approach for that ecosystem:
+
+### Rust - Trait-Based System
+- Uses traits for type-safe, extensible formatting
+- Leverages Rust's ownership system and zero-cost abstractions
+- Implements `Prompt` trait for custom types
+- Uses `serde_json::Value` for JSON compatibility
+- Provides both simple `llml()` and configurable `llml_with_options()`
+
+### TypeScript - Formatter Maps
+- Uses `Map<predicate, formatter>` for type safety and performance
+- Leverages TypeScript's type system and functional programming patterns
+- Provides immutable formatter composition
+- Uses `unknown` type for maximum type safety
+- Supports custom formatters through Map merging and composition
+
+### Python - Formatter Dictionaries
+- Uses dictionary mapping of `predicate -> formatter` for clarity
+- Follows Python's "batteries included" philosophy
+- Supports both positional and keyword arguments
+- Uses duck typing for flexible input handling
+- Provides intuitive dictionary-based formatter customization
+
+### Go - Interface-Based System
+- Uses interfaces for type safety and extensibility
+- Follows Go's composition over inheritance principle
+- Leverages Go's built-in `fmt.Stringer` interface
+- Provides simple, explicit API design
+- Uses `interface{}` for flexible input types
+
+### Key Design Principles by Language
+
+**Rust:**
+- Zero-cost abstractions
+- Memory safety without garbage collection
+- Trait-based polymorphism
+- Explicit error handling
+
+**TypeScript:**
+- Structural typing and type inference
+- Functional programming patterns
+- Immutable data structures
+- Compile-time type safety
+
+**Python:**
+- Duck typing and dynamic dispatch
+- Explicit is better than implicit
+- Batteries included philosophy
+- Readable, maintainable code
+
+**Go:**
+- Simplicity and clarity
+- Composition over inheritance
+- Explicit error handling
+- Standard library conventions
 
 ## Language-Specific Implementation Details
 
 ### Function Signatures
 
+**Rust:**
+```rust
+// Trait-based approach for type safety and extensibility
+pub trait Prompt {
+    fn to_prompt(&self) -> String;
+}
+
+pub fn llml<T: Prompt>(data: &T) -> String
+pub fn llml_with_options(data: &Value, options: Option<LLMLOptions>) -> String
+
+pub struct LLMLOptions {
+    pub indent: String,
+    pub prefix: String,
+    pub strict: bool,
+}
+```
+
 **TypeScript:**
 ```typescript
-interface SwagXMLOptions {
-  indent?: string;
-  prefix?: string;
-}
+// Formatter-based approach with Map<predicate, formatter>
+export const llml = (data: unknown, formatters?: Formatters): string
 
-interface LLMLOptions {
-  renderer?: Renderer; // defaults to createSwagXML()
-}
-
-function llml(data?: any, options?: LLMLOptions): string
-function createSwagXML(options?: SwagXMLOptions): Renderer
+// Formatters is an iterable of [predicate, formatter] pairs (typically a Map)
+type Formatters = Iterable<[Predicate, Formatter]>
+type Predicate = (data: unknown) => boolean
+type Formatter = (data: unknown, llml: Function, formatters: Formatters) => string
 ```
 
 **Python:**
 ```python
-def llml(*args, options: Options = None, renderer: Renderer = None, **parts) -> str
-def create_swag_xml(indent: str = "", prefix: str = "") -> Renderer
+# Dictionary-based approach with predicate->formatter mapping
+def llml(data: Any = _SENTINEL, formatters: Formatters = swag_xml) -> str
+
+# Formatters is a dictionary of predicate->formatter mappings
+Formatters = Dict[Callable[[Any], bool], Callable[[Any, Callable, Formatters], str]]
+```
+
+**Go:**
+```go
+// Interface-based approach (to be implemented)
+func Format(data interface{}) string
 ```
 
 ### Type Representation
@@ -426,7 +535,7 @@ llml({name: "Alice", age: 30})
 - Array items are indented one level deeper than their wrapper
 - Object properties within arrays inherit the array item's indentation level
 
-## Tag Naming Convention (SwagXML Renderer)
+## Tag Naming Convention (VibeXML Renderer)
 
 1. Preserve all keys as-is (no case conversion)
 2. For array items, append `-{index}` to the key name (1-indexed)

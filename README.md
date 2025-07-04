@@ -1,64 +1,62 @@
-# LLML - Lightweight Language Markup Language
+# LLML - React for Prompts
 
-Composible primitive for transforming data structures into a prompt.
+**The compositional primitive for AI context engineering**
 
-LLML is available in **Python**, **TypeScript/JavaScript**, **Rust**, and **Go**. It transforms nested data structures (dictionaries/objects, lists/arrays, primitives) into well-formatted, XML-like markup.
+LLML is available in **Python**, **TypeScript/JavaScript**, **Rust**, and **Go**. Just as React made UI (markup) a function of state (data), LLML wants to make your prompts (markup) a function of context (data).
+
+Make complex contexts composable, maintainable, and reusable.
 
 ![Python Coverage](https://img.shields.io/badge/Python-92%25-brightgreen) ![TypeScript Coverage](https://img.shields.io/badge/TypeScript-100%25-brightgreen) ![Go Coverage](https://img.shields.io/badge/Go-100%25-brightgreen) ![Rust Coverage](https://img.shields.io/badge/Rust-91.67%25-brightgreen)
 
-*"A towel, it says, is about the most massively useful thing an interstellar hitchhiker can have."*
+**Stop fighting string concatenation. Start composing prompts like components.**
 
-LLML is the towel of data formats. It's not the most advanced, not the most efficient, not the most popular. But it's **massively useful** when you need to:
+LLML transforms your nested data structures into well-formatted markup that's optimized for both human readability and AI model attention. Build complex prompts from simple data structures, just like building complex UIs from simple components.
 
-- Take your messy, nested data structure
-- Make it comprehensible to an AI
-- Keep it readable for humans
-
-It's there when you need it. It does what you expect. It doesn't get in the way. And like a good towel, once you start using it, you wonder how you ever got along without it.
-
-📋 [Full Technical Specification](.cursor/rules/spec.mdc)
+📋 [Full Technical Specification](.cursor/rules/spec.mdc) | 🧩 [LLML for React Practitioners](REACT.md)
 
 ```typescript
 import { llml } from "@zenbase/llml"
 
-llml({name: "Alice", age: 30})
-// Return: <name>Alice</name>
-//         <age>30</age>
+// Simple components
+const userProfile = { name: "Alice", age: 30 }
+const systemRole = "Senior DevOps Engineer"
+const safetyRules = [
+  "Never skip health checks",
+  "Always maintain 99.9% uptime SLA",
+  "Require manual approval for database changes"
+]
 
-const containers = await containerSDK.getContainer({ filter: { metadata: { userId }}})
-const pmPrompt = await promptManagementTool.getPrompt({ id: "..." })
-const agentPrompt = llml({
-  prompt: pmPrompt,
+// Compose them into a complex prompt
+const deploymentPrompt = llml({
+  role: systemRole,
   context: {
-    machines: containers.map(c => ({
-      id: c.id,
-      name: c.name,
-      env: c.envVars.map(e => `${e.key}=${e.value}`).join("\n")
-    })),
     environment: "production",
-    session_id: "abc123" // preserves casing/spacing in keys
+    region: "us-east-1",
+    operator: userProfile
   },
-  userRequest: "Deploy latest version to staging."
+  safetyRules,
+  task: "Deploy latest version to staging safely"
 })
-// Return: <prompt>You are an expert DevOps engineer. Deploy applications safely with proper validation and rollback procedures.</prompt>
-//         <context>
-//           <machines>
-//             <machines-1>
-//               <id>c1</id>
-//               <name>web-api</name>
-//               <env>
-//                 NODE_ENV=production
-//                 PORT=3000
-//               </env>
-//             </machines-1>
-//             <!-- additional machines -->
-//           </machines>
-//           <environment>production</environment>
-//           <session_id>abc123</session_id>
-//         </context>
-//         <userRequest>Deploy latest version to staging.</userRequest>
-await makeAIRequest(agentPrompt, {
-    tools: TOOLS,
+
+// Output: Clean, structured markup optimized for AI attention
+// <role>Senior DevOps Engineer</role>
+// <context>
+//   <environment>production</environment>
+//   <region>us-east-1</region>
+//   <operator>
+//     <name>Alice</name>
+//     <age>30</age>
+//   </operator>
+// </context>
+// <safety-rules>
+//   <safety-rules-1>Never skip health checks</safety-rules-1>
+//   <safety-rules-2>Always maintain 99.9% uptime SLA</safety-rules-2>
+//   <safety-rules-3>Require manual approval for database changes</safety-rules-3>
+// </safety-rules>
+// <task>Deploy latest version to staging safely</task>
+
+await makeAIRequest(deploymentPrompt, {
+    tools: DEPLOYMENT_TOOLS,
     toolChoice: "auto",
     maxSteps: 10,
 })
@@ -67,6 +65,79 @@ await makeAIRequest(agentPrompt, {
 <details>
 <summary><b>Cheatsheet</b></summary>
 <br>
+
+
+
+```python
+# Python
+from zenbase_llml import llml
+
+agent_prompt = llml({
+    "role": "DevOps automation agent",
+    "context": {
+        "environment": "production",
+        "aws_region": "us-east-1",
+        "services": ["web-api", "worker-queue", "database"],
+        "last_deployment": "2024-01-15T10:30:00Z"
+    },
+    "instructions": "Execute deployment workflow with safety checks",
+    "workflows": {
+        "deploy": [
+            "Run pre-deployment health checks",
+            "Create backup of current state",
+            "Deploy to canary instance (5% traffic)",
+            "Monitor metrics for 10 minutes",
+            "If healthy, proceed to full deployment",
+            "If issues detected, automatic rollback"
+        ],
+        "rollback": [
+            "Stop new traffic to affected services",
+            "Restore from latest backup",
+            "Verify service health",
+            "Send notification to ops channel"
+        ]
+    },
+    "safety_rules": [
+        "Never skip health checks",
+        "Always maintain 99.9% uptime SLA",
+        "Require manual approval for database changes"
+    ]
+})
+# Output:
+# <role>DevOps automation agent</role>
+# <context>
+#   <environment>production</environment>
+#   <aws_region>us-east-1</aws_region>
+#   <services>
+#     <services-1>web-api</services-1>
+#     <services-2>worker-queue</services-2>
+#     <services-3>database</services-3>
+#   </services>
+#   <last_deployment>2024-01-15T10:30:00Z</last_deployment>
+# </context>
+# <instructions>Execute deployment workflow with safety checks</instructions>
+# <workflows>
+#   <deploy>
+#     <deploy-1>Run pre-deployment health checks</deploy-1>
+#     <deploy-2>Create backup of current state</deploy-2>
+#     <deploy-3>Deploy to canary instance (5% traffic)</deploy-3>
+#     <deploy-4>Monitor metrics for 10 minutes</deploy-4>
+#     <deploy-5>If healthy, proceed to full deployment</deploy-5>
+#     <deploy-6>If issues detected, automatic rollback</deploy-6>
+#   </deploy>
+#   <rollback>
+#     <rollback-1>Stop new traffic to affected services</rollback-1>
+#     <rollback-2>Restore from latest backup</rollback-2>
+#     <rollback-3>Verify service health</rollback-3>
+#     <rollback-4>Send notification to ops channel</rollback-4>
+#   </rollback>
+# </workflows>
+# <safety_rules>
+#   <safety_rules-1>Never skip health checks</safety_rules-1>
+#   <safety_rules-2>Always maintain 99.9% uptime SLA</safety_rules-2>
+#   <safety_rules-3>Require manual approval for database changes</safety_rules-3>
+# </safety_rules>
+```
 
 ```typescript
 // TypeScript/JavaScript
@@ -242,19 +313,38 @@ ragPrompt := llml.Sprintf(map[string]any{
 ```
 </details>
 
-## Benefits
+## Why LLML is React for Prompts
 
-1. **Anti Arthritis: Less time managing indentation**
-2. **Functional Composable Prompts**: Stop maintaining brittle template strings that break when data structures change. With LLML, your prompts are just data structures—add new fields, reorganize objects, or change array contents, and the markup automatically updates with proper formatting and numbering.
-3. **Optimized for Model Attention**: LLML's XML-like format with clear tag boundaries and numbered list items (`<rules-1>`, `<rules-2>`) reduces prompt ambiguity and reduces attentional load. Language models can reliably identify and reference specific sections, improving response accuracy and reducing hallucinations in complex, multi-part prompts. **At Zenbase, we've found this improves output quality and adherence.**
+### 1. **Compositional Architecture**
+Build complex prompts from simple, reusable components. Just like React components, your prompt pieces can be composed, nested, and reused across different contexts.
+
+### 2. **Declarative Approach**
+Describe *what* your prompt should contain, not *how* to format it. LLML handles the formatting automatically, just like React handles DOM updates.
+
+### 3. **Maintainable & Robust**
+No more brittle string concatenation. Changes to your data structure automatically propagate to the formatted output without breaking.
+
+### 4. **Optimized for AI Attention**
+LLML's structured format with clear tag boundaries and numbered list items (`<rules-1>`, `<rules-2>`) reduces prompt ambiguity and cognitive load for AI models. Clear structure means better AI performance.
+
+### 5. **Developer Experience**
+Type-safe, predictable outputs. No more debugging malformed prompts or tracking down formatting issues.
 
 ## Table of Contents
 
-- [LLML - Lightweight Language Markup Language](#llml---lightweight-language-markup-language)
-  - [Benefits](#benefits)
+- [LLML - React for Prompts](#llml---react-for-prompts)
+  - [Why LLML is React for Prompts](#why-llml-is-react-for-prompts)
+    - [1. **Compositional Architecture**](#1-compositional-architecture)
+    - [2. **Declarative Approach**](#2-declarative-approach)
+    - [3. **Maintainable \& Robust**](#3-maintainable--robust)
+    - [4. **Optimized for AI Attention**](#4-optimized-for-ai-attention)
+    - [5. **Developer Experience**](#5-developer-experience)
   - [Table of Contents](#table-of-contents)
   - [How It Works](#how-it-works)
+    - [**Component-like Composition**](#component-like-composition)
+    - [**Transformation Rules**](#transformation-rules)
   - [Features](#features)
+  - [VibeXML?](#vibexml)
   - [Quick Start](#quick-start)
     - [Python](#python)
     - [TypeScript/JavaScript](#typescriptjavascript)
@@ -274,8 +364,25 @@ ragPrompt := llml.Sprintf(map[string]any{
 
 ## How It Works
 
-LLML transforms data using these core rules:
+LLML brings React's compositional patterns to context engineering:
 
+### **Component-like Composition**
+```typescript
+// Small, focused components
+const userContext = { name: "Alice", role: "admin" }
+const taskInstructions = ["Be precise", "Provide examples"]
+const safetyRules = ["Never expose credentials", "Always validate input"]
+
+// Compose them into complex prompts
+const aiPrompt = llml({
+  user: userContext,
+  instructions: taskInstructions,
+  safety: safetyRules,
+  task: "Generate API documentation"
+})
+```
+
+### **Transformation Rules**
 1. **Simple Values**: `{key: "value"}` → `<key>value</key>`
 2. **Lists/Arrays**: `{items: ["a", "b"]}` → `<items><items-1>a</items-1><items-2>b</items-2></items>`
 3. **Nested Objects**: `{config: {debug: true}}` → `<config><debug>true</debug></config>`
@@ -283,16 +390,25 @@ LLML transforms data using these core rules:
 5. **Empty Values**: Empty objects `{}` and arrays `[]` return empty strings
 6. **Extensible Formatting**: Custom formatters can be provided for specialized data types
 
-
 ## Features
 
+- 🧩 **Compositional Architecture**: Build complex prompts from simple, reusable components
 - 📝 **Smart list formatting**: Arrays become `<items><items-1>first</items-1><items-2>second</items-2></items>`
 - 🔁 **Recursive nested structures**: Objects within objects maintain proper hierarchy
 - 📄 **Multiline content support**: Preserves line breaks with proper indentation
-- 🔧 **Extensible formatter system**: Customize formatting for any data type
+- 🔧 **Extensible formatter system**: Customize formatting for any data type like React components
 - 🎯 **Type-aware processing**: Different formatters handle different data types intelligently
 - ⚡ **Zero configuration**: Works out of the box with sensible defaults
 - 🔀 **Consistent cross-language output**: Identical results across Python, TypeScript, Rust, and Go
+- 🛠️ **Developer-friendly**: Type-safe, predictable, and easy to debug
+
+## VibeXML?
+
+VibeXML — Scientific Wild Ass Guess XML (for LLMs)
+
+LLML uses a custom XML-like format called VibeXML. It's a simple, human-readable format that's optimized for both human readability and AI model attention. It's a loose, XML-inspired makrup language that optimizes for LLM attention.
+
+In our experience at Zenbase, it's possible to get better performance from a e.g. mini model using VibeXML compared to the full-size model using Markdown. We default to using VibeXML.
 
 ## Quick Start
 

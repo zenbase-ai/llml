@@ -1,44 +1,113 @@
 # The LLML Guide
-*A Practical Introduction to Lightweight Language Markup Language*
+*React for Prompts: A Practical Introduction to Compositional AI Development*
 
-> "The secret to good data formats is making complex structures simple to understand."
+> "Just as React revolutionized web development by making complex UIs composable, LLML revolutionizes AI development by making complex prompts composable."
 
-## Chapter 1: What Is LLML?
+## Chapter 1: LLML: prompt = (data) => string
 
-### The Problem with Current Formats
+### The Problem with Current Context Engineering
 
-Modern applications generate complex, nested data structures that need to be shared between humans and AI systems. JSON works well for machine-to-machine communication but can be hard to read and understand at scale. YAML is more human-readable but can become unwieldy with deep nesting. XML is explicit but verbose and complex.
+Modern AI applications require complex, multi-part contexts that combine instructions, examples, constraints, and data. Today's context engineering often looks like this:
 
-LLML (Lightweight Language Markup Language) is a data serialization format designed to bridge this gap. It transforms nested data structures into clean, readable markup that's optimized for both human comprehension and AI processing.
+```python
+# Traditional approach: Imperative string building
+prompt = f"Role: {role}\n"
+prompt += f"Task: {task}\n"
+prompt += "Context:\n"
+for key, value in context.items():
+    prompt += f"  {key}: {value}\n"
+prompt += "Rules:\n"
+for i, rule in enumerate(rules, 1):
+    prompt += f"  {i}. {rule}\n"
+```
 
-### What LLML Does
+This is fragile, hard to maintain, and doesn't scale. Just like web development before React.
 
-LLML converts your data structures into XML-like markup using a **formatter system**. Instead of hard-coded rules, LLML uses customizable formatters that determine how different data types are rendered.
+### The LLML Solution: Compositional Prompts
 
-Here's the basic API:
+LLML brings React's compositional approach to AI context engineering. Instead of imperative string building, you compose contexts from data structures:
+
+```python
+# LLML approach: Declarative composition
+prompt = llml({
+    "role": role,
+    "task": task,
+    "context": context,
+    "rules": rules
+})
+```
+
+LLML transforms your nested data structures into clean, readable markup that's optimized for both human comprehension and AI model attention.
+
+### What LLML Does: Component-Like Composition
+
+LLML works like React components for prompts. You build complex prompts from simple, reusable pieces:
 
 ```typescript
 import { llml } from "@zenbase/llml"
 
-// Basic usage with default formatters
-llml({ message: "Hello, World!" })
-// Returns: <message>Hello, World!</message>
+// Simple "components"
+const userRole = "Senior Developer"
+const taskType = "Code Review"
+const criteria = ["Performance", "Security", "Readability"]
+const context = { language: "Python", framework: "FastAPI" }
 
-// Custom formatters (advanced usage)
-llml(data, customFormatters)
+// Compose them together
+const reviewPrompt = llml({
+    role: userRole,
+    task: taskType,
+    criteria: criteria,
+    context: context
+})
+// Returns clean, structured markup optimized for AI attention
 ```
 
-The key insight is that LLML uses **formatters** - pairs of predicate functions and format functions - to determine how each piece of data should be rendered. This makes LLML incredibly flexible while maintaining clean, consistent output.
+Like React's component system, LLML uses **formatters** - pairs of predicate functions and format functions - to determine how each piece of data should be rendered. This makes LLML incredibly flexible while maintaining clean, consistent output.
 
-### Key Features
+### Key Features: React-Like Benefits for Prompts
 
+- **Compositional**: Build complex prompts from simple, reusable components
+- **Declarative**: Describe what you want, not how to format it
+- **Maintainable**: Changes to data automatically propagate without breaking
 - **Self-documenting**: Each piece of data is wrapped in descriptive tags
-- **Formatter-based**: Extensible system for custom data type handling
-- **Clean output**: No unnecessary complexity or verbose syntax
+- **Extensible**: Custom formatters work like custom React components
 - **AI-optimized**: Structured for clear boundaries and semantic understanding
-- **Class-aware**: Automatically uses `.toString()` methods on class instances
+- **Cross-language**: Identical behavior across Python, TypeScript, Rust, and Go
 
 ## Chapter 2: How LLML Works
+
+### React-Like Patterns for Prompts
+
+Just as React components receive props and render UI, LLML components receive data and render structured markup:
+
+```typescript
+// React Component Pattern
+function UserCard({ user, showActions = false }) {
+  return (
+    <div className="user-card">
+      <h2>{user.name}</h2>
+      <p>{user.email}</p>
+      {showActions && <button>Edit</button>}
+    </div>
+  );
+}
+
+// LLML Component Pattern
+function createUserPrompt(user, options = {}) {
+  return llml({
+    profile: user,
+    instructions: "Generate user summary",
+    ...(options.includeActions && {
+      availableActions: ["edit", "delete", "view"]
+    })
+  });
+}
+```
+
+Both patterns promote:
+- **Reusability**: Components can be used across different contexts
+- **Composition**: Complex structures built from simple pieces
+- **Predictability**: Same input produces same output
 
 ### The Formatter System
 
@@ -52,15 +121,15 @@ When you call `llml(data)`, it:
 2. Finds the first predicate that returns `true` for your data
 3. Uses that formatter's format function to render the value
 
-### Default SwagXML Formatters
+### Default VibeXML Formatters
 
-The default `swagXML()` formatters handle common data types:
+The default `vibeXML()` formatters handle common data types:
 
 ```typescript
-import { llml, swagXML } from "@zenbase/llml"
+import { llml, vibeXML } from "@zenbase/llml"
 
 // Get the default formatters
-const defaultFormatters = swagXML()
+const defaultFormatters = vibeXML()
 console.log(defaultFormatters) // Map with built-in formatters
 
 // Use explicitly (same as calling llml(data))
@@ -154,6 +223,8 @@ This keeps output clean and focused on actual data.
 
 ## Chapter 3: The Formatter System
 
+React has different renderers for browsers vs. native, LLML uses formatters to transform data into markup.
+
 ### Understanding Formatters
 
 Formatters are the heart of LLML's flexibility. Each formatter is a `[predicate, formatFunction]` pair:
@@ -169,8 +240,8 @@ const isEmail: Predicate = (v): v is string => {
 const formatEmail: Formatter = (value: string) => `mailto:${value}`
 
 // Use in custom formatter map
-import { swagXML } from "@zenbase/llml"
-const customFormatters = swagXML({
+import { vibeXML } from "@zenbase/llml"
+const customFormatters = vibeXML({
   formatters: [[isEmail, formatEmail]]
 })
 
@@ -204,7 +275,7 @@ Formatters are processed in order - the first matching predicate wins:
 
 ```typescript
 // More specific formatters should come first
-const formatters = swagXML({
+const formatters = vibeXML({
   formatters: [
     [isEmail, formatEmail],        // Specific: email strings
     [isString, formatString]       // General: all strings
@@ -212,33 +283,54 @@ const formatters = swagXML({
 })
 ```
 
-## Chapter 4: Real-World Examples
+## Chapter 4: Real-World Examples - Component Patterns
 
-### AI Prompt Engineering
+### AI Context Engineering: Building with Components
 
-LLML excels at structuring complex AI prompts from data:
+LLML excels at structuring complex AI contexts from reusable components:
 
 ```typescript
 import { llml } from "@zenbase/llml"
 
-const aiPrompt = llml({
-  role: "Senior Developer",
-  task: "Code review the following function",
-  criteria: ["Performance", "Readability", "Best practices"],
-  context: {
-    language: "Python",
-    framework: "FastAPI",
-    codebaseMaturity: "production"
-  },
-  previousFeedback: [
-    "Focus on error handling",
-    "Consider async/await patterns",
-    "Check for security vulnerabilities"
-  ]
-})
+// Define reusable prompt components
+const ROLES = {
+  seniorDev: "Senior Developer",
+  architect: "Software Architect",
+  security: "Security Specialist"
+}
 
-// Creates clear sections that help LLMs understand structure
-console.log(aiPrompt)
+const REVIEW_CRITERIA = {
+  performance: ["Performance", "Memory usage", "Algorithm efficiency"],
+  security: ["Security vulnerabilities", "Input validation", "Data sanitization"],
+  maintainability: ["Readability", "Best practices", "Documentation"]
+}
+
+const createCodeReviewPrompt = (language, framework, focusArea) =>
+  ({
+    role: ROLES.seniorDev,
+    task: "Code review the following function",
+    criteria: REVIEW_CRITERIA[focusArea],
+    context: {
+      language,
+      framework,
+      codebaseMaturity: "production"
+    },
+    instructions: [
+      "Provide specific, actionable feedback",
+      "Include code examples for improvements",
+      "Explain the reasoning behind suggestions"
+    ]
+  })
+
+
+// Reuse the component with different configurations
+const pythonReview = createCodeReviewPrompt("Python", "FastAPI", "security")
+const jsReview = createCodeReviewPrompt("JavaScript", "React", "performance")
+
+const response = await generateText({
+  model: "...",
+  prompt: llml(pythonReview),
+})
 ```
 
 ### Configuration Management
@@ -289,24 +381,24 @@ const ragContext = llml({
 
 ## Chapter 5: Formatters and Customization
 
-### Built-in SwagXML Options
+### Built-in VibeXML Options
 
-The default `swagXML()` formatters support several options:
+The default `vibeXML()` formatters support several options:
 
 ```typescript
-import { swagXML } from "@zenbase/llml"
+import { vibeXML } from "@zenbase/llml"
 
 // Basic usage (no options)
 llml(data)
 
 // With custom indentation
-llml(data, swagXML({ indent: "  " }))
+llml(data, vibeXML({ indent: "  " }))
 
 // With namespace prefix
-llml(data, swagXML({ prefix: "api" }))
+llml(data, vibeXML({ prefix: "api" }))
 
 // With custom formatters
-llml(data, swagXML({
+llml(data, vibeXML({
   formatters: [[isCustomType, formatCustomType]]
 }))
 ```
@@ -316,7 +408,7 @@ llml(data, swagXML({
 For specialized data types, create custom formatters:
 
 ```typescript
-import { swagXML } from "@zenbase/llml"
+import { vibeXML } from "@zenbase/llml"
 
 // Define your data type
 interface CurrencyAmount {
@@ -336,7 +428,7 @@ const formatCurrency = (value: CurrencyAmount) => {
 }
 
 // Use with LLML
-const formatters = swagXML({
+const formatters = vibeXML({
   formatters: [[isCurrency, formatCurrency]]
 })
 
@@ -373,7 +465,59 @@ For comprehensive formatter examples, see the [TypeScript Formatters Guide](ts/d
 - Performance optimizations for large datasets
 - Helper functions for formatter management
 
-## Chapter 6: When to Use LLML
+## Chapter 6: The React Ecosystem Parallel
+
+### From React to LLML: Ecosystem Evolution
+
+Just as React catalyzed an entire ecosystem of tools and patterns, LLML is positioned to do the same for AI development:
+
+| React Ecosystem                               | LLML Potential                |
+| --------------------------------------------- | ----------------------------- |
+| Component Libraries (Material-UI, Ant Design) | Prompt Component Libraries    |
+| State Management (Redux, Zustand)             | Context Management Systems    |
+| Developer Tools (React DevTools)              | Prompt Debugging Tools        |
+| Testing (React Testing Library)               | Prompt Testing Frameworks     |
+| Patterns (Hooks, HOCs)                        | Compositional Prompt Patterns |
+
+### Building Prompt Component Libraries
+
+```typescript
+// A reusable prompt component library
+export const PromptComponents = {
+  roles: {
+    analyst: "Data Analyst",
+    reviewer: "Code Reviewer",
+    assistant: "AI Assistant"
+  },
+
+  instructions: {
+    beSpecific: "Provide specific, actionable recommendations",
+    citeSources: "Always cite your sources",
+    useExamples: "Include relevant examples"
+  },
+
+  safetyRules: [
+    "Never expose sensitive information",
+    "Always validate input data",
+    "Maintain user privacy"
+  ]
+}
+
+// Compose prompts using the library
+const analysisPrompt = llml({
+  role: PromptComponents.roles.analyst,
+  instructions: [
+    PromptComponents.instructions.beSpecific,
+    PromptComponents.instructions.useExamples
+  ],
+  safety: PromptComponents.safetyRules,
+  task: "Analyze customer feedback trends"
+})
+```
+
+For a complete exploration of the React analogy and its implications, see [REACT.md](REACT.md).
+
+## Chapter 7: When to Use LLML
 
 ### Good Use Cases
 
@@ -405,7 +549,7 @@ LLML's formatter system provides unique benefits:
 - **Maintainability**: Centralized formatting logic
 - **Type safety**: TypeScript support for custom formatters
 
-## Chapter 7: Implementation Details
+## Chapter 8: Implementation Details
 
 ### Multi-Language Support
 
@@ -449,7 +593,7 @@ LLML follows these core principles:
 ## Appendix A: Quick Reference
 
 ```typescript
-import { llml, swagXML } from "@zenbase/llml"
+import { llml, vibeXML } from "@zenbase/llml"
 
 // Basic usage
 llml({ message: "Hello" })                    // <message>Hello</message>
@@ -470,7 +614,7 @@ llml({ config: { debug: true, timeout: 30 } })
 // </config>
 
 // Advanced options
-llml(data, swagXML({
+llml(data, vibeXML({
   indent: "  ",                    // Custom indentation
   prefix: "app",                   // Namespace all tags
   formatters: [[isCustom, formatCustom]]  // Custom formatters
