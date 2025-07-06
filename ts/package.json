@@ -40,10 +40,10 @@
 		"directory": "ts"
 	},
 	"scripts": {
-		"test": "bun test",
-		"test:watch": "bun test --watch",
-		"test:run": "bun test",
-		"dev": "bunup --watch"
+		"test:dev": "bun run test watch",
+		"test:run": "bun run test",
+		"dev": "bunup --watch",
+		"build": "bunup "
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.0.6",

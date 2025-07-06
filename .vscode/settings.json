@@ -47,6 +47,6 @@
     "**/.venv/": true,
     "**/node_modules/": true
   },
-  "typescript.tsdk": "ts/typescript/lib",
+  "typescript.tsdk": "ts/node_modules/typescript/lib",
   "typescript.updateImportsOnFileMove.enabled": "always"
 }

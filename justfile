@@ -3,10 +3,10 @@ set dotenv-path := ".env"
 set ignore-comments := true
 
 claude *args:
-  pnpx @anthropic-ai/claude-code {{args}}
+  bunx @anthropic-ai/claude-code {{args}}
 
 gemini *args:
-  pnpx @google/gemini-cli {{args}}
+  bunx @google/gemini-cli {{args}}
 
 [working-directory("ts")]
 ts *args:

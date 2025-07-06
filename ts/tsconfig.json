@@ -23,7 +23,11 @@
 		"noUnusedParameters": false,
 		"noPropertyAccessFromIndexSignature": false,
 		"isolatedDeclarations": true,
-		"declaration": true
+		"declaration": true,
+
+		"paths": {
+			"@/": ["./src"]
+		}
 	},
 	"exclude": ["node_modules", "dist", "bunup.config.ts"]
 }
