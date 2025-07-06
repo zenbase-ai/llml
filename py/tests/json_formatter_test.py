@@ -1,18 +1,12 @@
-import json as stdjson
+import importlib.util
+import json
 from dataclasses import dataclass
-from datetime import datetime, timezone
 
 import pytest
 
-from zenbase_llml import llml
-from zenbase_llml.formatters.json import json
+from zenbase_llml import formatters, llml
 
-try:
-    import orjson
-
-    HAS_ORJSON = True
-except ImportError:
-    HAS_ORJSON = False
+HAS_ORJSON = bool(importlib.util.find_spec("orjson"))
 
 
 class TestJSONFormatter:
@@ -20,14 +14,14 @@ class TestJSONFormatter:
 
     def test_basic_json_formatting(self):
         """Test basic JSON formatting with simple data."""
-        result = llml({"user": "alice", "count": 42}, json)
+        result = llml({"user": "alice", "count": 42}, formatters.json)
         expected = (
             '{"user": "alice", "count": 42}'
             if not HAS_ORJSON
             else '{"user":"alice","count":42}'
         )
         # Parse and compare to handle different JSON formatting
-        assert stdjson.loads(result) == stdjson.loads(expected)
+        assert json.loads(result) == json.loads(expected)
 
     def test_nested_objects_json(self):
         """Test JSON formatting with nested objects."""
@@ -38,9 +32,9 @@ class TestJSONFormatter:
             },
             "version": 2.0,
         }
-        result = llml(data, json)
+        result = llml(data, formatters.json)
         # Parse and compare to ensure correct structure
-        parsed = stdjson.loads(result)
+        parsed = json.loads(result)
         assert parsed["user"]["name"] == "Alice"
         assert parsed["user"]["settings"]["theme"] == "dark"
         assert parsed["user"]["settings"]["notifications"] is True
@@ -53,8 +47,8 @@ class TestJSONFormatter:
             "numbers": [1, 2, 3, 4, 5],
             "mixed": [1, "two", True, None],
         }
-        result = llml(data, json)
-        parsed = stdjson.loads(result)
+        result = llml(data, formatters.json)
+        parsed = json.loads(result)
         assert parsed["items"] == ["apple", "banana", "cherry"]
         assert parsed["numbers"] == [1, 2, 3, 4, 5]
         assert parsed["mixed"] == [1, "two", True, None]
@@ -62,49 +56,49 @@ class TestJSONFormatter:
     def test_direct_array_json(self):
         """Test JSON formatting with direct array input."""
         data = ["first", "second", "third"]
-        result = llml(data, json)
-        assert stdjson.loads(result) == ["first", "second", "third"]
+        result = llml(data, formatters.json)
+        assert json.loads(result) == ["first", "second", "third"]
 
     def test_empty_structures_json(self):
         """Test JSON formatting with empty structures."""
         # Empty dict
-        result = llml({}, json)
+        result = llml({}, formatters.json)
         assert result == "{}"
 
         # Empty list
-        result = llml([], json)
+        result = llml([], formatters.json)
         assert result == "[]"
 
         # Dict with empty values
         data = {"empty_list": [], "empty_dict": {}}
-        result = llml(data, json)
-        parsed = stdjson.loads(result)
+        result = llml(data, formatters.json)
+        parsed = json.loads(result)
         assert parsed["empty_list"] == []
         assert parsed["empty_dict"] == {}
 
     def test_primitive_values_json(self):
         """Test JSON formatting with primitive values."""
         # String
-        result = llml("hello world", json)
+        result = llml("hello world", formatters.json)
         assert result == '"hello world"'
 
         # Number
-        result = llml(42, json)
+        result = llml(42, formatters.json)
         assert result == "42"
 
         # Float
-        result = llml(3.14159, json)
-        assert stdjson.loads(result) == 3.14159
+        result = llml(3.14159, formatters.json)
+        assert json.loads(result) == 3.14159
 
         # Boolean
-        result = llml(True, json)
+        result = llml(True, formatters.json)
         assert result == "true"
 
-        result = llml(False, json)
+        result = llml(False, formatters.json)
         assert result == "false"
 
         # None
-        result = llml(None, json)
+        result = llml(None, formatters.json)
         assert result == "null"
 
     def test_special_characters_json(self):
@@ -116,8 +110,8 @@ class TestJSONFormatter:
             "unicode": "Hello 世界 🌍",
             "backslash": "path\\to\\file",
         }
-        result = llml(data, json)
-        parsed = stdjson.loads(result)
+        result = llml(data, formatters.json)
+        parsed = json.loads(result)
         assert parsed["quotes"] == 'He said "Hello"'
         assert parsed["newline"] == "Line 1\nLine 2"
         assert parsed["tab"] == "Column1\tColumn2"
@@ -134,8 +128,8 @@ class TestJSONFormatter:
             "negative_float": -3.14159,
             "scientific": 1.23e-4,
         }
-        result = llml(data, json)
-        parsed = stdjson.loads(result)
+        result = llml(data, formatters.json)
+        parsed = json.loads(result)
         assert parsed["zero"] == 0
         assert parsed["negative"] == -42
         assert parsed["float_zero"] == 0.0
@@ -153,8 +147,8 @@ class TestJSONFormatter:
             active: bool = True
 
         user = User("Alice", "alice@example.com")
-        result = llml(user.__dict__, json)
-        parsed = stdjson.loads(result)
+        result = llml(user.__dict__, formatters.json)
+        parsed = json.loads(result)
         assert parsed["name"] == "Alice"
         assert parsed["email"] == "alice@example.com"
         assert parsed["active"] is True
@@ -185,8 +179,8 @@ class TestJSONFormatter:
                 "public": False,
             }
         }
-        result = llml(data, json)
-        parsed = stdjson.loads(result)
+        result = llml(data, formatters.json)
+        parsed = json.loads(result)
 
         # Verify structure
         assert parsed["company"]["name"] == "TechCorp"
@@ -210,10 +204,10 @@ class TestJSONFormatter:
         }
 
         # Format to JSON
-        json_str = llml(original_data, json)
+        json_str = llml(original_data, formatters.json)
 
         # Parse back
-        parsed_data = stdjson.loads(json_str)
+        parsed_data = json.loads(json_str)
 
         # Verify all data is preserved
         assert parsed_data == original_data
@@ -227,8 +221,8 @@ class TestJSONFormatter:
             "emoji": "🌍🚀💻",
             "mixed": "Hello 世界 🌍",
         }
-        result = llml(data, json)
-        parsed = stdjson.loads(result)
+        result = llml(data, formatters.json)
+        parsed = json.loads(result)
 
         # Verify all Unicode is preserved
         assert parsed["english"] == "Hello World"
@@ -242,24 +236,24 @@ class TestJSONFormatter:
         from zenbase_llml.formatters.json import format_json
 
         # Test with simple data
-        result = format_json({"test": "value"}, llml, json)
-        assert stdjson.loads(result) == {"test": "value"}
+        result = format_json({"test": "value"}, llml, formatters.json)
+        assert json.loads(result) == {"test": "value"}
 
         # Test with None formatters argument
         result = format_json([1, 2, 3], llml, None)
-        assert stdjson.loads(result) == [1, 2, 3]
+        assert json.loads(result) == [1, 2, 3]
 
     @pytest.mark.skipif(not HAS_ORJSON, reason="orjson not installed")
     def test_orjson_specific_behavior(self):
         """Test behavior specific to orjson when available."""
         # orjson produces more compact output
-        result = llml({"a": 1, "b": 2}, json)
+        result = llml({"a": 1, "b": 2}, formatters.json)
         assert result == '{"a":1,"b":2}'  # No spaces after colons
 
     @pytest.mark.skipif(HAS_ORJSON, reason="Testing standard json fallback")
     def test_standard_json_behavior(self):
         """Test behavior when using standard json library."""
         # Standard json includes spaces
-        result = llml({"a": 1, "b": 2}, json)
+        result = llml({"a": 1, "b": 2}, formatters.json)
         # Just verify it's valid JSON
-        assert stdjson.loads(result) == {"a": 1, "b": 2}
+        assert json.loads(result) == {"a": 1, "b": 2}

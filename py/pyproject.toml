@@ -48,7 +48,8 @@ indent-style = "space"
 
 [dependency-groups]
 dev = [
+    "orjson>=3.10.15",
     "pytest>=8.3.5",
- "ruff>=0.12.1",
- "tox>=4.25.0",
+    "ruff>=0.12.1",
+    "tox>=4.25.0",
 ]
