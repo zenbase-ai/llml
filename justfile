@@ -96,7 +96,7 @@ publish lang version:
   if [ "{{lang}}" = "ts" ]; then
     cd ts
     pnpm version {{version}}
-    pnpm publish --access public
+    bun publish --access public
   elif [ "{{lang}}" = "py" ]; then
     cd py
     CURRENT_VERSION=$(rg '^version = "([^"]+)"' pyproject.toml -r '$1')
