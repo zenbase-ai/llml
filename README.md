@@ -70,255 +70,6 @@ await makeAIRequest(deploymentPrompt, {
 })
 ```
 
-<details>
-<summary><b>Cheatsheet</b></summary>
-<br>
-
-```python
-# Python
-from zenbase_llml import llml
-
-agent_prompt = llml({
-    "role": "DevOps automation agent",
-    "context": {
-        "environment": "production",
-        "aws_region": "us-east-1",
-        "services": ["web-api", "worker-queue", "database"],
-        "last_deployment": "2024-01-15T10:30:00Z"
-    },
-    "instructions": "Execute deployment workflow with safety checks",
-    "workflows": {
-        "deploy": [
-            "Run pre-deployment health checks",
-            "Create backup of current state",
-            "Deploy to canary instance (5% traffic)",
-            "Monitor metrics for 10 minutes",
-            "If healthy, proceed to full deployment",
-            "If issues detected, automatic rollback"
-        ],
-        "rollback": [
-            "Stop new traffic to affected services",
-            "Restore from latest backup",
-            "Verify service health",
-            "Send notification to ops channel"
-        ]
-    },
-    "safety_rules": [
-        "Never skip health checks",
-        "Always maintain 99.9% uptime SLA",
-        "Require manual approval for database changes"
-    ]
-})
-# Output:
-# <role>DevOps automation agent</role>
-# <context>
-#   <environment>production</environment>
-#   <aws_region>us-east-1</aws_region>
-#   <services>
-#     <services-1>web-api</services-1>
-#     <services-2>worker-queue</services-2>
-#     <services-3>database</services-3>
-#   </services>
-#   <last_deployment>2024-01-15T10:30:00Z</last_deployment>
-# </context>
-# <instructions>Execute deployment workflow with safety checks</instructions>
-# <workflows>
-#   <deploy>
-#     <deploy-1>Run pre-deployment health checks</deploy-1>
-#     <deploy-2>Create backup of current state</deploy-2>
-#     <deploy-3>Deploy to canary instance (5% traffic)</deploy-3>
-#     <deploy-4>Monitor metrics for 10 minutes</deploy-4>
-#     <deploy-5>If healthy, proceed to full deployment</deploy-5>
-#     <deploy-6>If issues detected, automatic rollback</deploy-6>
-#   </deploy>
-#   <rollback>
-#     <rollback-1>Stop new traffic to affected services</rollback-1>
-#     <rollback-2>Restore from latest backup</rollback-2>
-#     <rollback-3>Verify service health</rollback-3>
-#     <rollback-4>Send notification to ops channel</rollback-4>
-#   </rollback>
-# </workflows>
-# <safety_rules>
-#   <safety_rules-1>Never skip health checks</safety_rules-1>
-#   <safety_rules-2>Always maintain 99.9% uptime SLA</safety_rules-2>
-#   <safety_rules-3>Require manual approval for database changes</safety_rules-3>
-# </safety_rules>
-```
-
-```typescript
-// TypeScript/JavaScript
-import { llml } from '@zenbase/llml';
-
-const agentPrompt = llml({
-    role: "DevOps automation agent",
-    context: {
-        environment: "production",
-        awsRegion: "us-east-1",
-        services: ["web-api", "worker-queue", "database"],
-        lastDeployment: "2024-01-15T10:30:00Z"
-    },
-    instructions: "Execute deployment workflow with safety checks",
-    workflows: {
-        deploy: [
-            "Run pre-deployment health checks",
-            "Create backup of current state",
-            "Deploy to canary instance (5% traffic)",
-            "Monitor metrics for 10 minutes",
-            "If healthy, proceed to full deployment",
-            "If issues detected, automatic rollback"
-        ],
-        rollback: [
-            "Stop new traffic to affected services",
-            "Restore from latest backup",
-            "Verify service health",
-            "Send notification to ops channel"
-        ]
-    },
-    safetyRules: [
-        "Never skip health checks",
-        "Always maintain 99.9% uptime SLA",
-        "Require manual approval for database changes"
-    ]
-});
-// Output:
-// <role>DevOps automation agent</role>
-// <context>
-//   <environment>production</environment>
-//   <aws-region>us-east-1</aws-region>
-//   <services>
-//     <services-1>web-api</services-1>
-//     <services-2>worker-queue</services-2>
-//     <services-3>database</services-3>
-//   </services>
-//   <last-deployment>2024-01-15T10:30:00Z</last-deployment>
-// </context>
-// <instructions>Execute deployment workflow with safety checks</instructions>
-// <workflows>
-//   <deploy>
-//     <deploy-1>Run pre-deployment health checks</deploy-1>
-//     <deploy-2>Create backup of current state</deploy-2>
-//     <deploy-3>Deploy to canary instance (5% traffic)</deploy-3>
-//     <deploy-4>Monitor metrics for 10 minutes</deploy-4>
-//     <deploy-5>If healthy, proceed to full deployment</deploy-5>
-//     <deploy-6>If issues detected, automatic rollback</deploy-6>
-//   </deploy>
-//   <rollback>
-//     <rollback-1>Stop new traffic to affected services</rollback-1>
-//     <rollback-2>Restore from latest backup</rollback-2>
-//     <rollback-3>Verify service health</rollback-3>
-//     <rollback-4>Send notification to ops channel</rollback-4>
-//   </rollback>
-// </workflows>
-// <safety-rules>
-//   <safety-rules-1>Never skip health checks</safety-rules-1>
-//   <safety-rules-2>Always maintain 99.9% uptime SLA</safety-rules-2>
-//   <safety-rules-3>Require manual approval for database changes</safety-rules-3>
-// </safety-rules>
-```
-
-```rust
-// Rust
-use zenbase_llml::llml;
-
-let rag_prompt = llml(&json!({
-    "system": "You are a helpful documentation assistant",
-    "instructions": "Answer questions based on the provided documentation context",
-    "documents": [
-        {
-            "title": "API Authentication Guide",
-            "content": "Our API uses OAuth 2.0 for authentication...",
-            "relevance_score": 0.95
-        },
-        {
-            "title": "Rate Limiting Documentation",
-            "content": "API calls are limited to 1000 requests per hour...",
-            "relevance_score": 0.82
-        }
-    ],
-    "user_query": "How do I authenticate with your API?",
-    "constraints": [
-        "Only use information from the provided documents",
-        "Cite the document title when referencing information",
-        "If information is not available, explicitly state so"
-    ]
-}));
-// Output:
-// <system>You are a helpful documentation assistant</system>
-// <instructions>Answer questions based on the provided documentation context</instructions>
-// <documents>
-//   <documents-1>
-//     <title>API Authentication Guide</title>
-//     <content>Our API uses OAuth 2.0 for authentication...</content>
-//     <relevance-score>0.95</relevance-score>
-//   </documents-1>
-//   <documents-2>
-//     <title>Rate Limiting Documentation</title>
-//     <content>API calls are limited to 1000 requests per hour...</content>
-//     <relevance-score>0.82</relevance-score>
-//   </documents-2>
-// </documents>
-// <user-query>How do I authenticate with your API?</user-query>
-// <constraints>
-//   <constraints-1>Only use information from the provided documents</constraints-1>
-//   <constraints-2>Cite the document title when referencing information</constraints-2>
-//   <constraints-3>If information is not available, explicitly state so</constraints-3>
-// </constraints>
-```
-
-```go
-// Go
-package main
-
-import (
-	"github.com/zenbase-ai/llml/go/pkg/llml"
-)
-
-ragPrompt := llml.Sprintf(map[string]any{
-  "system":       "You are a helpful documentation assistant",
-  "instructions": "Answer questions based on the provided documentation context",
-  "documents": []any{
-  	map[string]any{
-  		"title":           "API Authentication Guide",
-  		"content":         "Our API uses OAuth 2.0 for authentication...",
-      "relevance_score": 0.95,
-  	},
-  	map[string]any{
-  		"title":           "Rate Limiting Documentation",
-  		"content":         "API calls are limited to 1000 requests per hour...",
-      "relevance_score": 0.82,
-  	},
-  },
-  "user_query": "How do I authenticate with your API?",
-  "constraints": []any{
-  	"Only use information from the provided documents",
-  	"Cite the document title when referencing information",
-  	"If information is not available, explicitly state so",
-  },
-})
-// Output:
-// <system>You are a helpful documentation assistant</system>
-// <instructions>Answer questions based on the provided documentation context</instructions>
-// <documents>
-//   <documents-1>
-//     <title>API Authentication Guide</title>
-//     <content>Our API uses OAuth 2.0 for authentication...</content>
-//     <relevance-score>0.95</relevance-score>
-//   </documents-1>
-//   <documents-2>
-//     <title>Rate Limiting Documentation</title>
-//     <content>API calls are limited to 1000 requests per hour...</content>
-//     <relevance-score>0.82</relevance-score>
-//   </documents-2>
-// </documents>
-// <user-query>How do I authenticate with your API?</user-query>
-// <constraints>
-//   <constraints-1>Only use information from the provided documents</constraints-1>
-//   <constraints-2>Cite the document title when referencing information</constraints-2>
-//   <constraints-3>If information is not available, explicitly state so</constraints-3>
-// </constraints>
-```
-</details>
-
 ## Why We Built This
 
 After building dozens of AI systems at Zenbase, we kept hitting the same walls:
@@ -463,15 +214,11 @@ This flexibility means you can:
   - [Table of Contents](#table-of-contents)
   - [How It Works](#how-it-works)
     - [**Compositional Building**](#compositional-building)
-    - [**VibeX MLTransformation Rules**](#vibex-mltransformation-rules)
+    - [**VibeXML Transformation Rules**](#vibexml-transformation-rules)
   - [Features](#features)
     - [Why Structured Formats Win](#why-structured-formats-win)
   - [VibeXML](#vibexml)
   - [Quick Start](#quick-start)
-    - [Python](#python)
-    - [TypeScript/JavaScript](#typescriptjavascript)
-    - [Rust](#rust)
-    - [Go](#go)
   - [Prerequisites](#prerequisites)
   - [Installation \& Setup](#installation--setup)
     - [Python Project](#python-project)
@@ -515,7 +262,7 @@ const aiPrompt = llml({
 })
 ```
 
-### **VibeX MLTransformation Rules**
+### **VibeXML Transformation Rules**
 1. **Simple Values**: `{key: "value"}` → `<key>value</key>`
 2. **Lists/Arrays**: `{items: ["a", "b"]}` → `<items><items-1>a</items-1><items-2>b</items-2></items>`
 3. **Nested Objects**: `{config: {debug: true}}` → `<config><debug>true</debug></config>`
@@ -550,7 +297,10 @@ In our experience at Zenbase, it's possible to get better performance from a sma
 
 ## Quick Start
 
-### Python
+<details>
+<summary><b>Python</b></summary>
+
+View the [Python README](./py/README.md).
 
 ```bash
 pip install zenbase-llml # or uv, rye, poetry, etc.
@@ -725,7 +475,12 @@ print(agent_prompt)
 # </safety_rules>
 ```
 
-### TypeScript/JavaScript
+</details>
+
+<details>
+<summary><b>TypeScript/JavaScript</b></summary>
+
+View the [TypeScript README](./ts/README.md).
 
 ```bash
 pnpm add @zenbase/llml # or bun, npm, yarn, etc.
@@ -893,7 +648,12 @@ const agentPrompt = llml({
 // </safety-rules>
 ```
 
-### Rust
+</details>
+
+<details>
+<summary><b>Rust</b></summary>
+
+View the [Rust README](./rs/README.md).
 
 ```bash
 cargo add zenbase-llml # or cargo, cargo-binstall, etc.
@@ -995,7 +755,12 @@ let agent_prompt = llml(&json!({
 println!("{}", agent_prompt);
 ```
 
-### Go
+</details>
+
+<details>
+<summary><b>Go</b></summary>
+
+View the [Go README](./go/README.md).
 
 ```bash
 go install github.com/zenbase-ai/llml/go@latest
@@ -1101,6 +866,7 @@ ragPrompt := llml.Sprintf(map[string]any{
   },
 })
 ```
+</details>
 
 ## Prerequisites
 
