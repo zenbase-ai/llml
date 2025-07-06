@@ -1,12 +1,12 @@
 /**
  * Predicate function that checks if a value matches a specific type
  */
-export type Predicate = (value: unknown) => boolean
+export type PredicateFn = (value: unknown) => boolean
 
 /**
  * Format function that transforms a value to a string
  */
-export type Formatter = (
+export type FormatterFn = (
   value: unknown,
   llml: (data: unknown, formatters: Formatters) => string,
   formatters: Formatters,
@@ -15,4 +15,4 @@ export type Formatter = (
 /**
  * Formatters as an iterable of [predicate, formatter] pairs
  */
-export type Formatters = Iterable<[Predicate, Formatter]>
+export type Formatters = Iterable<[PredicateFn, FormatterFn]>

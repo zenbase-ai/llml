@@ -16,7 +16,7 @@ export interface LLMLOptions {
 
 // Re-export formatter types for convenience
 export type {
-  Formatter,
+  FormatterFn as Formatter,
   Formatters,
-  Predicate,
+  PredicateFn as Predicate,
 } from "./formatters/types"

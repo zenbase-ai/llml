@@ -5,7 +5,7 @@ import { formatNull, isNull } from "../base/null"
 import { formatNumber, isNumber } from "../base/number"
 import { formatString, isString } from "../base/string"
 import { formatUndefined, isUndefined } from "../base/undefined"
-import type { Formatter, Formatters, Predicate } from "../types"
+import type { FormatterFn, Formatters, PredicateFn } from "../types"
 import { formatArray, isArray } from "./array"
 import { formatObject, isObject } from "./object"
 
@@ -39,7 +39,7 @@ export const vibeXML = (options?: VibeXMLOptions): Formatters => {
   // If custom formatters are provided, merge them with defaults
   // Custom formatters take priority by being added first
   if (options.formatters) {
-    const mergedFormatters = new Map<Predicate, Formatter>()
+    const mergedFormatters = new Map<PredicateFn, FormatterFn>()
 
     // Add custom formatters first (higher priority)
     for (const [predicate, formatter] of options.formatters) {
