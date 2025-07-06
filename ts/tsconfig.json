@@ -29,5 +29,5 @@
 			"@/": ["./src"]
 		}
 	},
-	"exclude": ["./node_modules/", "./dist/", "bunup.config.ts"]
+	"exclude": ["./node_modules/", "./dist/", "bunup.config.ts", "./examples/"]
 }
